@@ -1,4 +1,4 @@
-let width, height, map, rows, cols, clWidth, clHeight
+let width, height, map, rows, cols, clw, clh
 
 function setup() {
     width = height = 400
@@ -8,52 +8,78 @@ function setup() {
 
     map = makeMatrix(rows, cols)
     showMatrix(map)
-    castRay(50 * 3 - 30, 50 * 3 - 20, 45 + 90 * 0)
+    castRay(50 * 3 - 35, 50 * 3 - 20, 60 + 90 * 0)
 }
 
 function mouseClicked() {
-    flipCell(map, mouseX, mouseY)
+    // flipCell(map, mouseX, mouseY)
+    let tmx = mouseX
+    let tmy = mouseY
+    for (let ang = 0; ang < 360; ang++) {
+        setTimeout(() => {
+            showMatrix(map)
+            castRay(tmx, tmy, ang)
+        }, ang * 10)
+    }
 }
 
 function castRay(x, y, ang) {
-    let pos, dir, off, tg
+    let pos, dir, off, tg, xsi
 
     pos = { x, y }
     off = getOff(pos)
     dir = getDir(ang)
-    tg = tan(radians(ang))
+    tg = abs(tan(radians(ang)))
+    xsi = getXsi(pos, off, dir, tg)
+    ysi = getYsi(pos, off, dir, tg)
+
     // first interceptions
     // delta steps
     // https://www.youtube.com/watch?v=eOCQfxRQ2pY&t=296s
 
-    push()
-    translate(pos.x, pos.y)
+    fill('green')
+    circle(ysi.x, ysi.y, 10)
+    fill('red')
+    circle(xsi.x, xsi.y, 10)
+    line(pos.x, pos.y, xsi.x, xsi.y)
+    line(pos.x, pos.y, ysi.x, ysi.y)
     fill('gray')
-    circle(0, 0, 12)
-    pop()
+    circle(pos.x, pos.y, 12)
+}
+
+function getYsi(pos, off, dir, tg) {
+    let x = pos.x - off.x + clh * (1 + dir.x) / 2
+    let y = pos.y + abs(x - pos.x) * tg * dir.y
+    return { x, y }
+}
+
+function getXsi(pos, off, dir, tg) {
+    let y = pos.y - off.y + clw * (1 + dir.y) / 2
+    let x = pos.x + abs(y - pos.y) / tg * dir.x
+    return { x, y }
 }
 
 function getOff(pos) {
     let [cx, cy] = getCell(pos.x, pos.y)
-    let x = pos.x - cx * clWidth
-    let y = pos.y - cy * clHeight
+    let x = pos.x - cx * clw
+    let y = pos.y - cy * clh
     return { x, y }
 }
 
 function getDir(ang) {
-    let x = Math.floor(ang / 180) % 2 ? 1 : -1
-    let y = Math.floor((ang - 90) / 180) % 2 ? 1 : -1
+    let y = Math.floor(ang / 180) % 2 ? 1 : -1
+    let x = Math.floor((ang - 90) / 180) % 2 ? 1 : -1
     return { x, y }
 }
 
 function showCell(mtrx, i, j) {
     mtrx[i][j] == 0 ? fill(255) : fill(0)
-    rect(i * clWidth, j * clHeight, clWidth, clHeight)
+    rect(i * clw, j * clh, clw, clh)
 }
 
 function getCell(x, y) {
-    let i = Math.floor(x / clWidth)
-    let j = Math.floor(y / clHeight)
+    let i = Math.floor(x / clw)
+    let j = Math.floor(y / clh)
     return [i, j]
 }
 
@@ -71,8 +97,8 @@ function makeMatrix(rows, cols) {
             mtrx[i][j] = 0
         }
     }
-    clWidth = width / cols
-    clHeight = height / rows
+    clw = width / cols
+    clh = height / rows
     return mtrx
 }
 
