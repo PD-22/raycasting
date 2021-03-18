@@ -15,7 +15,7 @@ function mouseClicked() {
     // flipCell(map, mouseX, mouseY)
     let tmx = mouseX
     let tmy = mouseY
-    for (let ang = 0; ang < 360; ang++) {
+    for (let ang = 0; ang <= 360; ang++) {
         setTimeout(() => {
             showMatrix(map)
             castRay(tmx, tmy, ang)
@@ -33,7 +33,6 @@ function castRay(x, y, ang) {
     xsi = getXsi(pos, off, dir, tg)
     ysi = getYsi(pos, off, dir, tg)
 
-    // first interceptions
     // delta steps
     // https://www.youtube.com/watch?v=eOCQfxRQ2pY&t=296s
 
