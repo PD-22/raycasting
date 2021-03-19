@@ -46,7 +46,11 @@ function castRay(x, y, ang) {
 
     while (true) { // sanam fanjarashi xar
         // romlit iwyeb unda ganvsazgvro?
+        // ujris damatebac vera
+        // shedareba arasworia?
+        // gaanalize cvlileba xstep tu ystep
         while (abs(xsi.x - ysi.x) > 0) {
+            console.log('x');
             cell.x += dir.x
             if (map[cell.x][cell.y]) {
                 line(pos.x, pos.y, xsi.x, xsi.y)
@@ -56,6 +60,7 @@ function castRay(x, y, ang) {
             xsi.y += dy
         }
         while (abs(ysi.y - xsi.y) > 0) {
+            console.log('y');
             cell.y += dir.y
             if (map[cell.x][cell.y]) {
                 line(pos.x, pos.y, ysi.x, ysi.y)
