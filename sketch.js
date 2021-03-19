@@ -8,7 +8,8 @@ function setup() {
 
     map = makeMatrix(rows, cols)
     showMatrix(map)
-    castRay(50 * 3 - 35, 50 * 3 - 20, 30 + 90 * 0)
+    let its = castRay(50 * 3 - 30, 50 * 3 - 30, -30)
+    circle(its.x, its.y, 10)
 }
 
 function mouseClicked() {
@@ -18,16 +19,18 @@ function mouseClicked() {
     for (let ang = 0; ang <= 360; ang++) {
         setTimeout(() => {
             showMatrix(map)
-            castRay(tmx, tmy, ang)
-        }, ang * 10)
+            let its = castRay(tmx, tmy, ang)
+            circle(its.x, its.y, 10)
+        }, ang * 5)
     }
 }
 
 function castRay(x, y, ang) {
-    let pos, dir, off, tg, xsi, ysi, dx, dy
+    let pos, dir, off, tg, xsi, ysi, dx, dy, cell
 
     pos = { x, y }
-    off = getOff(pos)
+    cell = getCell(pos.x, pos.y)
+    off = getOff(pos, cell)
     dir = getDir(ang)
     tg = abs(tan(radians(ang)))
     xsi = getXsi(pos, off, dir, tg)
@@ -35,42 +38,57 @@ function castRay(x, y, ang) {
     dx = getDx(dir, tg)
     dy = getDy(dir, tg)
 
-    // https://www.youtube.com/watch?v=eOCQfxRQ2pY&t=296s
-
-    fill('green')
-    circle(ysi.x, ysi.y, 10)
-    circle(ysi.x + clw * dir.x, ysi.y + dy, 12)
-    fill('red')
-    circle(xsi.x, xsi.y, 10)
-    circle(xsi.x + dx, xsi.y + clh * dir.y, 12)
-    line(pos.x, pos.y, xsi.x, xsi.y)
-    line(pos.x, pos.y, ysi.x, ysi.y)
     fill('gray')
     circle(pos.x, pos.y, 12)
+
+    while (true) { // sanam fanjarashi xar
+        // romlit iwyeb unda ganvsazgvro?
+        while (abs(xsi.x - ysi.x) > 0) {
+            cell.x += dir.x
+            if (map[cell.x][cell.y]) {
+                line(pos.x, pos.y, xsi.x, xsi.y)
+                return xsi
+            }
+            xsi.x += clw * dir.x
+            xsi.y += dy
+        }
+        while (abs(ysi.y - xsi.y) > 0) {
+            cell.y += dir.y
+            if (map[cell.x][cell.y]) {
+                line(pos.x, pos.y, ysi.x, ysi.y)
+                return ysi
+            }
+            ysi.x += dx
+            ysi.y += clh * dir.y
+        }
+    }
+
+    // https://www.youtube.com/watch?v=eOCQfxRQ2pY&t=296s
 }
 
 function getDx(dir, tg) {
     return clh / tg * dir.x
 }
+
 function getDy(dir, tg) {
     return clw * tg * dir.y
 }
 
 function getYsi(pos, off, dir, tg) {
-    let x = pos.x - off.x + clh * (1 + dir.x) / 2
-    let y = pos.y + abs(x - pos.x) * tg * dir.y
-    return { x, y }
-}
-function getXsi(pos, off, dir, tg) {
     let y = pos.y - off.y + clw * (1 + dir.y) / 2
     let x = pos.x + abs(y - pos.y) / tg * dir.x
     return { x, y }
 }
 
-function getOff(pos) {
-    let [cx, cy] = getCell(pos.x, pos.y)
-    let x = pos.x - cx * clw
-    let y = pos.y - cy * clh
+function getXsi(pos, off, dir, tg) {
+    let x = pos.x - off.x + clh * (1 + dir.x) / 2
+    let y = pos.y + abs(x - pos.x) * tg * dir.y
+    return { x, y }
+}
+
+function getOff(pos, cell) {
+    let x = pos.x - cell.x * clw
+    let y = pos.y - cell.y * clh
     return { x, y }
 }
 
@@ -85,16 +103,16 @@ function showCell(mtrx, i, j) {
     rect(i * clw, j * clh, clw, clh)
 }
 
-function getCell(x, y) {
-    let i = Math.floor(x / clw)
-    let j = Math.floor(y / clh)
-    return [i, j]
+function getCell(px, py) {
+    let x = Math.floor(px / clw)
+    let y = Math.floor(py / clh)
+    return { x, y }
 }
 
 function flipCell(mtrx, x, y) {
-    let [i, j] = getCell(x, y)
-    mtrx[i][j] ^= 1
-    showCell(mtrx, i, j)
+    let cl = getCell(x, y)
+    mtrx[cl.x][cl.y] ^= 1
+    showCell(mtrx, cl.x, cl.y)
 }
 
 function makeMatrix(rows, cols) {
@@ -102,7 +120,7 @@ function makeMatrix(rows, cols) {
     for (let i = 0; i < rows; i++) {
         mtrx.push(new Array(rows))
         for (let j = 0; j < cols; j++) {
-            mtrx[i][j] = 0
+            mtrx[i][j] = i == 0 || j == 0 || i == rows - 1 || j == cols - 1
         }
     }
     clw = width / cols
