@@ -8,7 +8,7 @@ function setup() {
 
     map = makeMatrix(rows, cols)
     showMatrix(map)
-    castRay(50 * 3 - 35, 50 * 3 - 20, 60 + 90 * 0)
+    castRay(50 * 3 - 35, 50 * 3 - 20, 30 + 90 * 0)
 }
 
 function mouseClicked() {
@@ -24,7 +24,7 @@ function mouseClicked() {
 }
 
 function castRay(x, y, ang) {
-    let pos, dir, off, tg, xsi
+    let pos, dir, off, tg, xsi, ysi, dx, dy
 
     pos = { x, y }
     off = getOff(pos)
@@ -32,18 +32,28 @@ function castRay(x, y, ang) {
     tg = abs(tan(radians(ang)))
     xsi = getXsi(pos, off, dir, tg)
     ysi = getYsi(pos, off, dir, tg)
+    dx = getDx(dir, tg)
+    dy = getDy(dir, tg)
 
-    // delta steps
     // https://www.youtube.com/watch?v=eOCQfxRQ2pY&t=296s
 
     fill('green')
     circle(ysi.x, ysi.y, 10)
+    circle(ysi.x + clw * dir.x, ysi.y + dy, 12)
     fill('red')
     circle(xsi.x, xsi.y, 10)
+    circle(xsi.x + dx, xsi.y + clh * dir.y, 12)
     line(pos.x, pos.y, xsi.x, xsi.y)
     line(pos.x, pos.y, ysi.x, ysi.y)
     fill('gray')
     circle(pos.x, pos.y, 12)
+}
+
+function getDx(dir, tg) {
+    return clh / tg * dir.x
+}
+function getDy(dir, tg) {
+    return clw * tg * dir.y
 }
 
 function getYsi(pos, off, dir, tg) {
@@ -51,7 +61,6 @@ function getYsi(pos, off, dir, tg) {
     let y = pos.y + abs(x - pos.x) * tg * dir.y
     return { x, y }
 }
-
 function getXsi(pos, off, dir, tg) {
     let y = pos.y - off.y + clw * (1 + dir.y) / 2
     let x = pos.x + abs(y - pos.y) / tg * dir.x
