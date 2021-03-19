@@ -13,16 +13,19 @@ function setup() {
 }
 
 function mouseClicked() {
-    // flipCell(map, mouseX, mouseY)
-    let tmx = mouseX
-    let tmy = mouseY
-    for (let ang = 0; ang <= 360; ang++) {
-        setTimeout(() => {
-            showMatrix(map)
-            let its = castRay(tmx, tmy, ang)
-            circle(its.x, its.y, 10)
-        }, ang * 5)
-    }
+    flipCell(map, mouseX, mouseY)
+    showMatrix(map)
+    let its = castRay(50 * 3 - 30, 50 * 3 - 30, -30)
+    circle(its.x, its.y, 10)
+    // let tmx = mouseX
+    // let tmy = mouseY
+    // for (let ang = 0; ang <= 360; ang++) {
+    //     setTimeout(() => {
+    //         showMatrix(map)
+    //         let its = castRay(tmx, tmy, ang)
+    //         circle(its.x, its.y, 10)
+    //     }, ang * 5)
+    // }
 }
 
 function castRay(x, y, ang) {
