@@ -1,31 +1,27 @@
 let width, height, map, rows, cols, clw, clh
 
 function setup() {
-    width = height = 400
-    rows = cols = 8
+    width = height = 800
+    rows = cols = 32
     createCanvas(width, height)
     background('gray')
 
     map = makeMatrix(rows, cols)
     showMatrix(map)
-    let its = castRay(50 * 3 - 30, 50 * 3 - 30, -30)
-    circle(its.x, its.y, 10)
+
+    myCast()
+}
+
+function myCast() {
+    showMatrix(map)
+    for (let ang = 0; ang < 360; ang += 0.2) {
+        let its = castRay(50 * 7 - 30, 50 * 7 - 30, ang)
+    }
 }
 
 function mouseClicked() {
     flipCell(map, mouseX, mouseY)
-    showMatrix(map)
-    let its = castRay(50 * 3 - 30, 50 * 3 - 30, -30)
-    circle(its.x, its.y, 10)
-    // let tmx = mouseX
-    // let tmy = mouseY
-    // for (let ang = 0; ang <= 360; ang++) {
-    //     setTimeout(() => {
-    //         showMatrix(map)
-    //         let its = castRay(tmx, tmy, ang)
-    //         circle(its.x, its.y, 10)
-    //     }, ang * 5)
-    // }
+    myCast()
 }
 
 function castRay(x, y, ang) {
@@ -44,25 +40,19 @@ function castRay(x, y, ang) {
     fill('gray')
     circle(pos.x, pos.y, 12)
 
-    while (true) { // sanam fanjarashi xar
-        // romlit iwyeb unda ganvsazgvro?
-        // ujris damatebac vera
-        // shedareba arasworia?
-        // gaanalize cvlileba xstep tu ystep
-        while (abs(xsi.x - ysi.x) > 0) {
-            console.log('x');
+    while (true) {
+        while (abs(pos.x - xsi.x) < abs(pos.x - ysi.x)) {
             cell.x += dir.x
-            if (map[cell.x][cell.y]) {
+            if (map[cell.x] == undefined || map[cell.x][cell.y]) {
                 line(pos.x, pos.y, xsi.x, xsi.y)
                 return xsi
             }
             xsi.x += clw * dir.x
             xsi.y += dy
         }
-        while (abs(ysi.y - xsi.y) > 0) {
-            console.log('y');
+        while (abs(pos.y - ysi.y) < abs(pos.y - xsi.y)) {
             cell.y += dir.y
-            if (map[cell.x][cell.y]) {
+            if (map[cell.x][cell.y] == undefined || map[cell.x][cell.y]) {
                 line(pos.x, pos.y, ysi.x, ysi.y)
                 return ysi
             }
@@ -128,7 +118,7 @@ function makeMatrix(rows, cols) {
     for (let i = 0; i < rows; i++) {
         mtrx.push(new Array(rows))
         for (let j = 0; j < cols; j++) {
-            mtrx[i][j] = i == 0 || j == 0 || i == rows - 1 || j == cols - 1
+            mtrx[i][j] = 0
         }
     }
     clw = width / cols
