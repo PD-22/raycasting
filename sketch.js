@@ -2,23 +2,27 @@ let width, height, map, rows, cols, clw, clh, pos, ang, place, ratio
 
 function setup() {
     map = makeMatrix([
-        [1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,],
-        [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
-        [1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
-        [1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1,],
-        [1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
-        [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
     ])
+
+    // portrait mode doesnt work
+    // dabagulia ert adgilas carielia
+    map = makeMatrix(cellularAutomata(ranMatrix(72, 128, 0.6), 2))
 
     myCanvas()
 
@@ -27,6 +31,73 @@ function setup() {
 
     pos = { x: width / 2 - 20, y: height / 2 - 20 }
     ang = 0
+}
+
+function draw() {
+    showMatrix(map)
+    // castRays(pos, ang)
+    // move()
+    // ang = getMouseAng(pos)
+}
+
+function ranMatrix(r, c, chance = 0.5) {
+    let mtrx = []
+    for (let i = 0; i < r; i++) {
+        mtrx.push(new Array(r))
+        for (let j = 0; j < c; j++) {
+            mtrx[i][j] = random() < chance
+        }
+    }
+    return mtrx
+}
+
+function copyMatrix(arrOut) {
+    let arrIn = []
+    for (let i = 0; i < arrOut.length; i++) {
+        arrIn[i] = new Array(arrOut.length)
+        for (let j = 0; j < arrOut[0].length; j++) {
+            arrIn[i][j] = arrOut[i][j]
+        }
+    }
+    return arrIn
+}
+
+function cellularAutomata(arr, times = 1) {
+    let temp = copyMatrix(arr)
+    for (let cycle = 0; cycle < times; cycle++) {
+        for (let i = 0; i < temp.length; i++) {
+            for (let j = 0; j < temp[0].length; j++) {
+                if (countWallNeighbors(arr, i, j) > 4) {
+                    temp[i][j] = 1
+                } else {
+                    temp[i][j] = 0
+                }
+            }
+        }
+        arr = temp
+    }
+    return temp
+}
+
+function countWallNeighbors(arr, i, j) {
+    let count = 0
+    for (let k = i - 1; k <= i + 1; k++) {
+        if (k < 0 || k >= arr.length) {
+            count += 3
+            continue
+        }
+        for (let l = j - 1; l <= j + 1; l++) {
+            if (k - i == 0 && l - j == 0) continue
+            if (l < 0 || l >= arr[0].length) {
+                count++
+                continue
+            }
+            if (arr[k][l] == 1) {
+                count++
+            }
+        }
+    }
+    return count
 }
 
 function myCanvas(minsize) {
@@ -40,13 +111,6 @@ function myCanvas(minsize) {
         width = height / ratio
         createCanvas(width, height)
     }
-}
-
-function draw() {
-    showMatrix(map)
-    castRays(pos, ang)
-    move()
-    ang = getMouseAng(pos)
 }
 
 function mousePressed() {
@@ -219,6 +283,8 @@ function makeMatrix(arr, r, c) {
     } else mtrx = arr
     rows = mtrx.length
     cols = mtrx[0].length
+    clw = width / cols
+    clh = height / rows
     return mtrx
 }
 
