@@ -1,8 +1,8 @@
 let width, height, map, rows, cols, clw, clh
 
 function setup() {
-    width = height = 800
-    rows = cols = 32
+    width = height = 512
+    rows = cols = 16
     createCanvas(width, height)
     background('gray')
 
@@ -14,8 +14,8 @@ function setup() {
 
 function myCast() {
     showMatrix(map)
-    for (let ang = 0; ang < 360; ang += 0.2) {
-        let its = castRay(50 * 7 - 30, 50 * 7 - 30, ang)
+    for (let ang = 0; ang < 360; ang++) {
+        let its = castRay(50 * 6 - 30, 50 * 6 - 30, ang)
     }
 }
 
@@ -41,7 +41,7 @@ function castRay(x, y, ang) {
     circle(pos.x, pos.y, 12)
 
     while (true) {
-        while (abs(pos.x - xsi.x) < abs(pos.x - ysi.x)) {
+        while (abs(pos.x - xsi.x) <= abs(pos.x - ysi.x)) {
             cell.x += dir.x
             if (map[cell.x] == undefined || map[cell.x][cell.y]) {
                 line(pos.x, pos.y, xsi.x, xsi.y)
@@ -50,7 +50,7 @@ function castRay(x, y, ang) {
             xsi.x += clw * dir.x
             xsi.y += dy
         }
-        while (abs(pos.y - ysi.y) < abs(pos.y - xsi.y)) {
+        while (abs(pos.y - ysi.y) <= abs(pos.y - xsi.y)) {
             cell.y += dir.y
             if (map[cell.x][cell.y] == undefined || map[cell.x][cell.y]) {
                 line(pos.x, pos.y, ysi.x, ysi.y)
@@ -108,6 +108,7 @@ function getCell(px, py) {
 }
 
 function flipCell(mtrx, x, y) {
+    if (x < 0 || x > width || y < 0 || y > height) return
     let cl = getCell(x, y)
     mtrx[cl.x][cl.y] ^= 1
     showCell(mtrx, cl.x, cl.y)
