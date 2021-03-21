@@ -1,32 +1,44 @@
-// https://www.youtube.com/watch?v=eOCQfxRQ2pY&t=296s
-
 let width, height, map, rows, cols, clw, clh, pos, ang, place
 
 function setup() {
-    width = height = 512
-    rows = cols = 16
-    createCanvas(width, height)
-    background('gray')
-
-    map = makeMatrix(rows, cols)
-    map = [
+    map = makeMatrix([
         [1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
         [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-        [1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
-        [1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-        [1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1],
+        [1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1],
+        [1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-    ]
+        [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    ])
+
+    let ratio = rows / cols
+
+    if (window.innerWidth * ratio < window.innerHeight) {
+        width = window.innerWidth - window.innerWidth % 2
+        height = width * ratio
+        createCanvas(width, height)
+    } else {
+        height = window.innerHeight - window.innerHeight % 2
+        width = height / ratio
+        createCanvas(width, height)
+    }
+
+    clw = width / cols
+    clh = height / rows
+
     pos = { x: width / 2 - 20, y: height / 2 - 20 }
     ang = 0
 }
@@ -35,6 +47,25 @@ function draw() {
     showMatrix(map)
     castRays(pos, ang)
     move()
+    ang = getMouseAng(pos)
+}
+
+function mousePressed() {
+    place = getCellVal(mouseY, mouseX) ^ 1
+    flipCell(map, mouseY, mouseX, place)
+}
+
+function mouseDragged() {
+    flipCell(map, mouseY, mouseX, place)
+}
+
+function touchStarted() {
+    pos.x = mouseX
+    pos.y = mouseY
+    tempPlace = false
+}
+
+function touchMoved() {
     ang = getMouseAng(pos)
 }
 
@@ -47,24 +78,25 @@ function getMouseAng(pos) {
 
 function move() {
     let d = 12
-    if (keyIsDown(LEFT_ARROW)) {
+
+    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) { // diagonal speed
         pos.x -= clw / d
-        if (pos.x < 0 || getCellVal(pos.x, pos.y)) pos.x += clw / d
+        if (pos.x < 0 || getCellVal(pos.y, pos.x)) pos.x += clw / d
     }
 
-    if (keyIsDown(RIGHT_ARROW)) {
+    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
         pos.x += clw / d
-        if (pos.x > width || getCellVal(pos.x, pos.y)) pos.x -= clw / d
+        if (pos.x > width || getCellVal(pos.y, pos.x)) pos.x -= clw / d
     }
 
-    if (keyIsDown(UP_ARROW)) {
+    if (keyIsDown(UP_ARROW) || keyIsDown(87)) {
         pos.y -= clh / d
-        if (pos.y < 0 || getCellVal(pos.x, pos.y)) pos.y += clh / d
+        if (pos.y < 0 || getCellVal(pos.y, pos.x)) pos.y += clh / d
     }
 
-    if (keyIsDown(DOWN_ARROW)) {
+    if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
         pos.y += clh / d
-        if (pos.y > height || getCellVal(pos.x, pos.y)) pos.y -= clh / d
+        if (pos.y > height || getCellVal(pos.y, pos.x)) pos.y -= clh / d
     }
 }
 
@@ -81,21 +113,7 @@ function castRays(pos, offAng) {
     circle(pos.x, pos.y, 12)
 }
 
-function doubleClicked() {
-    requestPointerLock()
-}
-
-function mousePressed() {
-    place = getCellVal(mouseX, mouseY) ^ 1
-    flipCell(map, mouseX, mouseY, place)
-}
-
-function mouseDragged() {
-    flipCell(map, mouseX, mouseY, place)
-}
-
-
-function castRay(pos, ang) { // bug at grid intersection pos and big screen draw
+function castRay(pos, ang) { // bug at grid intersection pos or big screen draw
     let cell, off, dir, tg, xsi, ysi, dx, dy
 
     cell = getCell(pos.x, pos.y)
@@ -110,7 +128,7 @@ function castRay(pos, ang) { // bug at grid intersection pos and big screen draw
     while (true) {
         while (abs(pos.x - xsi.x) <= abs(pos.x - ysi.x)) {
             cell.x += dir.x
-            if (map[cell.x] == undefined || map[cell.x][cell.y]) {
+            if (map[cell.y][cell.x] == undefined || map[cell.y][cell.x]) {
                 return xsi
             }
             xsi.x += clw * dir.x
@@ -118,7 +136,7 @@ function castRay(pos, ang) { // bug at grid intersection pos and big screen draw
         }
         while (abs(pos.y - ysi.y) <= abs(pos.y - xsi.y)) {
             cell.y += dir.y
-            if (map[cell.x][cell.y] == undefined || map[cell.x][cell.y]) {
+            if (map[cell.y] == undefined || map[cell.y][cell.x]) {
                 return ysi
             }
             ysi.x += dx
@@ -161,7 +179,7 @@ function getDir(ang) {
 
 function showCell(mtrx, i, j) {
     mtrx[i][j] == 0 ? fill(255) : fill(0)
-    rect(i * clw, j * clh, clw, clh)
+    rect(j * clw, i * clh, clw, clh)
 }
 
 function getCell(px, py) {
@@ -171,13 +189,11 @@ function getCell(px, py) {
 }
 
 function getCellVal(px, py) {
-    let x = Math.floor(px / clw)
-    let y = Math.floor(py / clh)
-    return map[x][y]
+    let cell = getCell(px, py,)
+    return map[cell.x][cell.y]
 }
 
 function flipCell(mtrx, x, y, opt) {
-    if (x < 0 || x > width || y < 0 || y > height) return
     let cl = getCell(x, y)
     if (opt == undefined) {
         mtrx[cl.x][cl.y] ^= 1
@@ -189,16 +205,18 @@ function flipCell(mtrx, x, y, opt) {
     showCell(mtrx, cl.x, cl.y)
 }
 
-function makeMatrix(rows, cols) {
+function makeMatrix(arr, r, c) {
     let mtrx = []
-    for (let i = 0; i < rows; i++) {
-        mtrx.push(new Array(rows))
-        for (let j = 0; j < cols; j++) {
-            mtrx[i][j] = 0
+    if (arr == 0) {
+        for (let i = 0; i < r; i++) {
+            mtrx.push(new Array(r))
+            for (let j = 0; j < c; j++) {
+                mtrx[i][j] = 0
+            }
         }
-    }
-    clw = width / cols
-    clh = height / rows
+    } else mtrx = arr
+    rows = mtrx.length
+    cols = mtrx[0].length
     return mtrx
 }
 
