@@ -1,4 +1,6 @@
-let width, height, map, rows, cols, clw, clh
+// https://www.youtube.com/watch?v=eOCQfxRQ2pY&t=296s
+
+let width, height, map, rows, cols, clw, clh, pos, ang, place
 
 function setup() {
     width = height = 512
@@ -7,27 +9,95 @@ function setup() {
     background('gray')
 
     map = makeMatrix(rows, cols)
-    showMatrix(map)
-
-    myCast()
+    map = [
+        [1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+        [1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+    ]
+    pos = { x: width / 2 - 20, y: height / 2 - 20 }
+    ang = 0
 }
 
-function myCast() {
+function draw() {
     showMatrix(map)
-    for (let ang = 0; ang < 360; ang++) {
-        let its = castRay(50 * 6 - 30, 50 * 6 - 30, ang)
+    castRays(pos, ang)
+    move()
+    ang = getMouseAng(pos)
+}
+
+function getMouseAng(pos) {
+    let unt = createVector(1, 0)
+    let muv = createVector(mouseX - pos.x, mouseY - pos.y)
+    muv.normalize()
+    return -degrees(unt.angleBetween(muv))
+}
+
+function move() {
+    let d = 12
+    if (keyIsDown(LEFT_ARROW)) {
+        pos.x -= clw / d
+        if (pos.x < 0 || getCellVal(pos.x, pos.y)) pos.x += clw / d
+    }
+
+    if (keyIsDown(RIGHT_ARROW)) {
+        pos.x += clw / d
+        if (pos.x > width || getCellVal(pos.x, pos.y)) pos.x -= clw / d
+    }
+
+    if (keyIsDown(UP_ARROW)) {
+        pos.y -= clh / d
+        if (pos.y < 0 || getCellVal(pos.x, pos.y)) pos.y += clh / d
+    }
+
+    if (keyIsDown(DOWN_ARROW)) {
+        pos.y += clh / d
+        if (pos.y > height || getCellVal(pos.x, pos.y)) pos.y -= clh / d
     }
 }
 
-function mouseClicked() {
-    flipCell(map, mouseX, mouseY)
-    myCast()
+function castRays(pos, offAng) {
+    fov = 90
+    for (let ang = offAng - fov / 2; ang < offAng + fov / 2; ang += 0.3) {
+        let its = castRay(pos, ang)
+        push()
+        stroke('red')
+        line(pos.x, pos.y, its.x, its.y)
+        pop()
+    }
+    fill('gray')
+    circle(pos.x, pos.y, 12)
 }
 
-function castRay(x, y, ang) {
-    let pos, dir, off, tg, xsi, ysi, dx, dy, cell
+function doubleClicked() {
+    requestPointerLock()
+}
 
-    pos = { x, y }
+function mousePressed() {
+    place = getCellVal(mouseX, mouseY) ^ 1
+    flipCell(map, mouseX, mouseY, place)
+}
+
+function mouseDragged() {
+    flipCell(map, mouseX, mouseY, place)
+}
+
+
+function castRay(pos, ang) { // bug at grid intersection pos and big screen draw
+    let cell, off, dir, tg, xsi, ysi, dx, dy
+
     cell = getCell(pos.x, pos.y)
     off = getOff(pos, cell)
     dir = getDir(ang)
@@ -37,14 +107,10 @@ function castRay(x, y, ang) {
     dx = getDx(dir, tg)
     dy = getDy(dir, tg)
 
-    fill('gray')
-    circle(pos.x, pos.y, 12)
-
     while (true) {
         while (abs(pos.x - xsi.x) <= abs(pos.x - ysi.x)) {
             cell.x += dir.x
             if (map[cell.x] == undefined || map[cell.x][cell.y]) {
-                line(pos.x, pos.y, xsi.x, xsi.y)
                 return xsi
             }
             xsi.x += clw * dir.x
@@ -53,15 +119,12 @@ function castRay(x, y, ang) {
         while (abs(pos.y - ysi.y) <= abs(pos.y - xsi.y)) {
             cell.y += dir.y
             if (map[cell.x][cell.y] == undefined || map[cell.x][cell.y]) {
-                line(pos.x, pos.y, ysi.x, ysi.y)
                 return ysi
             }
             ysi.x += dx
             ysi.y += clh * dir.y
         }
     }
-
-    // https://www.youtube.com/watch?v=eOCQfxRQ2pY&t=296s
 }
 
 function getDx(dir, tg) {
@@ -107,10 +170,22 @@ function getCell(px, py) {
     return { x, y }
 }
 
-function flipCell(mtrx, x, y) {
+function getCellVal(px, py) {
+    let x = Math.floor(px / clw)
+    let y = Math.floor(py / clh)
+    return map[x][y]
+}
+
+function flipCell(mtrx, x, y, opt) {
     if (x < 0 || x > width || y < 0 || y > height) return
     let cl = getCell(x, y)
-    mtrx[cl.x][cl.y] ^= 1
+    if (opt == undefined) {
+        mtrx[cl.x][cl.y] ^= 1
+    } else if (opt == true) {
+        mtrx[cl.x][cl.y] = 1
+    } else {
+        mtrx[cl.x][cl.y] = 0
+    }
     showCell(mtrx, cl.x, cl.y)
 }
 
