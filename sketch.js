@@ -1,46 +1,45 @@
-let width, height, map, rows, cols, clw, clh, pos, ang, place
+let width, height, map, rows, cols, clw, clh, pos, ang, place, ratio
 
 function setup() {
     map = makeMatrix([
-        [1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1],
-        [1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,],
+        [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1,],
+        [1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
     ])
 
-    let ratio = rows / cols
-
-    if (window.innerWidth * ratio < window.innerHeight) {
-        width = window.innerWidth - window.innerWidth % 2
-        height = width * ratio
-        createCanvas(width, height)
-    } else {
-        height = window.innerHeight - window.innerHeight % 2
-        width = height / ratio
-        createCanvas(width, height)
-    }
+    myCanvas()
 
     clw = width / cols
     clh = height / rows
 
     pos = { x: width / 2 - 20, y: height / 2 - 20 }
     ang = 0
+}
+
+function myCanvas(minsize) {
+    ratio = rows / cols
+    if (window.innerWidth * ratio < window.innerHeight) {
+        width = minsize || window.innerWidth
+        height = width * ratio
+        createCanvas(width, height)
+    } else {
+        height = minsize || window.innerHeight
+        width = height / ratio
+        createCanvas(width, height)
+    }
 }
 
 function draw() {
@@ -183,6 +182,7 @@ function showCell(mtrx, i, j) {
 }
 
 function getCell(px, py) {
+    if (px < 0 || py < 0 || px > width || py > height) return undefined
     let x = Math.floor(px / clw)
     let y = Math.floor(py / clh)
     return { x, y }
@@ -190,11 +190,13 @@ function getCell(px, py) {
 
 function getCellVal(px, py) {
     let cell = getCell(px, py,)
+    if (cell == undefined) return undefined
     return map[cell.x][cell.y]
 }
 
 function flipCell(mtrx, x, y, opt) {
     let cl = getCell(x, y)
+    if (cl == undefined) return undefined
     if (opt == undefined) {
         mtrx[cl.x][cl.y] ^= 1
     } else if (opt == true) {
