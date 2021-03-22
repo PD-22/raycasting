@@ -2,27 +2,25 @@ let width, height, map, rows, cols, clw, clh, pos, ang, place, ratio
 
 function setup() {
     map = makeMatrix([
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        [1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,],
+        [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1,],
+        [1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
     ])
 
-    // portrait mode doesnt work
-    // dabagulia ert adgilas carielia
-    map = makeMatrix(cellularAutomata(ranMatrix(72, 128, 0.6), 2))
+    map = makeMatrix(cellularAutomata(ranMatrix(72, 128, 0.6), 5))
 
     myCanvas()
 
@@ -35,17 +33,17 @@ function setup() {
 
 function draw() {
     showMatrix(map)
-    // castRays(pos, ang)
-    // move()
-    // ang = getMouseAng(pos)
+    castRays(pos, ang)
+    move()
+    ang = getMouseAng(pos)
 }
 
-function ranMatrix(r, c, chance = 0.5) {
+function ranMatrix(r, c, chance = 0.5) { // areulia?
     let mtrx = []
     for (let i = 0; i < r; i++) {
-        mtrx.push(new Array(r))
+        mtrx.push(new Array(c))
         for (let j = 0; j < c; j++) {
-            mtrx[i][j] = random() < chance
+            mtrx[i][j] = random() < chance ? 1 : 0;
         }
     }
     return mtrx
@@ -63,18 +61,20 @@ function copyMatrix(arrOut) {
 }
 
 function cellularAutomata(arr, times = 1) {
+    let check = copyMatrix(arr)
     let temp = copyMatrix(arr)
     for (let cycle = 0; cycle < times; cycle++) {
         for (let i = 0; i < temp.length; i++) {
             for (let j = 0; j < temp[0].length; j++) {
-                if (countWallNeighbors(arr, i, j) > 4) {
+                if (countWallNeighbors(check, i, j) > 4) {
                     temp[i][j] = 1
                 } else {
                     temp[i][j] = 0
                 }
             }
         }
-        arr = temp
+        // fix cycle
+        check = copyMatrix(temp)
     }
     return temp
 }
@@ -140,7 +140,7 @@ function getMouseAng(pos) {
 }
 
 function move() {
-    let d = 12
+    let d = 12 / 5
 
     if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) { // diagonal speed
         pos.x -= clw / d
