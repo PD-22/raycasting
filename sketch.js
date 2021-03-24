@@ -1,6 +1,8 @@
-let width, height, map, rows, cols, clw, clh, pos, ang, ratio, rotate
+let width, height, map, rows, cols, clw, clh, pos, ang, ratio, rotate, rayBuf, mapSwitch
 
+// remove ratio?
 // remove block stretch (1 size)
+// change clw and clh to cellSize
 
 function setup() {
     map = makeMatrix([
@@ -32,45 +34,47 @@ function setup() {
 
     pos = { x: width / 2 - 20, y: height / 2 - 20 } // interesction bug
     ang = 0
+
+    mapSwitch = false
     rotate = false
 }
 
 function draw() {
-    showMatrix(map)
-    drawBackground()
-    castRays(pos, ang)
-    move()
-    if (rotate) ang += movedX * 0.8
+    rayBuf = castRays(ang, width, 90)
+    mapSwitch ?
+        drawMap(pos, rayBuf) :
+        drawView(pos, rayBuf);
+    move(ang)
 }
 
-function move() { // diagonal vel, collision
-    let speed = clw / 4
-    let vel = { x: speed * cos(radians(ang)), y: -speed * sin(radians(ang)) }
-    let vel2 = { x: vel.y, y: -vel.x }
+function keyPressed() {
+    if (keyIsDown(77)) mapSwitch ^= 1
+}
 
-    if (keyIsDown(UP_ARROW) || keyIsDown(87)) {
-        pos.x += vel.x
-        pos.y += vel.y
-        if (pos.y < 0 || getCellVal(pos.y, pos.x)) pos.y += d //
+function mouseMoved() {
+    if (rotate) {
+        ang -= movedX * deltaTime / 64
+        ang %= 360
     }
+}
 
-    if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
-        pos.x -= vel.x
-        pos.y -= vel.y
-        if (pos.y < 0 || getCellVal(pos.y, pos.x)) pos.y += d //
-    }
-
-    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
-        pos.x -= vel2.x
-        pos.y -= vel2.y
-        if (pos.y < 0 || getCellVal(pos.y, pos.x)) pos.y += d //
-    }
-
-    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
-        pos.x += vel2.x
-        pos.y += vel2.y
-        if (pos.y < 0 || getCellVal(pos.y, pos.x)) pos.y += d //
-    }
+function drawView(pos, rayBuf) { // space between cols dif on dif dir
+    drawBackground()
+    push()
+    let w = width / rayBuf.length
+    rayBuf.forEach((its, i) => {
+        let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2) // or use trig // get x/y
+        // let p = d * cos(radians(ang)) // fix fisheye
+        let h = clw * width / d / 2
+        noStroke()
+        if (its.axis === 'x') {
+            fill(255, 0, 0)
+        } else {
+            fill(191, 0, 0)
+        }
+        rect(i * w, (height - h) / 2, w, h)
+    })
+    pop()
 }
 
 function drawBackground() {
@@ -80,6 +84,56 @@ function drawBackground() {
     fill(0, 255, 0)
     rect(0, height / 2, width, height / 2)
     pop()
+}
+
+function drawMap(pos, rayBuf) {
+    push()
+    showMatrix(map)
+    fill('gray')
+    circle(pos.x, pos.y, clw)
+    rayBuf.forEach(its => {
+        stroke('red')
+        line(pos.x, pos.y, its.x, its.y)
+        noStroke()
+        fill('yellow')
+        circle(its.x, its.y, 4)
+    })
+    pop()
+}
+
+function move(ang) { // collision // speed depends on screen/cell/map size
+    let vel = { x: 0, y: 0 }
+    let dir = { x: 0, y: 0 }
+
+    if (keyIsDown(UP_ARROW) || keyIsDown(87)) {
+        vel.y += -sin(radians(ang))
+        vel.x += cos(radians(ang))
+        dir.y = -1
+    }
+    if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
+        vel.y += sin(radians(ang))
+        vel.x += -cos(radians(ang))
+        dir.y = 1
+    }
+    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
+        vel.y += cos(radians(ang))
+        vel.x += sin(radians(ang))
+        dir.x = 1
+    }
+    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
+        vel.y += -cos(radians(ang))
+        vel.x += -sin(radians(ang))
+        dir.x = -1
+    }
+
+    let mag = sqrt(dir.x ** 2 + dir.y ** 2)
+    if (mag != 0) {
+        vel.x /= mag
+        vel.y /= mag
+    }
+
+    pos.y += vel.y
+    pos.x += vel.x
 }
 
 function mousePressed() {
@@ -149,7 +203,7 @@ function countWallNeighbors(arr, i, j) {
     return count
 }
 
-function myCanvas(minsize) {
+function myCanvas(minsize) { // remove stretch
     ratio = rows / cols
     if (window.innerWidth * ratio < window.innerHeight) {
         width = minsize || window.innerWidth
@@ -162,26 +216,14 @@ function myCanvas(minsize) {
     }
 }
 
-function castRays(pos, offAng) { // fix col size/offset // rotate map is inverseaa
-    fov = 90
-    for (let ang = offAng - fov / 2; ang < offAng + fov / 2; ang += 0.5) {
+function castRays(offAng, num = 90, fov = 90) {
+    rayBuf = []
+    let inc = fov / num
+    for (let ang = offAng - fov / 2; ang < offAng + fov / 2; ang += inc) {
         let its = castRay(pos, ang)
-        let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2) // or use trig // get x/y
-        let p = d * cos(radians(ang - offAng))
-        let h = clw * width / p
-        let off = (ang - offAng + fov / 2) * width / fov
-        let leftOff = off % 2
-        off = off - leftOff
-        push()
-        noStroke()
-        if (its.axis === 'x') {
-            fill(255, 0, 0)
-        } else {
-            fill(191, 0, 0)
-        }
-        rect(off, (height - h) / 2, width / fov / 2 + leftOff, h)
-        pop()
+        rayBuf.unshift(its)
     }
+    return rayBuf
 }
 
 function castRay(pos, ang) {
