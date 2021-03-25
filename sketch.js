@@ -1,4 +1,5 @@
-let width, height, map, rows, cols, clw, clh, pos, ang, ratio, rotate, rayBuf, mapSwitch
+let width, height, map, rows, cols, clw, clh,
+    pos, ang, ratio, rotate, rayBuf, mapSwitch, fov
 
 // remove ratio?
 // remove block stretch (1 size)
@@ -25,7 +26,7 @@ function setup() {
 
     ])
 
-    map = makeMatrix(cellularAutomata(ranMatrix(18 * 3, 32 * 3, 0.45), 8))
+    map = makeMatrix(cellularAutomata(ranMatrix(9 * 3, 16 * 3, 0.43), 8))
 
     myCanvas()
 
@@ -34,6 +35,7 @@ function setup() {
 
     pos = { x: width / 2 - 20, y: height / 2 - 20 } // interesction bug
     ang = 0
+    fov = 90
 
     mapSwitch = false
     rotate = false
@@ -48,11 +50,21 @@ function draw() {
 }
 
 function keyPressed() {
-    if (keyIsDown(77)) mapSwitch ^= 1
+    if (keyIsDown(77)) {
+        mapSwitch ^= 1
+        exitPointerLock()
+    }
 }
 
 function mouseMoved() {
-    if (rotate) {
+    updateAng()
+}
+
+function updateAng() {
+    if (mapSwitch) {
+        let mv = { x: mouseX - pos.x, y: mouseY - pos.y }
+        ang = -degrees(Math.atan2(mv.y, mv.x))
+    } else if (rotate) {
         ang -= movedX * deltaTime / 64
         ang %= 360
     }
@@ -65,14 +77,15 @@ function drawView(pos, rayBuf) { // space between cols dif on dif dir
     rayBuf.forEach((its, i) => {
         let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2) // or use trig // get x/y
         // let p = d * cos(radians(ang)) // fix fisheye
-        let h = clw * width / d / 2
+        let p = d
+        let h = clw * width / p / 2
         noStroke()
         if (its.axis === 'x') {
             fill(255, 0, 0)
         } else {
             fill(191, 0, 0)
         }
-        rect(i * w, (height - h) / 2, w, h)
+        rect(i, (height - h) / 2, w, h)
     })
     pop()
 }
@@ -91,13 +104,21 @@ function drawMap(pos, rayBuf) {
     showMatrix(map)
     fill('gray')
     circle(pos.x, pos.y, clw)
-    rayBuf.forEach(its => {
-        stroke('red')
-        line(pos.x, pos.y, its.x, its.y)
-        noStroke()
-        fill('yellow')
-        circle(its.x, its.y, 4)
-    })
+    strokeWeight(clw / 4)
+    stroke('red')
+    line(pos.x, pos.y,
+        pos.x + cos(radians(ang)) * clw,
+        pos.y - sin(radians(ang)) * clw)
+
+    let its = rayBuf[0]
+    let its2 = rayBuf[rayBuf.length - 1]
+    strokeWeight(clw / 8)
+    line(pos.x, pos.y, its.x, its.y)
+    line(pos.x, pos.y, its2.x, its2.y)
+    noStroke()
+    fill('yellow')
+    circle(its.x, its.y, 4)
+    circle(its2.x, its2.y, 4)
     pop()
 }
 
@@ -137,8 +158,10 @@ function move(ang) { // collision // speed depends on screen/cell/map size
 }
 
 function mousePressed() {
-    rotate ? exitPointerLock() : requestPointerLock();
-    rotate ^= 1
+    if (!mapSwitch) {
+        rotate ? exitPointerLock() : requestPointerLock();
+        rotate ^= 1
+    }
 }
 
 function ranMatrix(r, c, chance = 0.5) {
@@ -216,7 +239,7 @@ function myCanvas(minsize) { // remove stretch
     }
 }
 
-function castRays(offAng, num = 90, fov = 90) {
+function castRays(offAng, num = 90) {
     rayBuf = []
     let inc = fov / num
     for (let ang = offAng - fov / 2; ang < offAng + fov / 2; ang += inc) {
