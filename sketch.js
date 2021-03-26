@@ -1,11 +1,12 @@
-let width, height, map, rows, cols, clw, clh,
-    pos, ang, ratio, rotate, rayBuf, mapSwitch, fov
+let width, height, map, rows, cols, clw, clh, place,
+    pos, ang, ratio, rotate, rayBuf, mapVisible, fov
 
 /*
 remove ratio?
 remove block stretch (1 size)
 change clw and clh to cellSize
 fullscreen bug
+map switch stop rotate
 */
 
 function setup() {
@@ -39,33 +40,39 @@ function setup() {
     ang = 0
     fov = 90
 
-    mapSwitch = false
+    mapVisible = false
     rotate = false
 }
 
 function draw() {
     rayBuf = castRays(ang, width, 90)
-    mapSwitch ?
+    mapVisible ?
         drawMap(pos, rayBuf) :
         drawView(pos, rayBuf);
     move(ang)
-    if (mapSwitch) updateAng()
+    if (mapVisible) updateAng()
 }
 
 function keyPressed() {
     if (keyIsDown(77)) {
-        mapSwitch ^= 1
+        mapVisible ^= 1
         exitPointerLock()
         rotate = false
     }
 }
 
 function mouseMoved() {
-    if (!mapSwitch) updateAng()
+    if (!mapVisible) updateAng()
+}
+
+function mouseDragged() {
+    if (mapVisible) {
+        flipCell(map, getCell(mouseX, mouseY))
+    }
 }
 
 function updateAng() {
-    if (mapSwitch) {
+    if (mapVisible) {
         let mv = { x: mouseX - pos.x, y: mouseY - pos.y }
         ang = -degrees(Math.atan2(mv.y, mv.x))
     } else if (rotate) {
@@ -154,7 +161,11 @@ function move(ang) { // collision // speed depends on screen/cell/map size
 }
 
 function mousePressed() {
-    if (!mapSwitch) {
+    if (mapVisible) {
+        let cell = getCell(mouseX, mouseY)
+        place = 1 - getCellVal(cell)
+        flipCell(map, cell)
+    } else {
         rotate ? exitPointerLock() : requestPointerLock();
         rotate ^= 1
     }
@@ -321,19 +332,15 @@ function getCell(px, py) {
     return { x, y }
 }
 
-function getCellVal(py, px) {
-    let cell = getCell(px, py)
+function getCellVal(cell) {
     if (cell == undefined) return undefined
     return map[cell.y][cell.x]
 }
 
-function flipCell(mtrx, x, y, opt) { // use vertex draw
-    let cl = getCell(x, y)
-    if (cl == undefined) return undefined
-    mtrx[cl.y][cl.x] =
-        opt == undefined ? mtrx[cl.y][cl.x] ^ 1 :
-            opt ? 1 : 0
-    showCell(mtrx, cl.y, cl.x)
+function flipCell(mtrx, cell) {
+    if (cell != undefined) {
+        mtrx[cell.y][cell.x] = place ? 1 : 0
+    }
 }
 
 function makeMatrix(arr, r, c) {
