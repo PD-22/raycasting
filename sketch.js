@@ -1,131 +1,130 @@
-let width, height, map, rows, cols, clw, clh, place,
-    pos, ang, ratio, rotate, rayBuf, mapVisible, fov
+let width, height, map, rows, cols, cls, place, pos, ang, ratio, rotate,
+    rayBuf, fov, renderMap, renderView, pointerLock
 
 /*
-remove ratio?
-remove block stretch (1 size)
-change clw and clh to cellSize
+interesction bug
+add fog
 fullscreen bug
-map switch stop rotate
+group functions, make classes?
+make mapVisible true on showMatrix?
+collision space
+map
+    transparent
+    centered
+    move map?
+    size fit
+    cls size fit
+detect click on map or view for closeMap/placeWalls
+just use cell for first intersections
+if renderMap move on axes
 */
 
 function setup() {
     map = makeMatrix([
-        [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
-        [1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
-        [1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1,],
-        [1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,],
-        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
-        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
-        [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
-        [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1,],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1],
+        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1],
+        [1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ])
 
-    map = makeMatrix(cellularAutomata(ranMatrix(9 * 3, 16 * 3, 0.45), 4))
+    // map = makeMatrix(cellularAutomata(ranMatrix(9 * 3, 16 * 3, 0.45), 4))
 
-    myCanvas()
+    createMyCanvas()
+    background('gray')
 
-    clw = width / cols
-    clh = height / rows
+    cls = Math.min(width / rows, height / cols)
 
-    pos = { x: width / 2 - 20, y: height / 2 - 20 } // interesction bug
-    ang = 0
+    pos = { x: cols / 8 - 0.2, y: rows / 8 - 0.2 }
     fov = 90
+    ang = 0
 
-    mapVisible = false
+    renderMap = true
+    renderView = true
     rotate = false
+    pointerLock = false
 }
 
 function draw() {
+    drawMatrix(map)
     rayBuf = castRays(ang, width, 90)
-    mapVisible ?
-        drawMap(pos, rayBuf) :
-        drawView(pos, rayBuf);
+    if (renderView) drawView(pos, rayBuf)
+    if (renderMap) drawMap(pos, rayBuf)
     move(ang)
 }
 
+function createMyCanvas() {
+    ratio = window.screen.height / window.screen.width
+    width = window.innerWidth
+    height = width * ratio
+    if (height > window.innerHeight) {
+        height = window.innerHeight
+        width = height / ratio
+    }
+    createCanvas(width, height)
+}
+
+
+// Input functions
+
 function keyPressed() {
-    if (keyIsDown(77)) {
-        mapVisible ^= 1
-        exitPointerLock()
-        rotate = false
+    if (keyCode == 70) {
+        if (renderMap) {
+            renderMap = false
+            rotate = true
+            pointerLock = true
+            requestPointerLock()
+        } else if (renderView) {
+            renderMap = true
+            rotate = false
+            pointerLock = false
+            exitPointerLock()
+        }
+    }
+}
+
+function mousePressed() {
+    if (renderMap) {
+        let cell = getCell(mouseX, mouseY)
+        place = 1 - getCellVal(cell)
+        flipCell(map, cell)
     }
 }
 
 function mouseMoved() {
-    if (mapVisible) rotate = true
     if (rotate) updateAng()
 }
 
 function mouseDragged() {
-    if (mapVisible) {
-        flipCell(map, getCell(mouseX, mouseY))
-    }
+    if (renderMap) flipCell(map, getCell(mouseX, mouseY))
+}
+
+
+// Update functions
+
+function flipCell(mtrx, cell) {
+    if (cell != undefined) mtrx[cell.y][cell.x] = place ? 1 : 0
 }
 
 function updateAng() {
-    if (mapVisible) {
-        let mv = { x: mouseX - pos.x, y: mouseY - pos.y }
-        ang = -degrees(Math.atan2(mv.y, mv.x))
-    } else if (rotate) {
+    if (rotate) {
         ang -= movedX * deltaTime / 64
         ang %= 360
     }
 }
 
-function drawView(pos, rayBuf) {
-    push()
-    fill(0, 0, 255)
-    rect(0, 0, width, height / 2)
-    fill(0, 255, 0)
-    rect(0, height / 2, width, height / 2)
-    let w = width / rayBuf.length
-    rayBuf.forEach((its, i) => {
-        let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2) // or use trig // get x/y
-        let offAng = its.ang
-        let p = d * cos(radians(ang - offAng))
-        let h = clw * width / p / 2
-        noStroke()
-        if (its.axis === 'x') {
-            fill(255, 0, 0)
-        } else {
-            fill(191, 0, 0)
-        }
-        rect(i, (height - h) / 2, w, h)
-    })
-    pop()
-}
-
-function drawMap(pos, rayBuf) {
-    push()
-    showMatrix(map)
-    fill('gray')
-    circle(pos.x, pos.y, clw)
-    stroke('red')
-    strokeWeight(clw / 8)
-    let top = rayBuf[0]
-    let mid = rayBuf[Math.round((rayBuf.length - 1) / 2)]
-    let bot = rayBuf[rayBuf.length - 1]
-    line(pos.x, pos.y, top.x, top.y)
-    line(pos.x, pos.y, mid.x, mid.y)
-    line(pos.x, pos.y, bot.x, bot.y)
-    noStroke()
-    fill('yellow')
-    circle(top.x, top.y, clw / 2)
-    circle(mid.x, mid.y, clw / 2)
-    circle(bot.x, bot.y, clw / 2)
-    pop()
-}
-
-function move(ang) { // collision // speed depends on screen/cell/map size
+function move(ang) {
     let vel = { x: 0, y: 0 }
     let dir = { x: 0, y: 0 }
 
@@ -156,42 +155,73 @@ function move(ang) { // collision // speed depends on screen/cell/map size
         vel.y /= mag
     }
 
-    pos.y += vel.y
-    pos.x += vel.x
+    pos.y += vel.y / 32
+    pos.x += vel.x / 32
 }
 
-function mousePressed() {
-    if (mapVisible) {
-        let cell = getCell(mouseX, mouseY)
-        place = 1 - getCellVal(cell)
-        flipCell(map, cell)
-    } else {
-        rotate ? exitPointerLock() : requestPointerLock();
-        rotate ^= 1
-    }
-}
 
-function ranMatrix(r, c, chance = 0.5) {
-    let mtrx = []
-    for (let i = 0; i < r; i++) {
-        mtrx.push(new Array(c))
-        for (let j = 0; j < c; j++) {
-            mtrx[i][j] = random() < chance ? 1 : 0;
+// Draw functions
+
+function drawView(pos, rayBuf) {
+    push()
+    fill(0, 0, 255)
+    rect(0, 0, width, height / 2)
+    fill(0, 255, 0)
+    rect(0, height / 2, width, height / 2)
+    let w = width / rayBuf.length
+    rayBuf.forEach((its, i) => {
+        let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2)
+        let offAng = its.ang
+        let p = d * cos(radians(ang - offAng))
+        let h = width / p / 2
+        noStroke()
+        if (its.axis === 'x') {
+            fill(255, 0, 0)
+        } else {
+            fill(191, 0, 0)
         }
-    }
-    return mtrx
+        rect(i, (height - h) / 2, w, h)
+    })
+    pop()
 }
 
-function copyMatrix(arrOut) {
-    let arrIn = []
-    for (let i = 0; i < arrOut.length; i++) {
-        arrIn[i] = new Array(arrOut.length)
-        for (let j = 0; j < arrOut[0].length; j++) {
-            arrIn[i][j] = arrOut[i][j]
-        }
+function drawMap(pos, rayBuf, num = 5) {
+    push()
+    drawMatrix(map)
+
+    noStroke()
+    fill('gray')
+    circle(pos.x * cls, pos.y * cls, cls)
+
+    let inc = Math.floor(rayBuf.length / (num - 1))
+    for (let i = 1; i < rayBuf.length; i += inc) {
+        i = floor(i)
+        stroke('red')
+        strokeWeight(cls / 16)
+        let top = rayBuf[i]
+        line(pos.x * cls, pos.y * cls, top.x * cls, top.y * cls)
+        noStroke()
+        fill('yellow')
+        circle(top.x * cls, top.y * cls, cls / 4)
     }
-    return arrIn
+    pop()
 }
+
+function drawMatrix(mtrx) {
+    mtrx.forEach((row, i) => {
+        row.forEach((cell, j) => {
+            drawCell(mtrx, i, j)
+        })
+    })
+}
+
+function drawCell(mtrx, i, j) {
+    mtrx[i][j] == 0 ? fill(255) : fill(0)
+    rect(j * cls, i * cls, cls, cls)
+}
+
+
+// Cellular automata functions
 
 function cellularAutomata(arr, times = 1) {
     let check = copyMatrix(arr)
@@ -233,18 +263,8 @@ function countWallNeighbors(arr, i, j) {
     return count
 }
 
-function myCanvas(minsize) { // remove stretch
-    ratio = rows / cols
-    if (window.innerWidth * ratio < window.innerHeight) {
-        width = minsize || window.innerWidth
-        height = width * ratio
-        createCanvas(width, height)
-    } else {
-        height = minsize || window.innerHeight
-        width = height / ratio
-        createCanvas(width, height)
-    }
-}
+
+// Ray casting functions
 
 function castRays(offAng, num = 90) {
     rayBuf = []
@@ -257,16 +277,15 @@ function castRays(offAng, num = 90) {
 }
 
 function castRay(pos, ang) {
-    let cell, off, dir, tg, xsi, ysi, dx, dy
-
-    cell = getCell(pos.x, pos.y)
-    off = getOff(pos, cell)
-    dir = getDir(ang)
-    tg = abs(tan(radians(ang)))
-    xsi = getXsi(pos, off, dir, tg)
-    ysi = getYsi(pos, off, dir, tg)
-    dx = getDx(dir, tg)
-    dy = getDy(dir, tg)
+    let cell = { x: Math.floor(pos.x), y: Math.floor(pos.y) }
+    let off = getOff(pos, cell)
+    let dir = getDir(ang)
+    let tg = abs(tan(radians(ang)))
+    let ctg = 1 / tg
+    let xsi = getXsfi(pos, off, dir, tg)
+    let ysi = getYsfi(pos, off, dir, ctg)
+    let dx = getDx(dir, ctg)
+    let dy = getDy(dir, tg)
 
     while (true) {
         while (abs(pos.x - xsi.x) <= abs(pos.x - ysi.x)) {
@@ -274,7 +293,7 @@ function castRay(pos, ang) {
             if (map[cell.y][cell.x] == undefined || map[cell.y][cell.x]) {
                 return { x: xsi.x, y: xsi.y, axis: 'x', ang }
             }
-            xsi.x += clw * dir.x
+            xsi.x += dir.x
             xsi.y += dy
         }
         while (abs(pos.y - ysi.y) <= abs(pos.y - xsi.y)) {
@@ -283,34 +302,14 @@ function castRay(pos, ang) {
                 return { x: ysi.x, y: ysi.y, axis: 'y', ang }
             }
             ysi.x += dx
-            ysi.y += clh * dir.y
+            ysi.y += dir.y
         }
     }
 }
 
-function getDx(dir, tg) {
-    return clh / tg * dir.x
-}
-
-function getDy(dir, tg) {
-    return clw * tg * dir.y
-}
-
-function getYsi(pos, off, dir, tg) {
-    let y = pos.y - off.y + clw * (1 + dir.y) / 2
-    let x = pos.x + abs(y - pos.y) / tg * dir.x
-    return { x, y }
-}
-
-function getXsi(pos, off, dir, tg) {
-    let x = pos.x - off.x + clh * (1 + dir.x) / 2
-    let y = pos.y + abs(x - pos.x) * tg * dir.y
-    return { x, y }
-}
-
 function getOff(pos, cell) {
-    let x = pos.x - cell.x * clw
-    let y = pos.y - cell.y * clh
+    let x = pos.x - cell.x
+    let y = pos.y - cell.y
     return { x, y }
 }
 
@@ -320,27 +319,39 @@ function getDir(ang) {
     return { x, y }
 }
 
-function showCell(mtrx, i, j) {
-    mtrx[i][j] == 0 ? fill(255) : fill(0)
-    rect(j * clw, i * clh, clw, clh)
+function getXsfi(pos, off, dir, tg) {
+    let x = pos.x - off.x + (1 + dir.x) / 2
+    let y = pos.y + abs(x - pos.x) * tg * dir.y
+    return { x, y }
 }
 
+function getYsfi(pos, off, dir, ctg) {
+    let y = pos.y - off.y + (1 + dir.y) / 2
+    let x = pos.x + abs(y - pos.y) * ctg * dir.x
+    return { x, y }
+}
+
+function getDx(dir, ctg) {
+    return ctg * dir.x
+}
+
+function getDy(dir, tg) {
+    return tg * dir.y
+}
+
+
+// Matrix functions
+
 function getCell(px, py) {
-    if (px < 0 || py < 0 || px > width || py > height) return undefined
-    let x = Math.floor(px / clw)
-    let y = Math.floor(py / clh)
+    let x = Math.floor(px / cls)
+    let y = Math.floor(py / cls)
+    if (x < 0 || y < 0 || x >= cols || y >= rows) return undefined
     return { x, y }
 }
 
 function getCellVal(cell) {
     if (cell == undefined) return undefined
     return map[cell.y][cell.x]
-}
-
-function flipCell(mtrx, cell) {
-    if (cell != undefined) {
-        mtrx[cell.y][cell.x] = place ? 1 : 0
-    }
 }
 
 function makeMatrix(arr, r, c) {
@@ -355,15 +366,27 @@ function makeMatrix(arr, r, c) {
     } else mtrx = arr
     rows = mtrx.length
     cols = mtrx[0].length
-    clw = width / cols
-    clh = height / rows
     return mtrx
 }
 
-function showMatrix(mtrx) {
-    mtrx.forEach((row, i) => {
-        row.forEach((cell, j) => {
-            showCell(mtrx, i, j)
-        })
-    });
+function ranMatrix(r, c, chance = 0.5) {
+    let mtrx = []
+    for (let i = 0; i < r; i++) {
+        mtrx.push(new Array(c))
+        for (let j = 0; j < c; j++) {
+            mtrx[i][j] = random() < chance ? 1 : 0;
+        }
+    }
+    return mtrx
+}
+
+function copyMatrix(arrOut) {
+    let arrIn = []
+    for (let i = 0; i < arrOut.length; i++) {
+        arrIn[i] = new Array(arrOut.length)
+        for (let j = 0; j < arrOut[0].length; j++) {
+            arrIn[i][j] = arrOut[i][j]
+        }
+    }
+    return arrIn
 }
