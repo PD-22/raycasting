@@ -37,7 +37,7 @@ function setup() {
     ang = 0
     fov = 90
 
-    mapSwitch = true
+    mapSwitch = false
     rotate = false
 }
 
