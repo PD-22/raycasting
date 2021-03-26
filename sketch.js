@@ -1,9 +1,12 @@
 let width, height, map, rows, cols, clw, clh,
     pos, ang, ratio, rotate, rayBuf, mapSwitch, fov
 
-// remove ratio?
-// remove block stretch (1 size)
-// change clw and clh to cellSize
+/*
+remove ratio?
+remove block stretch (1 size)
+change clw and clh to cellSize
+fullscreen bug
+*/
 
 function setup() {
     map = makeMatrix([
@@ -71,14 +74,14 @@ function updateAng() {
     }
 }
 
-function drawView(pos, rayBuf) { // space between cols dif on dif dir
+function drawView(pos, rayBuf) {
     drawBackground()
     push()
     let w = width / rayBuf.length
     rayBuf.forEach((its, i) => {
         let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2) // or use trig // get x/y
-        // let p = d * cos(radians(ang)) // fix fisheye
-        let p = d
+        let offAng = its.ang
+        let p = d * cos(radians(ang - offAng))
         let h = clw * width / p / 2
         noStroke()
         if (its.axis === 'x') {
@@ -105,21 +108,19 @@ function drawMap(pos, rayBuf) {
     showMatrix(map)
     fill('gray')
     circle(pos.x, pos.y, clw)
-    strokeWeight(clw / 4)
     stroke('red')
-    line(pos.x, pos.y,
-        pos.x + cos(radians(ang)) * clw,
-        pos.y - sin(radians(ang)) * clw)
-
-    let its = rayBuf[0]
-    let its2 = rayBuf[rayBuf.length - 1]
     strokeWeight(clw / 8)
-    line(pos.x, pos.y, its.x, its.y)
-    line(pos.x, pos.y, its2.x, its2.y)
+    let top = rayBuf[0]
+    let mid = rayBuf[Math.round((rayBuf.length - 1) / 2)]
+    let bot = rayBuf[rayBuf.length - 1]
+    line(pos.x, pos.y, top.x, top.y)
+    line(pos.x, pos.y, mid.x, mid.y)
+    line(pos.x, pos.y, bot.x, bot.y)
     noStroke()
     fill('yellow')
-    circle(its.x, its.y, 4)
-    circle(its2.x, its2.y, 4)
+    circle(top.x, top.y, clw / 2)
+    circle(mid.x, mid.y, clw / 2)
+    circle(bot.x, bot.y, clw / 2)
     pop()
 }
 
@@ -266,7 +267,7 @@ function castRay(pos, ang) {
         while (abs(pos.x - xsi.x) <= abs(pos.x - ysi.x)) {
             cell.x += dir.x
             if (map[cell.y][cell.x] == undefined || map[cell.y][cell.x]) {
-                return { x: xsi.x, y: xsi.y, axis: 'x' }
+                return { x: xsi.x, y: xsi.y, axis: 'x', ang }
             }
             xsi.x += clw * dir.x
             xsi.y += dy
@@ -274,7 +275,7 @@ function castRay(pos, ang) {
         while (abs(pos.y - ysi.y) <= abs(pos.y - xsi.y)) {
             cell.y += dir.y
             if (map[cell.y] == undefined || map[cell.y][cell.x]) {
-                return { x: ysi.x, y: ysi.y, axis: 'y' }
+                return { x: ysi.x, y: ysi.y, axis: 'y', ang }
             }
             ysi.x += dx
             ysi.y += clh * dir.y
