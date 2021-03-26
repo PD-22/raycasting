@@ -75,8 +75,11 @@ function updateAng() {
 }
 
 function drawView(pos, rayBuf) {
-    drawBackground()
     push()
+    fill(0, 0, 255)
+    rect(0, 0, width, height / 2)
+    fill(0, 255, 0)
+    rect(0, height / 2, width, height / 2)
     let w = width / rayBuf.length
     rayBuf.forEach((its, i) => {
         let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2) // or use trig // get x/y
@@ -91,15 +94,6 @@ function drawView(pos, rayBuf) {
         }
         rect(i, (height - h) / 2, w, h)
     })
-    pop()
-}
-
-function drawBackground() {
-    push()
-    fill(0, 0, 255)
-    rect(0, 0, width, height / 2)
-    fill(0, 255, 0)
-    rect(0, height / 2, width, height / 2)
     pop()
 }
 
