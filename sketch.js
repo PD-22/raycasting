@@ -50,7 +50,6 @@ function draw() {
         drawMap(pos, rayBuf) :
         drawView(pos, rayBuf);
     move(ang)
-    if (mapVisible) updateAng()
 }
 
 function keyPressed() {
@@ -62,7 +61,8 @@ function keyPressed() {
 }
 
 function mouseMoved() {
-    if (!mapVisible) updateAng()
+    if (mapVisible) rotate = true
+    if (rotate) updateAng()
 }
 
 function mouseDragged() {
