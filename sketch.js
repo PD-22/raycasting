@@ -26,7 +26,6 @@ function setup() {
         [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
         [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
         [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1,],
-
     ])
 
     map = makeMatrix(cellularAutomata(ranMatrix(9 * 3, 16 * 3, 0.45), 4))
@@ -50,6 +49,7 @@ function draw() {
         drawMap(pos, rayBuf) :
         drawView(pos, rayBuf);
     move(ang)
+    if (mapSwitch) updateAng()
 }
 
 function keyPressed() {
@@ -61,7 +61,7 @@ function keyPressed() {
 }
 
 function mouseMoved() {
-    updateAng()
+    if (!mapSwitch) updateAng()
 }
 
 function updateAng() {
