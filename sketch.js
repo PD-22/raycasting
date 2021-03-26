@@ -26,7 +26,7 @@ function setup() {
 
     ])
 
-    map = makeMatrix(cellularAutomata(ranMatrix(9 * 3, 16 * 3, 0.43), 8))
+    map = makeMatrix(cellularAutomata(ranMatrix(9 * 3, 16 * 3, 0.45), 4))
 
     myCanvas()
 
@@ -37,7 +37,7 @@ function setup() {
     ang = 0
     fov = 90
 
-    mapSwitch = false
+    mapSwitch = true
     rotate = false
 }
 
@@ -53,6 +53,7 @@ function keyPressed() {
     if (keyIsDown(77)) {
         mapSwitch ^= 1
         exitPointerLock()
+        rotate = false
     }
 }
 
