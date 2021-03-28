@@ -15,6 +15,7 @@ map
     size fit
     cls size fit
     detect click on map or view for closeMap/placeWalls
+bugged collision
 */
 
 function setup() {
