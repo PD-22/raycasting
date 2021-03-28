@@ -16,7 +16,7 @@ map
     cls size fit
 detect click on map or view for closeMap/placeWalls
 just use cell for first intersections
-if renderMap move on axes
+if renderMap move on axes and rotate to mouse
 */
 
 function setup() {
