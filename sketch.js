@@ -9,12 +9,12 @@ group functions, make classes?
 make mapVisible true on showMatrix?
 big map lags
 map
-transparent
-centered
-move map?
-size fit
-cls size fit
-detect click on map or view for closeMap/placeWalls
+    transparent
+    centered
+    move map?
+    size fit
+    cls size fit
+    detect click on map or view for closeMap/placeWalls
 collision space
 */
 
@@ -50,7 +50,7 @@ function setup() {
     ang = 0
     res = width
 
-    renderMap = true
+    renderMap = false
     renderView = true
     rotate = false
     pointerLock = false
