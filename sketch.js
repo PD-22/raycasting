@@ -7,16 +7,15 @@ add fog
 mobile compatibility
 group functions, make classes?
 make mapVisible true on showMatrix?
-collision space
 big map lags
 map
-    transparent
-    centered
-    move map?
-    size fit
-    cls size fit
+transparent
+centered
+move map?
+size fit
+cls size fit
 detect click on map or view for closeMap/placeWalls
-just use cell for first intersections
+collision space
 */
 
 function setup() {
@@ -51,7 +50,7 @@ function setup() {
     ang = 0
     res = width
 
-    renderMap = false
+    renderMap = true
     renderView = true
     rotate = false
     pointerLock = false
@@ -179,9 +178,17 @@ function move(ang, s) {
         vel.y *= speed
         vel.x *= speed
     }
+    vel.y /= 24
+    vel.x /= 24
 
-    pos.y += vel.y / 24
-    pos.x += vel.x / 24
+    let cell
+    cell = getCell(pos.x * cls, (pos.y + vel.y) * cls)
+    if (getCellVal(cell) == 1) vel.y = 0
+    cell = getCell((pos.x + vel.x) * cls, pos.y * cls)
+    if (getCellVal(cell) == 1) vel.x = 0
+
+    pos.y += vel.y
+    pos.x += vel.x
 
     if (drawMap) updateAng()
 }
