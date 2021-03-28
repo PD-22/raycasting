@@ -1,4 +1,4 @@
-let width, height, map, rows, cols, cls, place, pos, ang, ratio, rotateView,
+let width, height, map, rows, cols, cls, place, pos, ang, ratio, rotate,
     rayBuf, fov, renderMap, renderView, pointerLock, speed, res
 
 /*
@@ -49,16 +49,17 @@ function setup() {
     pos = { x: cols / 6 - 0.2, y: rows / 6 - 0.2 }
     fov = 90
     ang = 0
+    res = width
 
     renderMap = false
     renderView = true
-    rotateView = false
+    rotate = false
     pointerLock = false
 }
 
 function draw() {
     drawMatrix(map)
-    rayBuf = castRays(ang, width)
+    rayBuf = castRays(ang, res)
     if (renderView) drawView(pos, rayBuf)
     if (renderMap) drawMap(pos, rayBuf)
     move(ang)
@@ -82,12 +83,12 @@ function keyPressed() {
     if (keyCode == 70) {
         if (renderMap) {
             renderMap = false
-            rotateView = true
+            rotate = true
             pointerLock = true
             requestPointerLock()
         } else if (renderView) {
             renderMap = true
-            rotateView = false
+            rotate = false
             pointerLock = false
             exitPointerLock()
         }
@@ -99,6 +100,10 @@ function mousePressed() {
         let cell = getCell(mouseX, mouseY)
         place = 1 - getCellVal(cell)
         flipCell(map, cell)
+    } else if (renderView) {
+        requestPointerLock()
+        rotate = true
+        pointerLock = true
     }
 }
 
@@ -123,8 +128,8 @@ function updateAng() {
             mouseX - pos.x * cls,
             mouseY - pos.y * cls,
         )) - 90
-    } else if (rotateView) {
-        ang -= movedX * deltaTime / 64
+    } else if (rotate) {
+        ang -= movedX * deltaTime / 100
         ang %= 360
     }
 }
