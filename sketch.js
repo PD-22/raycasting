@@ -1,10 +1,10 @@
-let width, height, map, rows, cols, cls, place, pos, ang, ratio, rotate,
+let width, height, map, rows, cols, cls, place, pos, ang, ratio, rotateView,
     rayBuf, fov, renderMap, renderView, pointerLock
 
 /*
 interesction bug
 add fog
-fullscreen bug
+mobile compatibility
 group functions, make classes?
 make mapVisible true on showMatrix?
 collision space
@@ -16,7 +16,6 @@ map
     cls size fit
 detect click on map or view for closeMap/placeWalls
 just use cell for first intersections
-if renderMap move on axes and rotate to mouse
 */
 
 function setup() {
@@ -52,7 +51,7 @@ function setup() {
 
     renderMap = true
     renderView = true
-    rotate = false
+    rotateView = false
     pointerLock = false
 }
 
@@ -82,12 +81,12 @@ function keyPressed() {
     if (keyCode == 70) {
         if (renderMap) {
             renderMap = false
-            rotate = true
+            rotateView = true
             pointerLock = true
             requestPointerLock()
         } else if (renderView) {
             renderMap = true
-            rotate = false
+            rotateView = false
             pointerLock = false
             exitPointerLock()
         }
@@ -103,7 +102,7 @@ function mousePressed() {
 }
 
 function mouseMoved() {
-    if (rotate) updateAng()
+    updateAng()
 }
 
 function mouseDragged() {
@@ -118,7 +117,12 @@ function flipCell(mtrx, cell) {
 }
 
 function updateAng() {
-    if (rotate) {
+    if (renderMap) {
+        ang = degrees(Math.atan2(
+            mouseX - pos.x * cls,
+            mouseY - pos.y * cls,
+        )) - 90
+    } else if (rotateView) {
         ang -= movedX * deltaTime / 64
         ang %= 360
     }
@@ -128,31 +132,36 @@ function move(ang) {
     let vel = { x: 0, y: 0 }
     let dir = { x: 0, y: 0 }
 
-    if (keyIsDown(UP_ARROW) || keyIsDown(87)) {
-        vel.y += -sin(radians(ang))
-        vel.x += cos(radians(ang))
-        dir.y = -1
-    }
-    if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
-        vel.y += sin(radians(ang))
-        vel.x += -cos(radians(ang))
-        dir.y = 1
-    }
-    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
-        vel.y += cos(radians(ang))
-        vel.x += sin(radians(ang))
-        dir.x = 1
-    }
-    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
-        vel.y += -cos(radians(ang))
-        vel.x += -sin(radians(ang))
-        dir.x = -1
-    }
+    if (keyIsDown(UP_ARROW) || keyIsDown(87)) dir.y = -1
+    if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) dir.y = 1
+    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) dir.x = 1
+    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) dir.x = -1
 
-    let mag = sqrt(dir.x ** 2 + dir.y ** 2)
-    if (mag != 0) {
-        vel.x /= mag
-        vel.y /= mag
+    if (renderMap) {
+        vel.y = dir.y
+        vel.x = dir.x
+    } else {
+        if (dir.y == -1) {
+            vel.y += -sin(radians(ang))
+            vel.x += cos(radians(ang))
+        }
+        if (dir.y == 1) {
+            vel.y += sin(radians(ang))
+            vel.x += -cos(radians(ang))
+        }
+        if (dir.x == -1) {
+            vel.y += -cos(radians(ang))
+            vel.x += -sin(radians(ang))
+        }
+        if (dir.x == 1) {
+            vel.y += cos(radians(ang))
+            vel.x += sin(radians(ang))
+        }
+        let mag = sqrt(dir.x ** 2 + dir.y ** 2)
+        if (mag != 0) {
+            vel.x /= mag
+            vel.y /= mag
+        }
     }
 
     pos.y += vel.y / 32
