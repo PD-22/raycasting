@@ -1,5 +1,5 @@
 let width, height, map, rows, cols, cls, place, pos, ang, ratio, rotate,
-    rayBuf, fov, renderMap, renderView, pointerLock, speed, res
+    rayBuf, fov, renderMap, renderView, pointerLock, speed, res, rad
 
 /*
 interesction bug
@@ -230,6 +230,8 @@ function drawMap(pos, rayBuf, num = 5) {
     noStroke()
     fill('gray')
     circle(pos.x * cls, pos.y * cls, cls)
+    fill('black')
+    circle(pos.x * cls, pos.y * cls, cls * 2 * rad)
 
     let inc = Math.floor(rayBuf.length / (num - 1))
     for (let i = 1; i < rayBuf.length; i += inc) {
