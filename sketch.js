@@ -1,5 +1,5 @@
 let width, height, map, rows, cols, cls, place, pos, ang, ratio, rotateView,
-    rayBuf, fov, renderMap, renderView, pointerLock
+    rayBuf, fov, renderMap, renderView, pointerLock, speed
 
 /*
 interesction bug
@@ -8,6 +8,7 @@ mobile compatibility
 group functions, make classes?
 make mapVisible true on showMatrix?
 collision space
+big map lags
 map
     transparent
     centered
@@ -129,7 +130,12 @@ function updateAng() {
     }
 }
 
-function move(ang) {
+function move(ang, s) {
+    if (s == undefined) {
+        speed = keyIsDown(SHIFT) ? 2 : 1
+    } else {
+        speed = s
+    }
     let vel = { x: 0, y: 0 }
     let dir = { x: 0, y: 0 }
 
@@ -165,10 +171,16 @@ function move(ang) {
         }
     }
 
-    pos.y += vel.y / 32
-    pos.x += vel.x / 32
-}
+    if (speed != undefined) {
+        vel.y *= speed
+        vel.x *= speed
+    }
 
+    pos.y += vel.y / 24
+    pos.x += vel.x / 24
+
+    if (drawMap) updateAng()
+}
 
 // Draw functions
 
