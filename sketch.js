@@ -182,9 +182,9 @@ function move(ang, s) {
     vel.x /= 24
 
     let cell
-    cell = getCell(pos.x * cls, (pos.y + vel.y) * cls)
+    cell = getCell(pos.x, pos.y + vel.y, false)
     if (getCellVal(cell) == 1) vel.y = 0
-    cell = getCell((pos.x + vel.x) * cls, pos.y * cls)
+    cell = getCell(pos.x + vel.x, pos.y, false)
     if (getCellVal(cell) == 1) vel.x = 0
 
     pos.y += vel.y
@@ -192,6 +192,7 @@ function move(ang, s) {
 
     if (drawMap) updateAng()
 }
+
 
 // Draw functions
 
@@ -378,9 +379,9 @@ function countWallNeighbors(arr, i, j) {
 
 // Matrix functions
 
-function getCell(px, py) {
-    let x = Math.floor(px / cls)
-    let y = Math.floor(py / cls)
+function getCell(x1, y1, px = true) {
+    let x = Math.floor(px ? x1 / cls : x1)
+    let y = Math.floor(px ? y1 / cls : y1)
     if (x < 0 || y < 0 || x >= cols || y >= rows) return undefined
     return { x, y }
 }
