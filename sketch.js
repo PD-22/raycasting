@@ -1,5 +1,5 @@
 let width, height, map, rows, cols, cls, place, pos, ang, ratio, rotateView,
-    rayBuf, fov, renderMap, renderView, pointerLock, speed
+    rayBuf, fov, renderMap, renderView, pointerLock, speed, res
 
 /*
 interesction bug
@@ -17,7 +17,6 @@ map
     cls size fit
 detect click on map or view for closeMap/placeWalls
 just use cell for first intersections
-add height res
 */
 
 function setup() {
@@ -59,7 +58,7 @@ function setup() {
 
 function draw() {
     drawMatrix(map)
-    rayBuf = castRays(ang)
+    rayBuf = castRays(ang, width)
     if (renderView) drawView(pos, rayBuf)
     if (renderMap) drawMap(pos, rayBuf)
     move(ang)
@@ -196,6 +195,8 @@ function drawView(pos, rayBuf) {
         let offAng = its.ang
         let p = d * cos(radians(ang - offAng))
         let h = width / p / 2
+        let colw = width / res
+        h = round(h / colw) * colw
         noStroke()
         if (its.axis === 'x') {
             fill(255, 0, 0)
@@ -245,7 +246,8 @@ function drawCell(mtrx, i, j) {
 
 // Ray casting functions
 
-function castRays(offAng, res = width) {
+function castRays(offAng, r = width) {
+    res = r
     rayBuf = []
     let inc = fov / res
     for (let ang = offAng - fov / 2; ang < offAng + fov / 2; ang += inc) {
