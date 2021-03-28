@@ -15,7 +15,6 @@ map
     size fit
     cls size fit
     detect click on map or view for closeMap/placeWalls
-collision space
 */
 
 function setup() {
@@ -49,6 +48,7 @@ function setup() {
     fov = 90
     ang = 0
     res = width
+    rad = 1 / 4
 
     renderMap = false
     renderView = true
@@ -172,6 +172,8 @@ function move(ang, s) {
             vel.x /= mag
             vel.y /= mag
         }
+        dir.x = vel.x
+        dir.y = vel.y
     }
 
     if (speed != undefined) {
@@ -182,9 +184,9 @@ function move(ang, s) {
     vel.x /= 24
 
     let cell
-    cell = getCell(pos.x, pos.y + vel.y, false)
+    cell = getCell(pos.x, pos.y + vel.y + dir.y * rad, false)
     if (getCellVal(cell) == 1) vel.y = 0
-    cell = getCell(pos.x + vel.x, pos.y, false)
+    cell = getCell(pos.x + vel.x + dir.x * rad, pos.y, false)
     if (getCellVal(cell) == 1) vel.x = 0
 
     pos.y += vel.y
