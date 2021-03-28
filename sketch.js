@@ -15,7 +15,6 @@ map
     size fit
     cls size fit
     detect click on map or view for closeMap/placeWalls
-bugged collision
 */
 
 function setup() {
@@ -168,11 +167,14 @@ function move(ang, s) {
             vel.y += cos(radians(ang))
             vel.x += sin(radians(ang))
         }
+
         dir.x = vel.x
+        if (dir.x != 0) dir.x = (dir.x > 0) * 2 - 1
         dir.y = vel.y
+        if (dir.y != 0) dir.y = (dir.y > 0) * 2 - 1
     }
 
-    let mag = sqrt(dir.x ** 2 + dir.y ** 2)
+    let mag = sqrt(vel.x ** 2 + vel.y ** 2)
     if (mag != 0) {
         vel.x /= mag
         vel.y /= mag
@@ -185,16 +187,20 @@ function move(ang, s) {
     vel.y /= 24
     vel.x /= 24
 
-    pos.y += vel.y
-    pos.x += vel.x
-
     let cell
+
+    pos.x += vel.x
+    pos.y += vel.y
+
     cell = getCell(pos.x, pos.y + dir.y * rad, false)
-    if (getCellVal(cell))
+    if (getCellVal(cell)) {
         pos.y = cell.y + 0.5 - dir.y * 0.5 - dir.y * rad
+    }
+
     cell = getCell(pos.x + dir.x * rad, pos.y, false)
-    if (getCellVal(cell))
+    if (getCellVal(cell)) {
         pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * rad
+    }
 
     if (drawMap) updateAng()
 }
