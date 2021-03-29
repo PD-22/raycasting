@@ -1,5 +1,8 @@
-let width, height, map, rows, cols, cls, place, pos, ang, ratio, rotate,
-    rayBuf, fov, renderMap, renderView, pointerLock, speed, res, rad
+let
+    width, height, map, rows, cols,
+    cls, place, pos, ang, ratio,
+    rotate, rayBuf, fov, renderMap, renderView,
+    pointerLock, speed, res, rad, mapOff
 
 /*
 interesction bug
@@ -10,9 +13,7 @@ make mapVisible true on showMatrix?
 big map lags
 map
     transparent
-    centered
-    move map?
-    size fit
+    size fit different col/row ratio
     cls size fit
 */
 
@@ -48,8 +49,12 @@ function setup() {
     ang = 0
     res = width
     rad = 1 / 4
+    mapOff = {
+        x: (width - cols * cls) / 2,
+        y: (height - rows * cls) / 2
+    }
 
-    renderMap = false
+    renderMap = true
     renderView = true
     rotate = false
     pointerLock = false
@@ -74,11 +79,14 @@ function createMyCanvas() {
     createCanvas(width, height)
 }
 
-function mouseOnMap() {
+function mouseOnMap(
+    mx = mouseX - mapOff.x,
+    my = mouseY - mapOff.y
+) {
     return (
         renderMap &&
-        mouseX > 0 && mouseX < cols * cls &&
-        mouseY > 0 && mouseY < rows * cls
+        mx > 0 && mx < cols * cls &&
+        my > 0 && my < rows * cls
     )
 }
 
@@ -112,7 +120,10 @@ function keyPressed() {
 function mousePressed() {
     if (renderMap) {
         if (mouseOnMap()) {
-            let cell = getCell(mouseX, mouseY)
+            let cell = getCell(
+                mouseX - mapOff.x,
+                mouseY - mapOff.y
+            )
             place = 1 - getCellVal(cell)
             flipCell(map, cell)
         } else {
@@ -128,7 +139,13 @@ function mouseMoved() {
 }
 
 function mouseDragged() {
-    if (renderMap) flipCell(map, getCell(mouseX, mouseY))
+    if (renderMap)
+        flipCell(
+            map,
+            getCell(
+                mouseX - mapOff.x,
+                mouseY - mapOff.y)
+        )
 }
 
 
@@ -138,11 +155,14 @@ function flipCell(mtrx, cell) {
     if (cell != undefined) mtrx[cell.y][cell.x] = place ? 1 : 0
 }
 
-function updateAng() {
+function updateAng(
+    mx = mouseX - mapOff.x,
+    my = mouseY - mapOff.y
+) {
     if (renderMap) {
         ang = degrees(Math.atan2(
-            mouseX - pos.x * cls,
-            mouseY - pos.y * cls,
+            mx - pos.x * cls,
+            my - pos.y * cls,
         )) - 90
     } else if (rotate) {
         ang -= movedX * deltaTime / 100
@@ -252,6 +272,7 @@ function drawView(pos, rayBuf) {
 
 function drawMap(pos, rayBuf, num = 5) {
     push()
+    translate(mapOff.x, mapOff.y)
     drawMatrix(map)
 
     noStroke()
