@@ -14,7 +14,6 @@ map
     move map?
     size fit
     cls size fit
-    detect click on map or view for closeMap/placeWalls
 */
 
 function setup() {
@@ -75,34 +74,52 @@ function createMyCanvas() {
     createCanvas(width, height)
 }
 
+function mouseOnMap() {
+    return (
+        renderMap &&
+        mouseX > 0 && mouseX < cols * cls &&
+        mouseY > 0 && mouseY < rows * cls
+    )
+}
+
+function renderMode(opt = 1) {
+    if (opt == 1) {
+        renderMap = false
+        rotate = true
+        pointerLock = true
+        requestPointerLock()
+    } else if (opt == 2) {
+        renderMap = true
+        rotate = false
+        pointerLock = false
+        exitPointerLock()
+    }
+}
+
 
 // Input functions
 
 function keyPressed() {
     if (keyCode == 70) {
-        if (renderMap) {
-            renderMap = false
-            rotate = true
-            pointerLock = true
-            requestPointerLock()
-        } else if (renderView) {
-            renderMap = true
-            rotate = false
-            pointerLock = false
-            exitPointerLock()
+        if (renderView) {
+            renderMode(2)
+        } else if (renderMap) {
+            renderMode(1)
         }
     }
 }
 
 function mousePressed() {
     if (renderMap) {
-        let cell = getCell(mouseX, mouseY)
-        place = 1 - getCellVal(cell)
-        flipCell(map, cell)
+        if (mouseOnMap()) {
+            let cell = getCell(mouseX, mouseY)
+            place = 1 - getCellVal(cell)
+            flipCell(map, cell)
+        } else {
+            renderMode(1)
+        }
     } else if (renderView) {
-        requestPointerLock()
-        rotate = true
-        pointerLock = true
+        renderMode(1)
     }
 }
 
