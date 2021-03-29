@@ -15,6 +15,7 @@ map
     transparent
     size fit different col/row ratio
     cls size fit
+press F bug?
 */
 
 function setup() {
