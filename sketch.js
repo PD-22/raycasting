@@ -2,7 +2,7 @@ let
     width, height, map, rows, cols,
     cls, place, pos, ang, ratio,
     rotate, rayBuf, fov, renderMap, renderView,
-    pointerLock, speed, res, rad, mapOff
+    pointerLock, speed, res, rad, mapOff, showFps
 
 /*
 interesction bug
@@ -12,10 +12,12 @@ group functions, make classes
 ray and pos border teleport
 constant render distance
 zoom big renderMap big
-add fog
 */
 
 function setup() {
+    createMyCanvas()
+    background('gray')
+
     map = makeMatrix([
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -37,23 +39,15 @@ function setup() {
 
     // map = makeMatrix(
     //     cellularAutomata(
-    //         ranMatrix(32, 24, 0.42), 4
+    //         ranMatrix(32, 24, 0.41), 2
     //     )
     // )
-
-    createMyCanvas()
-    background('gray')
 
     pos = { x: cols / 2 - 0.2, y: rows / 2 - 0.2 }
     fov = 90
     ang = 0
     res = width
     rad = 1 / 4
-    cls = Math.min(width / cols, height / rows)
-    mapOff = {
-        x: (width - cols * cls) / 2,
-        y: (height - rows * cls) / 2
-    }
 
     renderMap = true
     renderView = true
@@ -457,6 +451,11 @@ function makeMatrix(arr, r, c) {
     } else mtrx = arr
     rows = mtrx.length
     cols = mtrx[0].length
+    cls = Math.min(width / cols, height / rows)
+    mapOff = {
+        x: (width - cols * cls) / 2,
+        y: (height - rows * cls) / 2
+    }
     return mtrx
 }
 
