@@ -6,14 +6,12 @@ let
 
 /*
 interesction bug
+big map lag
 mobile compatibility
-group functions, make classes?
-make mapVisible true on showMatrix?
-big map lags
+group functions, make classes
 ray and pos border teleport
-constant render distance?
+constant render distance
 zoom big renderMap big
-map transparent
 add fog
 */
 
@@ -64,7 +62,6 @@ function setup() {
 }
 
 function draw() {
-    drawMatrix(map)
     rayBuf = castRays(ang, res)
     if (renderView) drawView(pos, rayBuf)
     if (renderMap) drawMap(pos, rayBuf)
@@ -276,7 +273,9 @@ function drawView(pos, rayBuf) {
 function drawMap(pos, rayBuf, num = 5) {
     push()
     translate(mapOff.x, mapOff.y)
-    drawMatrix(map)
+    stroke(127)
+    strokeWeight(cls / 16)
+    drawMatrix(map, 0.8)
 
     noStroke()
     fill('gray')
@@ -298,16 +297,16 @@ function drawMap(pos, rayBuf, num = 5) {
     pop()
 }
 
-function drawMatrix(mtrx) {
+function drawMatrix(mtrx, t = 1) {
     mtrx.forEach((row, i) => {
         row.forEach((cell, j) => {
-            drawCell(mtrx, i, j)
+            drawCell(mtrx, i, j, t)
         })
     })
 }
 
-function drawCell(mtrx, i, j) {
-    mtrx[i][j] == 0 ? fill(255) : fill(0)
+function drawCell(mtrx, i, j, t = 1) {
+    mtrx[i][j] == 0 ? fill(255, 255 * t) : fill(0, 255 * t)
     rect(j * cls, i * cls, cls, cls)
 }
 
