@@ -242,7 +242,7 @@ function move(ang, s) {
         pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * rad
     }
 
-    if (drawMap) updateAng()
+    if (renderMap) updateAng()
 }
 
 
