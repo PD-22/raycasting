@@ -15,7 +15,6 @@ map
     transparent
     size fit different col/row ratio
     cls size fit
-press F bug?
 */
 
 function setup() {
@@ -110,10 +109,10 @@ function renderMode(opt = 1) {
 
 function keyPressed() {
     if (keyCode == 70) {
-        if (renderView) {
-            renderMode(2)
-        } else if (renderMap) {
+        if (renderMap) {
             renderMode(1)
+        } else {
+            renderMode(2)
         }
     }
 }
