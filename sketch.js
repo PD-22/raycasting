@@ -6,15 +6,15 @@ let
 
 /*
 interesction bug
-add fog
 mobile compatibility
 group functions, make classes?
 make mapVisible true on showMatrix?
 big map lags
-map
-    transparent
-    size fit different col/row ratio
-    cls size fit
+ray and pos border teleport
+constant render distance?
+zoom big renderMap big
+map transparent
+add fog
 */
 
 function setup() {
@@ -37,18 +37,21 @@ function setup() {
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ])
 
-    // map = makeMatrix(cellularAutomata(ranMatrix(9 * 3, 16 * 3, 0.45), 4))
+    map = makeMatrix(
+        cellularAutomata(
+            ranMatrix(32, 24, 0.42), 4
+        )
+    )
 
     createMyCanvas()
     background('gray')
 
-    cls = Math.min(width / rows, height / cols)
-
-    pos = { x: cols / 6 - 0.2, y: rows / 6 - 0.2 }
+    pos = { x: cols / 2 - 0.2, y: rows / 2 - 0.2 }
     fov = 90
     ang = 0
     res = width
     rad = 1 / 4
+    cls = Math.min(width / cols, height / rows)
     mapOff = {
         x: (width - cols * cls) / 2,
         y: (height - rows * cls) / 2
@@ -447,7 +450,7 @@ function makeMatrix(arr, r, c) {
     let mtrx = []
     if (arr == 0) {
         for (let i = 0; i < r; i++) {
-            mtrx.push(new Array(r))
+            mtrx.push(new Array(c))
             for (let j = 0; j < c; j++) {
                 mtrx[i][j] = 0
             }
@@ -472,7 +475,7 @@ function ranMatrix(r, c, chance = 0.5) {
 function copyMatrix(arrOut) {
     let arrIn = []
     for (let i = 0; i < arrOut.length; i++) {
-        arrIn[i] = new Array(arrOut.length)
+        arrIn[i] = new Array(arrOut[0].length)
         for (let j = 0; j < arrOut[0].length; j++) {
             arrIn[i][j] = arrOut[i][j]
         }
