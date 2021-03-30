@@ -35,11 +35,11 @@ function setup() {
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ])
 
-    map = makeMatrix(
-        cellularAutomata(
-            ranMatrix(32, 24, 0.42), 4
-        )
-    )
+    // map = makeMatrix(
+    //     cellularAutomata(
+    //         ranMatrix(32, 24, 0.42), 4
+    //     )
+    // )
 
     createMyCanvas()
     background('gray')
@@ -284,7 +284,7 @@ function drawMap(pos, rayBuf, num = 5) {
     circle(pos.x * cls, pos.y * cls, cls * 2 * rad)
 
     let inc = Math.floor(rayBuf.length / (num - 1))
-    for (let i = 1; i < rayBuf.length; i += inc) {
+    for (let i = 0; i < rayBuf.length; i += inc) {
         i = floor(i)
         stroke('red')
         strokeWeight(cls / 16)
