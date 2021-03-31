@@ -11,7 +11,8 @@ mobile compatibility
 group functions, make classes
 ray and pos border teleport
 constant render distance
-zoom big renderMap big
+zoom big renderMap big (pos offSet)
+remove dif map controls
 */
 
 function setup() {
@@ -266,7 +267,10 @@ function drawView(pos, rayBuf) {
 
 function drawMap(pos, rayBuf, num = 5) {
     push()
-    translate(mapOff.x, mapOff.y)
+    translate(
+        mapOff.x - (pos.x - cols / 2) * cls,
+        mapOff.y - (pos.y - rows / 2) * cls,
+    )
     stroke(127)
     strokeWeight(cls / 16)
     drawMatrix(map, 0.8)
@@ -292,11 +296,11 @@ function drawMap(pos, rayBuf, num = 5) {
 }
 
 function drawMatrix(mtrx, t = 1) {
-    mtrx.forEach((row, i) => {
-        row.forEach((cell, j) => {
+    for (let i = 0; i < mtrx.length; i++) {
+        for (let j = 0; j < mtrx[0].length; j++) {
             drawCell(mtrx, i, j, t)
-        })
-    })
+        }
+    }
 }
 
 function drawCell(mtrx, i, j, t = 1) {
