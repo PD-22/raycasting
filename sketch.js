@@ -132,7 +132,6 @@ function mousePressed() {
 }
 
 function mouseMoved() {
-    updateMouse()
     updateAng()
 }
 
@@ -158,6 +157,7 @@ function flipCell(mtrx, cell) {
 }
 
 function updateAng() {
+    updateMouse()
     if (renderMap) {
         ang = degrees(Math.atan2(
             mx - pos.x * cls,
