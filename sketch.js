@@ -2,7 +2,8 @@ let
     width, height, map, rows, cols,
     cls, place, pos, ang, ratio,
     rotate, rayBuf, fov, renderMap, renderView,
-    pointerLock, speed, res, rad, mapOff, showFps
+    pointerLock, speed, res, rad, mapOff,
+    showFps, mx, my
 
 /*
 interesction bug
@@ -11,8 +12,10 @@ mobile compatibility
 group functions, make classes
 ray and pos border teleport
 constant render distance
-zoom big renderMap big (pos offSet)
 remove dif map controls
+add fps dependence on control
+only update some functions at change
+substract camera plane from ray dis
 */
 
 function setup() {
@@ -40,15 +43,20 @@ function setup() {
 
     // map = makeMatrix(
     //     cellularAutomata(
-    //         ranMatrix(32, 24, 0.41), 2
+    //         ranMatrix(24, 24, 0.42), 2
     //     )
     // )
 
     pos = { x: cols / 2 - 0.2, y: rows / 2 - 0.2 }
     fov = 90
     ang = 0
-    res = width
+    res = width / 4
     rad = 1 / 4
+    cls = width / 32
+    mapOff = {
+        x: (width - cols * cls) / 2,
+        y: (height - rows * cls) / 2
+    }
 
     renderMap = true
     renderView = true
@@ -74,10 +82,7 @@ function createMyCanvas() {
     createCanvas(width, height)
 }
 
-function mouseOnMap(
-    mx = mouseX - mapOff.x,
-    my = mouseY - mapOff.y
-) {
+function mouseOnMap() {
     return (
         renderMap &&
         mx > 0 && mx < cols * cls &&
@@ -115,10 +120,7 @@ function keyPressed() {
 function mousePressed() {
     if (renderMap) {
         if (mouseOnMap()) {
-            let cell = getCell(
-                mouseX - mapOff.x,
-                mouseY - mapOff.y
-            )
+            let cell = getCell(mx, my)
             place = 1 - getCellVal(cell)
             flipCell(map, cell)
         } else {
@@ -130,30 +132,32 @@ function mousePressed() {
 }
 
 function mouseMoved() {
+    updateMouse()
     updateAng()
 }
 
 function mouseDragged() {
+    updateMouse()
     if (renderMap)
         flipCell(
             map,
-            getCell(
-                mouseX - mapOff.x,
-                mouseY - mapOff.y)
+            getCell(mx, my)
         )
 }
 
 
 // Update functions
 
+function updateMouse() {
+    mx = mouseX - mapOff.x + (pos.x - cols / 2) * cls
+    my = mouseY - mapOff.y + (pos.y - rows / 2) * cls
+}
+
 function flipCell(mtrx, cell) {
     if (cell != undefined) mtrx[cell.y][cell.x] = place ? 1 : 0
 }
 
-function updateAng(
-    mx = mouseX - mapOff.x,
-    my = mouseY - mapOff.y
-) {
+function updateAng() {
     if (renderMap) {
         ang = degrees(Math.atan2(
             mx - pos.x * cls,
@@ -234,7 +238,7 @@ function move(ang, s) {
         pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * rad
     }
 
-    if (renderMap) updateAng()
+    if (dir.x != 0 || dir.y != 0 && renderMap) updateAng()
 }
 
 
@@ -455,7 +459,6 @@ function makeMatrix(arr, r, c) {
     } else mtrx = arr
     rows = mtrx.length
     cols = mtrx[0].length
-    cls = Math.min(width / cols, height / rows)
     mapOff = {
         x: (width - cols * cls) / 2,
         y: (height - rows * cls) / 2
