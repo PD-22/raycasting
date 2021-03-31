@@ -15,7 +15,6 @@ constant render distance
 remove dif map controls
 add fps dependence on control
 only update some functions at change
-substract camera plane from ray dis
 */
 
 function setup() {
