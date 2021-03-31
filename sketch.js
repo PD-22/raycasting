@@ -13,7 +13,6 @@ group functions, make classes
 ray and pos border teleport
 constant render distance
 remove dif map controls
-add fps dependence on control
 only update some functions at change
 */
 
@@ -57,7 +56,7 @@ function setup() {
         y: (height - rows * cls) / 2
     }
 
-    renderMap = true
+    renderMap = false
     renderView = true
     rotate = false
     pointerLock = false
@@ -174,6 +173,8 @@ function move(ang, s) {
     } else {
         speed = s
     }
+    speed *= deltaTime / 24
+
     let vel = { x: 0, y: 0 }
     let dir = { x: 0, y: 0 }
 
