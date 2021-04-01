@@ -56,7 +56,7 @@ function setup() {
         y: (height - rows * cls) / 2
     }
 
-    renderMap = false
+    renderMap = true
     renderView = true
     rotate = false
     pointerLock = false
@@ -285,16 +285,15 @@ function drawMap(pos, rayBuf, num = 5) {
     fill('black')
     circle(pos.x * cls, pos.y * cls, cls * 2 * rad)
 
-    let inc = Math.floor(rayBuf.length / (num - 1))
+    let inc = (rayBuf.length - 1) / (num - 1)
     for (let i = 0; i < rayBuf.length; i += inc) {
-        i = floor(i)
         stroke('red')
         strokeWeight(cls / 16)
-        let top = rayBuf[i]
-        line(pos.x * cls, pos.y * cls, top.x * cls, top.y * cls)
+        let ray = rayBuf[Math.floor(i)]
+        line(pos.x * cls, pos.y * cls, ray.x * cls, ray.y * cls)
         noStroke()
         fill('yellow')
-        circle(top.x * cls, top.y * cls, cls / 4)
+        circle(ray.x * cls, ray.y * cls, cls / 4)
     }
     pop()
 }
