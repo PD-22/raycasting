@@ -15,6 +15,7 @@ constant render distance
 remove dif map controls
 only update some functions at change
 texture mapping...
+    add drawTexture function
 */
 
 function setup() {
@@ -57,7 +58,7 @@ function setup() {
         y: (height - rows * cls) / 2
     }
 
-    renderMap = true
+    renderMap = false
     renderView = true
     rotate = false
     pointerLock = false
@@ -245,7 +246,6 @@ function move(ang, s) {
 
 // Draw functions
 
-let temp = true
 function drawView(pos, rayBuf) {
     push()
     fill(0, 0, 255)
@@ -269,12 +269,17 @@ function drawView(pos, rayBuf) {
             txcl = its.x % 1
             fill(191, 0, 0)
         }
-        
+
         // drawing temp texture using map
         for (let r = 0; r < rows; r++) {
-            fill(
-                (1 - map[r][floor(txcl * cols)]) * 255
-            )
+            let color = (1 - map[r][floor(txcl * cols)]) * 255
+            if (
+                floor(pos.y) == r &&
+                floor(pos.x) == floor(txcl * cols)
+            ) {
+                color = 127
+            }
+            fill(color)
             let wcHeight = h / rows
             rect(
                 Math.round(i * w),
@@ -283,7 +288,7 @@ function drawView(pos, rayBuf) {
             )
         }
     })
-    temp = false
+
     pop()
 }
 
