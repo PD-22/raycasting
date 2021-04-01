@@ -14,6 +14,7 @@ ray and pos border teleport
 constant render distance
 remove dif map controls
 only update some functions at change
+texture mapping...
 */
 
 function setup() {
@@ -244,6 +245,7 @@ function move(ang, s) {
 
 // Draw functions
 
+let temp = true
 function drawView(pos, rayBuf) {
     push()
     fill(0, 0, 255)
@@ -259,13 +261,29 @@ function drawView(pos, rayBuf) {
         let colw = width / res
         h = round(h / colw) * colw
         noStroke()
+        let txcl
         if (its.axis === 'x') {
+            txcl = its.y % 1
             fill(255, 0, 0)
         } else {
+            txcl = its.x % 1
             fill(191, 0, 0)
         }
-        rect(Math.round(i * w), (height - h) / 2, w, h)
+        
+        // drawing temp texture using map
+        for (let r = 0; r < rows; r++) {
+            fill(
+                (1 - map[r][floor(txcl * cols)]) * 255
+            )
+            let wcHeight = h / rows
+            rect(
+                Math.round(i * w),
+                (height - h) / 2 + wcHeight * r,
+                w, wcHeight
+            )
+        }
     })
+    temp = false
     pop()
 }
 
