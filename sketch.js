@@ -3,7 +3,7 @@ let
     cls, place, pos, ang, ratio,
     rotate, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, rad, mapOff,
-    showFps, mx, my
+    showFps, mx, my, ceilClr, floorClr
 
 /*
 interesction bug
@@ -15,6 +15,8 @@ constant render distance
 remove dif map controls
 only update some functions at change
 texture mapping...
+    fix texture direction
+    fix texture skewing
     add drawTexture function
 */
 
@@ -22,7 +24,7 @@ function setup() {
     createMyCanvas()
     background('gray')
 
-    map = makeMatrix([
+    map = makeMap([
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -41,22 +43,42 @@ function setup() {
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ])
 
-    // map = makeMatrix(
+    texture1 = rt(8, 8)
+
+    function rt(r, c) {
+        let mtrx = makeMatrix(r, c)
+        for (let i = 0; i < r; i++)
+            for (let j = 0; j < c; j++)
+                mtrx[i][j] = rc()
+        return mtrx
+    }
+
+    function rc() {
+        return [
+            [Math.floor(Math.random() * 256)],
+            [Math.floor(Math.random() * 256)],
+            [Math.floor(Math.random() * 256)]
+        ]
+    }
+
+    // map = makeMap(
     //     cellularAutomata(
-    //         ranMatrix(24, 24, 0.42), 2
+    //         makeMatrix(24, 24, 0.42), 2
     //     )
     // )
 
     pos = { x: cols / 2 - 0.2, y: rows / 2 - 0.2 }
     fov = 90
     ang = 0
-    res = width / 4
+    res = width / 2
     rad = 1 / 4
     cls = width / 32
     mapOff = {
         x: (width - cols * cls) / 2,
         y: (height - rows * cls) / 2
     }
+    ceilClr = 'lightBlue'
+    floorClr = 'lightGreen'
 
     renderMap = false
     renderView = true
@@ -66,7 +88,7 @@ function setup() {
 
 function draw() {
     rayBuf = castRays(ang, res)
-    if (renderView) drawView(pos, rayBuf)
+    if (renderView) drawView(pos, rayBuf, ceilClr, floorClr)
     if (renderMap) drawMap(pos, rayBuf)
     move(ang)
 }
@@ -246,12 +268,13 @@ function move(ang, s) {
 
 // Draw functions
 
-function drawView(pos, rayBuf) {
+function drawView(pos, rayBuf, tclr = 170, bclr = 85) {
     push()
-    fill(0, 0, 255)
+    fill(tclr)
     rect(0, 0, width, height / 2)
-    fill(0, 255, 0)
+    fill(bclr)
     rect(0, height / 2, width, height / 2)
+
     let w = width / rayBuf.length
     rayBuf.forEach((its, i) => {
         let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2)
@@ -270,26 +293,33 @@ function drawView(pos, rayBuf) {
             fill(191, 0, 0)
         }
 
-        // drawing temp texture using map
-        for (let r = 0; r < rows; r++) {
-            let color = (1 - map[r][floor(txcl * cols)]) * 255
-            if (
-                floor(pos.y) == r &&
-                floor(pos.x) == floor(txcl * cols)
-            ) {
-                color = 127
-            }
-            fill(color)
-            let wcHeight = h / rows
-            rect(
-                Math.round(i * w),
-                (height - h) / 2 + wcHeight * r,
-                w, wcHeight
-            )
-        }
+        drawTextureCol(texture1, i, h, txcl, w)
+
+        // rect(
+        //     Math.round(i * w),
+        //     (height - h) / 2,
+        //     w, h
+        // )
     })
 
     pop()
+}
+
+function drawTextureCol(txtr, i, h, txcl, w) {
+    let rows = txtr.length
+    let cols = txtr[0].length
+    let wcHeight = h / rows
+
+    for (let y = 0; y < rows; y++) {
+        let x = floor(txcl * cols)
+        let color = txtr[y][x]
+        fill(color)
+        rect(
+            Math.round(i * w),
+            (height - h) / 2 + wcHeight * y,
+            w, wcHeight
+        )
+    }
 }
 
 function drawMap(pos, rayBuf, num = 5) {
@@ -362,7 +392,7 @@ function castRay(pos, ang) {
     while (true) {
         while (abs(pos.x - xsi.x) <= abs(pos.x - ysi.x)) {
             cell.x += dir.x
-            if (map[cell.y][cell.x] == undefined || map[cell.y][cell.x]) {
+            if (map[cell.y][cell.x] == undefined || map[cell.y][cell.x] != 0) {
                 return { x: xsi.x, y: xsi.y, axis: 'x', ang }
             }
             xsi.x += dir.x
@@ -370,7 +400,7 @@ function castRay(pos, ang) {
         }
         while (abs(pos.y - ysi.y) <= abs(pos.y - xsi.y)) {
             cell.y += dir.y
-            if (map[cell.y] == undefined || map[cell.y][cell.x]) {
+            if (map[cell.y] == undefined || map[cell.y][cell.x] != 0) {
                 return { x: ysi.x, y: ysi.y, axis: 'y', ang }
             }
             ysi.x += dx
@@ -469,15 +499,10 @@ function getCellVal(cell) {
     return map[cell.y][cell.x]
 }
 
-function makeMatrix(arr, r, c) {
+function makeMap(arr, r, c) {
     let mtrx = []
     if (arr == 0) {
-        for (let i = 0; i < r; i++) {
-            mtrx.push(new Array(c))
-            for (let j = 0; j < c; j++) {
-                mtrx[i][j] = 0
-            }
-        }
+        mtrx = makeMatrix(r, c, 0)
     } else mtrx = arr
     rows = mtrx.length
     cols = mtrx[0].length
@@ -488,12 +513,16 @@ function makeMatrix(arr, r, c) {
     return mtrx
 }
 
-function ranMatrix(r, c, chance = 0.5) {
+function makeMatrix(r, c, p = 0) {
     let mtrx = []
     for (let i = 0; i < r; i++) {
         mtrx.push(new Array(c))
         for (let j = 0; j < c; j++) {
-            mtrx[i][j] = random() < chance ? 1 : 0;
+            if (p == 0 || p == 1) {
+                mtrx[i][j] = p
+            } else {
+                mtrx[i][j] = random() < p ? 1 : 0;
+            }
         }
     }
     return mtrx
