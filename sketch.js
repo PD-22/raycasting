@@ -19,6 +19,7 @@ texture mapping...
     fix texture direction
     fix texture skewing
     add drawTexture function
+    fix wrap
 */
 
 function setup() {
@@ -55,7 +56,7 @@ function setup() {
     pos = { x: 6.6, y: 3.5 }
     fov = 90
     ang = 0
-    res = width / 8
+    res = width / 4
     rad = 1 / 4
     cls = width / 32
     mapOff = {
@@ -75,6 +76,7 @@ function setup() {
 function draw() {
     rayBuf = castRays(ang, res)
     if (renderView) drawView(pos, rayBuf, ceilClr, floorClr)
+    temp = false
     if (renderMap) drawMap(pos, rayBuf)
     move(ang)
 }
@@ -151,13 +153,11 @@ function randomColor() {
 // Input functions
 
 function setKeyNum(kc) {
-    let kn = kc - 48
-    if (kn >= 0 && kn <= 9) {
-        if (kn > textures.length) {
-            txtrNum = 0
-        } else {
-            txtrNum = kn
-        }
+    let kn = kc - 49
+    if (kn < -1 && kn > textures.length) {
+        txtrNum = -1
+    } else {
+        txtrNum = kn
     }
 }
 
@@ -204,8 +204,8 @@ function updateMouse() {
     my = mouseY - mapOff.y + (pos.y - rows / 2) * cls
 }
 
-function placeCell(mtrx, cell, val = 1) {
-    if (cell != undefined) mtrx[cell.y][cell.x] = val
+function placeCell(mtrx, cell, val = 0) {
+    if (cell != undefined) mtrx[cell.y][cell.x] = val + 1
 }
 
 function updateAng() {
@@ -314,27 +314,9 @@ function drawView(pos, rayBuf, tclr = 170, bclr = 85) {
         h = round(h / colw) * colw
         noStroke()
         let txcl
-        let dir = getDir(ang)
-        if (its.axis === 'x') {
-            if (dir.x < 0) {
-                txcl = Math.abs(its.y) % 1
-            } else {
-                txcl = 1 - Math.abs(its.y) % 1
-            }
-            // fill(255, 0, 0)
-        } else {
-            if (dir.y > 0) {
-                txcl = Math.abs(its.x) % 1
-            } else {
-                txcl = 1 - Math.abs(its.x) % 1
-            }
-            // fill(191, 0, 0)
-        }
+        txcl = its[its.axis == 'x' ? 'y' : 'x'] % 1
 
-        if (textures[its.val] == undefined) {
-            console.log(its);
-        }
-        drawTextureCol(textures[its.val], i, h, txcl, w, its.axis)
+        drawTextureCol(textures[its.val - 1], i, h, txcl, w, its.axis)
 
         // rect(
         //     Math.round(i * w),
@@ -366,8 +348,7 @@ function drawTextureCol(txtr, i, h, txcl, w, side) {
         if (side == 'x') {
             fill(color)
         } else if (side == 'y') {
-            fill(color)
-            // fill(multClr(color, 0.8))
+            fill(multClr(color, 0.8))
         }
         rect(
             Math.round(i * w),
