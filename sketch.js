@@ -1,9 +1,10 @@
 let
     width, height, map, rows, cols,
-    cls, place, pos, ang, ratio,
+    cls, pos, ang, ratio,
     rotate, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, rad, mapOff,
-    showFps, mx, my, ceilClr, floorClr
+    showFps, mx, my, ceilClr, floorClr,
+    textures, txtrNum
 
 /*
 interesction bug
@@ -28,7 +29,7 @@ function setup() {
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1],
+        [1, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 1, 1, 0, 1, 1],
         [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1],
@@ -43,7 +44,14 @@ function setup() {
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ])
 
-    texture1 = rt(2, 2)
+    textures = rts(9, 1, 1)
+
+    function rts(n, r, c) {
+        let arr = []
+        for (let i = 0; i < n; i++)
+            arr.push(rt(r, c))
+        return arr
+    }
 
     function rt(r, c) {
         let mtrx = makeMatrix(r, c)
@@ -55,9 +63,9 @@ function setup() {
 
     function rc() {
         return [
-            [Math.floor(Math.random() * 256)],
-            [Math.floor(Math.random() * 256)],
-            [Math.floor(Math.random() * 256)]
+            Math.floor(Math.random() * 256),
+            Math.floor(Math.random() * 256),
+            Math.floor(Math.random() * 256),
         ]
     }
 
@@ -79,6 +87,7 @@ function setup() {
     }
     ceilClr = 'lightBlue'
     floorClr = 'lightGreen'
+    txtrNum = 0
 
     renderMap = false
     renderView = true
@@ -129,7 +138,20 @@ function renderMode(opt = 1) {
 
 // Input functions
 
+function setKeyNum(kc) {
+    let kn = kc - 48
+    if (kn >= 0 && kn <= 9) {
+        if (kn > textures.length) {
+            txtrNum = 0
+        } else {
+            txtrNum = kn
+        }
+    }
+}
+
 function keyPressed() {
+    setKeyNum(keyCode)
+
     if (keyCode == 70) {
         if (renderMap) {
             renderMode(1)
@@ -143,8 +165,7 @@ function mousePressed() {
     if (renderMap) {
         if (mouseOnMap()) {
             let cell = getCell(mx, my)
-            place = 1 - getCellVal(cell)
-            flipCell(map, cell)
+            placeCell(map, cell, txtrNum)
         } else {
             renderMode(1)
         }
@@ -160,10 +181,7 @@ function mouseMoved() {
 function mouseDragged() {
     updateMouse()
     if (renderMap)
-        flipCell(
-            map,
-            getCell(mx, my)
-        )
+        placeCell(map, getCell(mx, my), txtrNum)
 }
 
 
@@ -174,8 +192,8 @@ function updateMouse() {
     my = mouseY - mapOff.y + (pos.y - rows / 2) * cls
 }
 
-function flipCell(mtrx, cell) {
-    if (cell != undefined) mtrx[cell.y][cell.x] = place ? 1 : 0
+function placeCell(mtrx, cell, val = 1) {
+    if (cell != undefined) mtrx[cell.y][cell.x] = val
 }
 
 function updateAng() {
@@ -267,7 +285,6 @@ function move(ang, s) {
 
 
 // Draw functions
-
 function drawView(pos, rayBuf, tclr = 170, bclr = 85) {
     push()
     fill(tclr)
@@ -288,21 +305,24 @@ function drawView(pos, rayBuf, tclr = 170, bclr = 85) {
         let dir = getDir(ang)
         if (its.axis === 'x') {
             if (dir.x < 0) {
-                txcl = its.y % 1
+                txcl = Math.abs(its.y) % 1
             } else {
-                txcl = 1 - its.y % 1
+                txcl = 1 - Math.abs(its.y) % 1
             }
-            fill(255, 0, 0)
+            // fill(255, 0, 0)
         } else {
             if (dir.y > 0) {
-                txcl = its.x % 1
+                txcl = Math.abs(its.x) % 1
             } else {
-                txcl = 1 - its.x % 1
+                txcl = 1 - Math.abs(its.x) % 1
             }
-            fill(191, 0, 0)
+            // fill(191, 0, 0)
         }
 
-        drawTextureCol(texture1, i, h, txcl, w)
+        if (textures[its.val] == undefined) {
+            console.log(its);
+        }
+        drawTextureCol(textures[its.val], i, h, txcl, w, its.axis)
 
         // rect(
         //     Math.round(i * w),
@@ -314,7 +334,16 @@ function drawView(pos, rayBuf, tclr = 170, bclr = 85) {
     pop()
 }
 
-function drawTextureCol(txtr, i, h, txcl, w) {
+function multClr(color, m = 1) { // temp location
+    let clr = copyArr(color)
+    for (let i = 0; i < clr.length; i++) {
+        clr[i] *= m
+        clr[i] = floor(clr[i])
+    }
+    return clr
+}
+
+function drawTextureCol(txtr, i, h, txcl, w, side) {
     let rows = txtr.length
     let cols = txtr[0].length
     let wcHeight = h / rows
@@ -322,7 +351,11 @@ function drawTextureCol(txtr, i, h, txcl, w) {
     for (let y = 0; y < rows; y++) {
         let x = floor(txcl * cols)
         let color = txtr[y][x]
-        fill(color)
+        if (side == 'x') {
+            fill(color)
+        } else if (side == 'y') {
+            fill(multClr(color, 0.8))
+        }
         rect(
             Math.round(i * w),
             (height - h) / 2 + wcHeight * y,
@@ -401,16 +434,30 @@ function castRay(pos, ang) {
     while (true) {
         while (abs(pos.x - xsi.x) <= abs(pos.x - ysi.x)) {
             cell.x += dir.x
-            if (map[cell.y][cell.x] == undefined || map[cell.y][cell.x] != 0) {
-                return { x: xsi.x, y: xsi.y, axis: 'x', ang }
+            if (map[cell.y] == undefined
+                || map[cell.y][cell.x] != 0) {
+                return {
+                    x: xsi.x, y: xsi.y,
+                    axis: 'x', ang,
+                    val: map[cell.y] != undefined
+                        && map[cell.y][cell.x] != undefined
+                        ? map[cell.y][cell.x] : 0
+                }
             }
             xsi.x += dir.x
             xsi.y += dy
         }
         while (abs(pos.y - ysi.y) <= abs(pos.y - xsi.y)) {
             cell.y += dir.y
-            if (map[cell.y] == undefined || map[cell.y][cell.x] != 0) {
-                return { x: ysi.x, y: ysi.y, axis: 'y', ang }
+            if (map[cell.y] == undefined
+                || map[cell.y][cell.x] != 0) {
+                return {
+                    x: ysi.x, y: ysi.y,
+                    axis: 'y', ang,
+                    val: map[cell.y] != undefined
+                        && map[cell.y][cell.x] != undefined
+                        ? map[cell.y][cell.x] : 0
+                }
             }
             ysi.x += dx
             ysi.y += dir.y
@@ -508,7 +555,7 @@ function getCellVal(cell) {
     return map[cell.y][cell.x]
 }
 
-function makeMap(arr, r, c) {
+function makeMap(arr = 0, r, c) {
     let mtrx = []
     if (arr == 0) {
         mtrx = makeMatrix(r, c, 0)
@@ -537,13 +584,20 @@ function makeMatrix(r, c, p = 0) {
     return mtrx
 }
 
-function copyMatrix(arrOut) {
-    let arrIn = []
-    for (let i = 0; i < arrOut.length; i++) {
-        arrIn[i] = new Array(arrOut[0].length)
-        for (let j = 0; j < arrOut[0].length; j++) {
-            arrIn[i][j] = arrOut[i][j]
+function copyArr(arr) {
+    let out = []
+    for (let i = 0; i < arr.length; i++)
+        out.push(arr[i])
+    return out
+}
+
+function copyMatrix(arr) {
+    let out = []
+    for (let i = 0; i < arr.length; i++) {
+        out[i] = new Array(arr[0].length)
+        for (let j = 0; j < arr[0].length; j++) {
+            out[i][j] = arr[i][j]
         }
     }
-    return arrIn
+    return out
 }
