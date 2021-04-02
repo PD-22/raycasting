@@ -43,7 +43,7 @@ function setup() {
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ])
 
-    texture1 = rt(8, 8)
+    texture1 = rt(2, 2)
 
     function rt(r, c) {
         let mtrx = makeMatrix(r, c)
@@ -67,7 +67,7 @@ function setup() {
     //     )
     // )
 
-    pos = { x: cols / 2 - 0.2, y: rows / 2 - 0.2 }
+    pos = { x: 6.6, y: 3.5 }
     fov = 90
     ang = 0
     res = width / 2
@@ -285,11 +285,20 @@ function drawView(pos, rayBuf, tclr = 170, bclr = 85) {
         h = round(h / colw) * colw
         noStroke()
         let txcl
+        let dir = getDir(ang)
         if (its.axis === 'x') {
-            txcl = its.y % 1
+            if (dir.x < 0) {
+                txcl = its.y % 1
+            } else {
+                txcl = 1 - its.y % 1
+            }
             fill(255, 0, 0)
         } else {
-            txcl = its.x % 1
+            if (dir.y > 0) {
+                txcl = its.x % 1
+            } else {
+                txcl = 1 - its.x % 1
+            }
             fill(191, 0, 0)
         }
 
