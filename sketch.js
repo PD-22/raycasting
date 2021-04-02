@@ -55,7 +55,7 @@ function setup() {
     pos = { x: 6.6, y: 3.5 }
     fov = 90
     ang = 0
-    res = width / 2
+    res = width / 8
     rad = 1 / 4
     cls = width / 32
     mapOff = {
