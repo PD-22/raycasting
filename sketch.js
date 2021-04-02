@@ -26,48 +26,25 @@ function setup() {
     background('gray')
 
     map = makeMap([
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 1, 1, 0, 1, 1],
-        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1],
-        [1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1],
-        [1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 4],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 4],
+        [1, 0, 0, 0, 0, 3, 0, 0, 2, 0, 0, 4, 4, 0, 4, 4],
+        [1, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [5, 5, 5, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [5, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 1],
+        [5, 0, 2, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1],
+        [5, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1],
+        [5, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [5, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1],
+        [5, 0, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1],
+        [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 4, 4],
+        [5, 0, 2, 0, 0, 5, 0, 0, 0, 0, 0, 4, 0, 0, 0, 4],
+        [5, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 4, 0, 0, 0, 4],
+        [5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
     ])
 
-    textures = rts(9, 1, 1)
-
-    function rts(n, r, c) {
-        let arr = []
-        for (let i = 0; i < n; i++)
-            arr.push(rt(r, c))
-        return arr
-    }
-
-    function rt(r, c) {
-        let mtrx = makeMatrix(r, c)
-        for (let i = 0; i < r; i++)
-            for (let j = 0; j < c; j++)
-                mtrx[i][j] = rc()
-        return mtrx
-    }
-
-    function rc() {
-        return [
-            Math.floor(Math.random() * 256),
-            Math.floor(Math.random() * 256),
-            Math.floor(Math.random() * 256),
-        ]
-    }
+    textures = randomTextures(9, 2)
 
     // map = makeMap(
     //     cellularAutomata(
@@ -133,6 +110,41 @@ function renderMode(opt = 1) {
         pointerLock = false
         exitPointerLock()
     }
+}
+
+// texture functions
+
+function randomTextures(n, r, c) {
+    let arr = []
+    for (let i = 0; i < n; i++)
+        arr.push(randomTexture(r, c))
+    return arr
+}
+
+function randomTexture(r, c) {
+    let mtrx = makeMatrix(r, c)
+    if (c == undefined) {
+        let clr = []
+        for (let i = 0; i < r; i++) {
+            clr.push(randomColor())
+        }
+        for (let i = 0; i < r; i++)
+            for (let j = 0; j < r; j++)
+                mtrx[i][j] = clr[(i + j) % clr.length]
+    } else {
+        for (let i = 0; i < r; i++)
+            for (let j = 0; j < c; j++)
+                mtrx[i][j] = randomColor()
+    }
+    return mtrx
+}
+
+function randomColor() {
+    return [
+        Math.floor(Math.random() * 256),
+        Math.floor(Math.random() * 256),
+        Math.floor(Math.random() * 256),
+    ]
 }
 
 
@@ -354,7 +366,8 @@ function drawTextureCol(txtr, i, h, txcl, w, side) {
         if (side == 'x') {
             fill(color)
         } else if (side == 'y') {
-            fill(multClr(color, 0.8))
+            fill(color)
+            // fill(multClr(color, 0.8))
         }
         rect(
             Math.round(i * w),
