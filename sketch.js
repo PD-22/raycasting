@@ -15,7 +15,6 @@ ray and pos border teleport
 constant render distance
 remove dif map controls
 only update some functions at change
-change zoom on scroll
 */
 
 function setup() {
@@ -55,10 +54,7 @@ function setup() {
     res = width / 2
     rad = 1 / 4
     cls = width / 32
-    mapOff = {
-        x: (width - mCols * cls) / 2,
-        y: (height - mRows * cls) / 2
-    }
+    mapOff = getMapOff()
     ceilClr = 'lightBlue'
     floorClr = 'lightGreen'
     txtrNum = 0
@@ -74,6 +70,16 @@ function draw() {
     if (renderView) drawView(pos, rayBuf, ceilClr, floorClr)
     if (renderMap) drawMap(pos, rayBuf)
     move(ang)
+}
+
+
+// other functions
+
+function getMapOff() {
+    return {
+        x: (width - mCols * cls) / 2,
+        y: (height - mRows * cls) / 2
+    }
 }
 
 function createMyCanvas() {
@@ -115,15 +121,15 @@ function getTxcl(its) {
     let txcl
     if (its.side == 'x') {
         if (its.dir.x > 0) {
-            txcl = Math.abs(its.y) % 1
+            txcl = its.y % 1
         } else {
-            txcl = (mRows - Math.abs(its.y)) % 1
+            txcl = (mRows - its.y) % 1
         }
     } else if (its.side == 'y') {
         if (its.dir.y < 0) {
-            txcl = Math.abs(its.x) % 1
+            txcl = its.x % 1
         } else {
-            txcl = (mCols - Math.abs(its.x)) % 1
+            txcl = (mCols - its.x) % 1
         }
     }
     return txcl
@@ -173,6 +179,14 @@ function randomColor() {
 
 
 // Input functions
+
+function mouseWheel(event) {
+    let scroll = 1 - (event.delta > 0) * 2
+    console.log(scroll);
+    cls += scroll
+    mapOff = getMapOff()
+    return false;
+}
 
 function setKeyNum(kc) {
     let kn = kc - 48
@@ -299,19 +313,20 @@ function move(ang, s) {
     vel.y /= 24
     vel.x /= 24
 
-    let cell
-
     pos.x += vel.x
     pos.y += vel.y
 
+    let cell, cellValue
 
     cell = getCell(pos.x, pos.y + dir.y * rad, false)
-    if (getCellVal(cell)) {
+    cellValue = getCellVal(cell)
+    if (cellValue != 0 || cellValue == undefined) {
         pos.y = cell.y + 0.5 - dir.y * 0.5 - dir.y * rad
     }
 
     cell = getCell(pos.x + dir.x * rad, pos.y, false)
-    if (getCellVal(cell)) {
+    cellValue = getCellVal(cell)
+    if (cellValue != 0 || cellValue == undefined) {
         pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * rad
     }
 
@@ -343,9 +358,11 @@ function drawView(pos, rayBuf, tclr = 170, bclr = 85) {
     pop()
 }
 
+let temp = true
 function drawTextureCol(its, i, h, w) {
-    let txtr = textures[its.val]
     let txcl = getTxcl(its)
+    let txtr = textures[its.val]
+
     let rows = txtr.length
     let cols = txtr[0].length
     let wcHeight = h / rows
@@ -353,8 +370,8 @@ function drawTextureCol(its, i, h, w) {
     for (let y = 0; y < rows; y++) {
         let x = floor(txcl * cols)
         let color = txtr[y][x]
-        if (its.side == 'y')
-            color = multClr(color, 0.8)
+        // if (its.side == 'y')
+        //     color = multClr(color, 0.8)
         fill(color)
         rect(
             Math.round(i * w),
@@ -546,12 +563,11 @@ function countWallNeighbors(arr, i, j) {
 function getCell(x1, y1, px = true) {
     let x = Math.floor(px ? x1 / cls : x1)
     let y = Math.floor(px ? y1 / cls : y1)
-    if (x < 0 || y < 0 || x >= mCols || y >= mRows) return undefined
     return { x, y }
 }
 
 function getCellVal(cell) {
-    if (cell == undefined) return undefined
+    if (map[cell.y] == undefined) return undefined
     return map[cell.y][cell.x]
 }
 
