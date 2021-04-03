@@ -2,19 +2,19 @@ let
     width, height, map, mRows, mCols,
     cls, pos, ang, ratio,
     rotate, rayBuf, fov, renderMap, renderView,
-    pointerLock, speed, res, rad, mapOff,
+    pointerLock, speed, res, rad, mapOff, drawOff,
     showFps, mx, my, ceilClr, floorClr,
     textures, txtrNum
 
 /*
 interesction bug
-big map lag (only on drawMap)
 mobile compatibility
 group functions, make classes
 ray and pos border teleport
 constant render distance
 remove dif map controls
 only update some functions at change
+follow player if map does not fit
 */
 
 function setup() {
@@ -42,13 +42,13 @@ function setup() {
 
     textures = randomTextures(10, 2)
 
-    // map = makeMap(
-    //     cellularAutomata(
-    //         makeMatrix(24, 24, 0.42), 2
-    //     )
-    // )
+    map = makeMap(
+        cellularAutomata(
+            makeMatrix(64, 64, 0.47), 8
+        )
+    )
 
-    pos = { x: 6.5, y: 3.5 }
+    pos = { x: mCols / 2 - 0.5, y: mRows / 2 - 0.5 }
     fov = 90
     ang = 0
     res = width / 2
@@ -59,7 +59,7 @@ function setup() {
     floorClr = 'lightGreen'
     txtrNum = 0
 
-    renderMap = false
+    renderMap = true
     renderView = true
     rotate = false
     pointerLock = false
@@ -67,7 +67,7 @@ function setup() {
 
 function draw() {
     rayBuf = castRays(ang, res)
-    if (renderView) drawView(pos, rayBuf, ceilClr, floorClr)
+    if (renderView) drawView(pos, rayBuf)
     if (renderMap) drawMap(pos, rayBuf)
     move(ang)
 }
@@ -182,7 +182,6 @@ function randomColor() {
 
 function mouseWheel(event) {
     let scroll = 1 - (event.delta > 0) * 2
-    console.log(scroll);
     cls += scroll
     mapOff = getMapOff()
     return false;
@@ -335,12 +334,12 @@ function move(ang, s) {
 
 
 // Draw functions
-function drawView(pos, rayBuf, tclr = 170, bclr = 85) {
+function drawView(pos, rayBuf) {
     noStroke()
     push()
-    fill(tclr)
+    fill(ceilClr)
     rect(0, 0, width, height / 2)
-    fill(bclr)
+    fill(floorClr)
     rect(0, height / 2, width, height / 2)
 
     let w = width / rayBuf.length
@@ -383,10 +382,11 @@ function drawTextureCol(its, i, h, w) {
 
 function drawMap(pos, rayBuf, num = 5) {
     push()
-    translate(
-        mapOff.x - (pos.x - mCols / 2) * cls,
-        mapOff.y - (pos.y - mRows / 2) * cls,
-    )
+    drawOff = {
+        x: mapOff.x - (pos.x - mCols / 2) * cls,
+        y: mapOff.y - (pos.y - mRows / 2) * cls
+    }
+    translate(drawOff.x, drawOff.y)
     stroke(127)
     strokeWeight(cls / 16)
     drawMatrix(map, 0.8)
@@ -411,8 +411,28 @@ function drawMap(pos, rayBuf, num = 5) {
 }
 
 function drawMatrix(mtrx, t = 1) {
-    for (let i = 0; i < mtrx.length; i++) {
-        for (let j = 0; j < mtrx[0].length; j++) {
+    let x1 = 0
+    let x2 = mtrx[0].length
+    if (drawOff.x < 0) {
+        x1 -= floor(drawOff.x / cls)
+    } else {
+        let rOff = drawOff.x + cls * mCols - width
+        x2 -= floor(rOff / cls) + 1
+        if (x2 > mtrx[0].length) x2 = mtrx[0].length
+    }
+
+    let y1 = 0
+    let y2 = mtrx.length
+    if (drawOff.y < 0) {
+        y1 -= floor(drawOff.y / cls)
+    } else {
+        let bOff = drawOff.y + cls * mRows - height
+        y2 -= floor(bOff / cls) + 1
+        if (y2 > mtrx[0].length) y2 = mtrx.length
+    }
+
+    for (let i = y1; i < y2; i++) {
+        for (let j = x1; j < x2; j++) {
             drawCell(mtrx, i, j, t)
         }
     }
