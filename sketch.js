@@ -19,9 +19,6 @@ texture mapping...
     fix texture direction
     fix texture skewing
     add drawTexture function
-    fix placeWall (txtrNum)
-    error on touch border
-    error < or > for draw txtrCol
 change zoom on scroll
 */
 
@@ -122,15 +119,15 @@ function getTxcl(its) {
     let txcl
     if (its.side == 'x') {
         if (its.dir.x > 0) {
-            txcl = its.y % 1
+            txcl = Math.abs(its.y) % 1
         } else {
-            txcl = (mRows - its.y) % 1
+            txcl = (mRows - Math.abs(its.y)) % 1
         }
     } else if (its.side == 'y') {
         if (its.dir.y < 0) {
-            txcl = its.x % 1
+            txcl = Math.abs(its.x) % 1
         } else {
-            txcl = (mCols - its.x) % 1
+            txcl = (mCols - Math.abs(its.x)) % 1
         }
     }
     return txcl
@@ -182,9 +179,9 @@ function randomColor() {
 // Input functions
 
 function setKeyNum(kc) {
-    let kn = kc - 49
-    if (kn < -1 || kn > textures.length) {
-        txtrNum = -1
+    let kn = kc - 48
+    if (kn < 0 || kn > textures.length) {
+        txtrNum = 0
     } else {
         txtrNum = kn
     }
@@ -234,7 +231,7 @@ function updateMouse() {
 }
 
 function placeCell(mtrx, cell, val = 0) {
-    if (cell != undefined) mtrx[cell.y][cell.x] = val + 1
+    if (cell != undefined) mtrx[cell.y][cell.x] = val
 }
 
 function updateAng() {
@@ -328,6 +325,7 @@ function move(ang, s) {
 
 // Draw functions
 function drawView(pos, rayBuf, tclr = 170, bclr = 85) {
+    noStroke()
     push()
     fill(tclr)
     rect(0, 0, width, height / 2)
@@ -342,7 +340,6 @@ function drawView(pos, rayBuf, tclr = 170, bclr = 85) {
         let h = width / p / 2
         let colw = width / res
         h = round(h / colw) * colw
-        noStroke()
 
         drawTextureCol(its, i, h, w,)
     })
@@ -361,7 +358,7 @@ function drawTextureCol(its, i, h, w) {
         let x = floor(txcl * cols)
         let color = txtr[y][x]
         if (its.side == 'y')
-            color = multClr(color, 0.5)
+            color = multClr(color, 0.8)
         fill(color)
         rect(
             Math.round(i * w),
