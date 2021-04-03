@@ -370,8 +370,8 @@ function drawTextureCol(its, i, h, w) {
     for (let y = 0; y < rows; y++) {
         let x = floor(txcl * cols)
         let color = txtr[y][x]
-        // if (its.side == 'y')
-        //     color = multClr(color, 0.8)
+        if (its.side == 'y')
+            color = multClr(color, 0.8)
         fill(color)
         rect(
             Math.round(i * w),
