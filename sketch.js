@@ -8,17 +8,13 @@ let
 
 /*
 interesction bug
-big map lag
+big map lag (only on drawMap)
 mobile compatibility
 group functions, make classes
 ray and pos border teleport
 constant render distance
 remove dif map controls
 only update some functions at change
-texture mapping...
-    fix texture direction
-    fix texture skewing
-    add drawTexture function
 change zoom on scroll
 */
 
