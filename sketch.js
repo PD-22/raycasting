@@ -21,7 +21,8 @@ texture mapping...
     add drawTexture function
     fix placeWall (txtrNum)
     error on touch border
-    error render wall 0
+    error < or > for draw txtrCol
+change zoom on scroll
 */
 
 function setup() {
@@ -55,10 +56,10 @@ function setup() {
     //     )
     // )
 
-    pos = { x: mCols / 2 - 0.5, y: mRows / 2 - 0.5 }
+    pos = { x: 6.5, y: 3.5 }
     fov = 90
     ang = 0
-    res = width / 4
+    res = width / 2
     rad = 1 / 4
     cls = width / 32
     mapOff = {
@@ -116,6 +117,24 @@ function renderMode(opt = 1) {
 }
 
 // texture functions
+
+function getTxcl(its) {
+    let txcl
+    if (its.side == 'x') {
+        if (its.dir.x > 0) {
+            txcl = its.y % 1
+        } else {
+            txcl = (mRows - its.y) % 1
+        }
+    } else if (its.side == 'y') {
+        if (its.dir.y < 0) {
+            txcl = its.x % 1
+        } else {
+            txcl = (mCols - its.x) % 1
+        }
+    }
+    return txcl
+}
 
 function multClr(color, m = 1) {
     let clr = copyArr(color)
@@ -332,17 +351,8 @@ function drawView(pos, rayBuf, tclr = 170, bclr = 85) {
 }
 
 function drawTextureCol(its, i, h, w) {
-    let txcl
-    let t1 = its.side
-    let t2 = its.side == 'y' ? 'x' : 'y'
-    if (its.dir[t2] > 0) {
-        txcl = its[t1] % 1
-    } else {
-        txcl = (mRows - its[t1]) % 1
-    }
-
     let txtr = textures[its.val]
-
+    let txcl = getTxcl(its)
     let rows = txtr.length
     let cols = txtr[0].length
     let wcHeight = h / rows
@@ -351,7 +361,7 @@ function drawTextureCol(its, i, h, w) {
         let x = floor(txcl * cols)
         let color = txtr[y][x]
         if (its.side == 'y')
-            color = multClr(color, 0.8)
+            color = multClr(color, 0.5)
         fill(color)
         rect(
             Math.round(i * w),
@@ -435,7 +445,7 @@ function castRay(pos, ang) {
                 || map[cell.y][cell.x] != 0) {
                 return {
                     x: xsi.x, y: xsi.y,
-                    side: 'y', ang, dir,
+                    side: 'x', ang, dir,
                     val: map[cell.y] != undefined
                         && map[cell.y][cell.x] != undefined
                         ? map[cell.y][cell.x] : 0
@@ -450,7 +460,7 @@ function castRay(pos, ang) {
                 || map[cell.y][cell.x] != 0) {
                 return {
                     x: ysi.x, y: ysi.y,
-                    side: 'x', ang, dir,
+                    side: 'y', ang, dir,
                     val: map[cell.y] != undefined
                         && map[cell.y][cell.x] != undefined
                         ? map[cell.y][cell.x] : 0
