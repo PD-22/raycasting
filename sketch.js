@@ -20,6 +20,8 @@ texture mapping...
     fix texture skewing
     add drawTexture function
     fix placeWall (txtrNum)
+    error on touch border
+    error render wall 0
 */
 
 function setup() {
@@ -45,7 +47,7 @@ function setup() {
         [5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
     ])
 
-    textures = randomTextures(9, 2)
+    textures = randomTextures(10, 2)
 
     // map = makeMap(
     //     cellularAutomata(
@@ -53,7 +55,7 @@ function setup() {
     //     )
     // )
 
-    pos = { x: 6.6, y: 3.5 }
+    pos = { x: mCols / 2 - 0.5, y: mRows / 2 - 0.5 }
     fov = 90
     ang = 0
     res = width / 4
@@ -162,7 +164,7 @@ function randomColor() {
 
 function setKeyNum(kc) {
     let kn = kc - 49
-    if (kn < -1 && kn > textures.length) {
+    if (kn < -1 || kn > textures.length) {
         txtrNum = -1
     } else {
         txtrNum = kn
