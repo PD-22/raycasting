@@ -1,5 +1,5 @@
 let
-    width, height, map, rows, cols,
+    width, height, map, mRows, mCols,
     cls, pos, ang, ratio,
     rotate, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, rad, mapOff,
@@ -19,7 +19,7 @@ texture mapping...
     fix texture direction
     fix texture skewing
     add drawTexture function
-    fix wrap
+    fix placeWall (txtrNum)
 */
 
 function setup() {
@@ -60,8 +60,8 @@ function setup() {
     rad = 1 / 4
     cls = width / 32
     mapOff = {
-        x: (width - cols * cls) / 2,
-        y: (height - rows * cls) / 2
+        x: (width - mCols * cls) / 2,
+        y: (height - mRows * cls) / 2
     }
     ceilClr = 'lightBlue'
     floorClr = 'lightGreen'
@@ -76,7 +76,6 @@ function setup() {
 function draw() {
     rayBuf = castRays(ang, res)
     if (renderView) drawView(pos, rayBuf, ceilClr, floorClr)
-    temp = false
     if (renderMap) drawMap(pos, rayBuf)
     move(ang)
 }
@@ -95,8 +94,8 @@ function createMyCanvas() {
 function mouseOnMap() {
     return (
         renderMap &&
-        mx > 0 && mx < cols * cls &&
-        my > 0 && my < rows * cls
+        mx > 0 && mx < mCols * cls &&
+        my > 0 && my < mRows * cls
     )
 }
 
@@ -115,6 +114,15 @@ function renderMode(opt = 1) {
 }
 
 // texture functions
+
+function multClr(color, m = 1) {
+    let clr = copyArr(color)
+    for (let i = 0; i < clr.length; i++) {
+        clr[i] *= m
+        clr[i] = floor(clr[i])
+    }
+    return clr
+}
 
 function randomTextures(n, r, c) {
     let arr = []
@@ -200,8 +208,8 @@ function mouseDragged() {
 // Update functions
 
 function updateMouse() {
-    mx = mouseX - mapOff.x + (pos.x - cols / 2) * cls
-    my = mouseY - mapOff.y + (pos.y - rows / 2) * cls
+    mx = mouseX - mapOff.x + (pos.x - mCols / 2) * cls
+    my = mouseY - mapOff.y + (pos.y - mRows / 2) * cls
 }
 
 function placeCell(mtrx, cell, val = 0) {
@@ -282,6 +290,7 @@ function move(ang, s) {
     pos.x += vel.x
     pos.y += vel.y
 
+
     cell = getCell(pos.x, pos.y + dir.y * rad, false)
     if (getCellVal(cell)) {
         pos.y = cell.y + 0.5 - dir.y * 0.5 - dir.y * rad
@@ -313,31 +322,25 @@ function drawView(pos, rayBuf, tclr = 170, bclr = 85) {
         let colw = width / res
         h = round(h / colw) * colw
         noStroke()
-        let txcl
-        txcl = its[its.axis == 'x' ? 'y' : 'x'] % 1
 
-        drawTextureCol(textures[its.val - 1], i, h, txcl, w, its.axis)
-
-        // rect(
-        //     Math.round(i * w),
-        //     (height - h) / 2,
-        //     w, h
-        // )
+        drawTextureCol(its, i, h, w,)
     })
 
     pop()
 }
 
-function multClr(color, m = 1) { // temp location
-    let clr = copyArr(color)
-    for (let i = 0; i < clr.length; i++) {
-        clr[i] *= m
-        clr[i] = floor(clr[i])
+function drawTextureCol(its, i, h, w) {
+    let txcl
+    let t1 = its.side
+    let t2 = its.side == 'y' ? 'x' : 'y'
+    if (its.dir[t2] > 0) {
+        txcl = its[t1] % 1
+    } else {
+        txcl = (mRows - its[t1]) % 1
     }
-    return clr
-}
 
-function drawTextureCol(txtr, i, h, txcl, w, side) {
+    let txtr = textures[its.val]
+
     let rows = txtr.length
     let cols = txtr[0].length
     let wcHeight = h / rows
@@ -345,11 +348,9 @@ function drawTextureCol(txtr, i, h, txcl, w, side) {
     for (let y = 0; y < rows; y++) {
         let x = floor(txcl * cols)
         let color = txtr[y][x]
-        if (side == 'x') {
-            fill(color)
-        } else if (side == 'y') {
-            fill(multClr(color, 0.8))
-        }
+        if (its.side == 'y')
+            color = multClr(color, 0.8)
+        fill(color)
         rect(
             Math.round(i * w),
             (height - h) / 2 + wcHeight * y,
@@ -361,8 +362,8 @@ function drawTextureCol(txtr, i, h, txcl, w, side) {
 function drawMap(pos, rayBuf, num = 5) {
     push()
     translate(
-        mapOff.x - (pos.x - cols / 2) * cls,
-        mapOff.y - (pos.y - rows / 2) * cls,
+        mapOff.x - (pos.x - mCols / 2) * cls,
+        mapOff.y - (pos.y - mRows / 2) * cls,
     )
     stroke(127)
     strokeWeight(cls / 16)
@@ -432,7 +433,7 @@ function castRay(pos, ang) {
                 || map[cell.y][cell.x] != 0) {
                 return {
                     x: xsi.x, y: xsi.y,
-                    axis: 'x', ang,
+                    side: 'y', ang, dir,
                     val: map[cell.y] != undefined
                         && map[cell.y][cell.x] != undefined
                         ? map[cell.y][cell.x] : 0
@@ -447,7 +448,7 @@ function castRay(pos, ang) {
                 || map[cell.y][cell.x] != 0) {
                 return {
                     x: ysi.x, y: ysi.y,
-                    axis: 'y', ang,
+                    side: 'x', ang, dir,
                     val: map[cell.y] != undefined
                         && map[cell.y][cell.x] != undefined
                         ? map[cell.y][cell.x] : 0
@@ -496,21 +497,21 @@ function getDy(dir, tg) {
 
 function cellularAutomata(arr, times = 1) {
     let check = copyMatrix(arr)
-    let temp = copyMatrix(arr)
+    let out = copyMatrix(arr)
     for (let cycle = 0; cycle < times; cycle++) {
-        for (let i = 0; i < temp.length; i++) {
-            for (let j = 0; j < temp[0].length; j++) {
+        for (let i = 0; i < out.length; i++) {
+            for (let j = 0; j < out[0].length; j++) {
                 let count = countWallNeighbors(check, i, j)
                 if (count > 4) {
-                    temp[i][j] = 1
+                    out[i][j] = 1
                 } else if (count < 4) {
-                    temp[i][j] = 0
+                    out[i][j] = 0
                 }
             }
         }
-        check = copyMatrix(temp)
+        check = copyMatrix(out)
     }
-    return temp
+    return out
 }
 
 function countWallNeighbors(arr, i, j) {
@@ -540,7 +541,7 @@ function countWallNeighbors(arr, i, j) {
 function getCell(x1, y1, px = true) {
     let x = Math.floor(px ? x1 / cls : x1)
     let y = Math.floor(px ? y1 / cls : y1)
-    if (x < 0 || y < 0 || x >= cols || y >= rows) return undefined
+    if (x < 0 || y < 0 || x >= mCols || y >= mRows) return undefined
     return { x, y }
 }
 
@@ -554,11 +555,11 @@ function makeMap(arr = 0, r, c) {
     if (arr == 0) {
         mtrx = makeMatrix(r, c, 0)
     } else mtrx = arr
-    rows = mtrx.length
-    cols = mtrx[0].length
+    mRows = mtrx.length
+    mCols = mtrx[0].length
     mapOff = {
-        x: (width - cols * cls) / 2,
-        y: (height - rows * cls) / 2
+        x: (width - mCols * cls) / 2,
+        y: (height - mRows * cls) / 2
     }
     return mtrx
 }
