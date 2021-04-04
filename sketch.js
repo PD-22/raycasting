@@ -14,6 +14,7 @@ ray and pos border teleport
 constant render distance
 remove dif map controls
 only update some functions at change
+cellularAutomata() defines texture
 */
 
 function setup() {
