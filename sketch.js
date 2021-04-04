@@ -41,11 +41,11 @@ function setup() {
 
     textures = randomTextures(10, 2)
 
-    // map = makeMap(
-    //     cellularAutomata(
-    //         makeMatrix(64, 64, 0.47), 8
-    //     )
-    // )
+    map = makeMap(
+        cellularAutomata(
+            makeMatrix(64, 64, 0.47), 64
+        )
+    )
 
     pos = { x: mCols / 2 - 0.5, y: mRows / 2 - 0.5 }
     fov = 90
@@ -188,8 +188,9 @@ function randomColor() {
 // Input functions
 
 function mouseWheel(event) {
-    let scroll = 1 - (event.delta > 0) * 2
-    cls += scroll
+    let scroll = event.delta < 0
+    if (scroll) cls *= 1.1
+    else cls /= 1.1
     mapOff = getMapOff()
     drawOff = getDrawMapOff()
     return false;
