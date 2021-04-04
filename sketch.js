@@ -256,13 +256,9 @@ function updateAng() {
     }
 }
 
-function move(ang, s) {
-    if (s == undefined) {
-        speed = keyIsDown(SHIFT) ? 2 : 1
-    } else {
-        speed = s
-    }
-    speed *= deltaTime / 24
+function move(ang, speed = 1) {
+    if (keyIsDown(SHIFT)) speed *= 2
+    speed *= deltaTime / 16
 
     let vel = { x: 0, y: 0 }
     let dir = { x: 0, y: 0 }
