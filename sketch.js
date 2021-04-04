@@ -14,7 +14,6 @@ ray and pos border teleport
 constant render distance
 remove dif map controls
 only update some functions at change
-follow player if map does not fit
 */
 
 function setup() {
@@ -42,11 +41,11 @@ function setup() {
 
     textures = randomTextures(10, 2)
 
-    map = makeMap(
-        cellularAutomata(
-            makeMatrix(64, 64, 0.47), 8
-        )
-    )
+    // map = makeMap(
+    //     cellularAutomata(
+    //         makeMatrix(64, 64, 0.47), 8
+    //     )
+    // )
 
     pos = { x: mCols / 2 - 0.5, y: mRows / 2 - 0.5 }
     fov = 90
@@ -75,6 +74,14 @@ function draw() {
 
 // other functions
 
+function getDrawMapOff() {
+    if (cls * mCols > width || cls * mRows > height) {
+        return {
+            x: mapOff.x - (pos.x - mCols / 2) * cls,
+            y: mapOff.y - (pos.y - mRows / 2) * cls
+        }
+    } else return { x: mapOff.x, y: mapOff.y }
+}
 function getMapOff() {
     return {
         x: (width - mCols * cls) / 2,
@@ -184,6 +191,7 @@ function mouseWheel(event) {
     let scroll = 1 - (event.delta > 0) * 2
     cls += scroll
     mapOff = getMapOff()
+    drawOff = getDrawMapOff()
     return false;
 }
 
@@ -353,7 +361,6 @@ function drawView(pos, rayBuf) {
     pop()
 }
 
-let temp = true
 function drawTextureCol(its, i, h, w) {
     let txcl = getTxcl(its)
     let txtr = textures[its.val]
@@ -378,10 +385,7 @@ function drawTextureCol(its, i, h, w) {
 
 function drawMap(pos, rayBuf, num = 5) {
     push()
-    drawOff = {
-        x: mapOff.x - (pos.x - mCols / 2) * cls,
-        y: mapOff.y - (pos.y - mRows / 2) * cls
-    }
+    drawOff = getDrawMapOff()
     translate(drawOff.x, drawOff.y)
     stroke(127)
     strokeWeight(cls / 16)
@@ -588,10 +592,6 @@ function makeMap(arr = 0, r, c) {
     } else mtrx = arr
     mRows = mtrx.length
     mCols = mtrx[0].length
-    mapOff = {
-        x: (width - mCols * cls) / 2,
-        y: (height - mRows * cls) / 2
-    }
     return mtrx
 }
 
