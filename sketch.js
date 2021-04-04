@@ -412,28 +412,22 @@ function drawMap(pos, rayBuf, num = 5) {
 }
 
 function drawMatrix(mtrx, t = 1) {
-    let x1 = 0
-    let x2 = mtrx[0].length
-    if (drawOff.x < 0) {
-        x1 -= floor(drawOff.x / cls)
-    } else {
-        let rOff = drawOff.x + cls * mCols - width
-        x2 -= floor(rOff / cls) + 1
-        if (x2 > mtrx[0].length) x2 = mtrx[0].length
-    }
+    let xMin = 0
+    let xMax = mtrx[0].length
+    if (drawOff.x < 0) xMin -= floor(drawOff.x / cls) + 1
+    let rightOff = drawOff.x + cls * mCols - width
+    xMax -= floor(rightOff / cls)
+    if (xMax > mtrx[0].length) xMax = mtrx[0].length
 
-    let y1 = 0
-    let y2 = mtrx.length
-    if (drawOff.y < 0) {
-        y1 -= floor(drawOff.y / cls)
-    } else {
-        let bOff = drawOff.y + cls * mRows - height
-        y2 -= floor(bOff / cls) + 1
-        if (y2 > mtrx[0].length) y2 = mtrx.length
-    }
+    let yMin = 0
+    let yMax = mtrx.length
+    if (drawOff.y < 0) yMin -= floor(drawOff.y / cls) + 1
+    let bottomOff = drawOff.y + cls * mRows - height
+    yMax -= floor(bottomOff / cls)
+    if (yMax > mtrx[0].length) yMax = mtrx.length
 
-    for (let i = y1; i < y2; i++) {
-        for (let j = x1; j < x2; j++) {
+    for (let i = yMin; i < yMax; i++) {
+        for (let j = xMin; j < xMax; j++) {
             drawCell(mtrx, i, j, t)
         }
     }
