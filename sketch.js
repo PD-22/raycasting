@@ -15,7 +15,6 @@ constant render distance
 remove dif map controls
 only update some functions at change
 follow player if map does not fit
-check drawMatrix border maximums
 */
 
 function setup() {
