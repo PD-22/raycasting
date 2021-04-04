@@ -15,6 +15,7 @@ constant render distance
 remove dif map controls
 only update some functions at change
 cellularAutomata() defines texture
+mouse ang bug on fit map
 */
 
 function setup() {
