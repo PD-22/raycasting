@@ -13,7 +13,6 @@ ray and pos border teleport
 only update some functions at change
 cellularAutomata() defines texture
 zoom fit map at start?
-don't spawn in cell
 */
 
 function setup() {
