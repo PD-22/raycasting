@@ -6,12 +6,13 @@ let
     mx, my, ceilClr, floorClr, textures, txtrNum
 
 /*
-interesction bug
+interesction bug?
 mobile compatibility
 group functions, make classes
 ray and pos border teleport
 only update some functions at change
 cellularAutomata() defines texture
+zoom fit map at start?
 don't spawn in cell
 */
 
@@ -46,18 +47,18 @@ function setup() {
         )
     )
 
-    pos = { x: mCols / 2 - 0.5, y: mRows / 2 - 0.5 }
+    pos = spawn(map)
     fov = 90
     ang = 0
     res = width / 2
     rad = 1 / 4
-    cls = width / 32
+    cls = height / mRows
     mapOff = getMapOff()
     ceilClr = 'lightBlue'
     floorClr = 'lightGreen'
     txtrNum = 0
 
-    renderMap = false
+    renderMap = true
     renderView = true
     pointerLock = false
 }
@@ -71,6 +72,29 @@ function draw() {
 
 
 // other functions
+
+function spawn(map) {
+    let spaces = copyMatrix(map)
+    for (let i = 0; i < spaces.length; i++) {
+        for (let j = 0; j < map[0].length; j++) {
+            let ri = Math.floor(Math.random() * spaces.length)
+            let rj = Math.floor(Math.random() * spaces.length)
+            spaces[i][j] = { i: ri, j: rj }
+            spaces[ri][rj] = { i: i, j: j }
+        }
+    }
+
+    for (let i = 0; i < spaces.length; i++) {
+        for (let j = 0; j < spaces[0].length; j++) {
+            const c = spaces[i][j]
+            if (map[c.i][c.j] == 0) {
+                return { y: c.i, x: c.j }
+            }
+        }
+    }
+
+    return { x: map.length / 2, y: map[0].length / 2 }
+}
 
 function getDrawMapOff() {
     if (cls * mCols > width || cls * mRows > height) {
@@ -142,7 +166,7 @@ function getTxcl(its) {
 }
 
 function multClr(color, m = 1) {
-    let clr = color.slice()
+    let clr = Array.from(color)
     for (let i = 0; i < clr.length; i++) {
         clr[i] *= m
         clr[i] = floor(clr[i])
@@ -600,10 +624,9 @@ function makeMatrix(r, c, p = 0) {
     return mtrx
 }
 
-function copyMatrix(arr) {
+function copyMatrix(mtrx) {
     let out = []
-    for (let i = 0; i < arr.length; i++) {
-        out[i] = arr[i].slice()
-    }
+    for (let i = 0; i < mtrx.length; i++)
+        out[i] = Array.from(mtrx[i])
     return out
 }
