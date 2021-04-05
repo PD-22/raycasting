@@ -1,21 +1,18 @@
 let
     width, height, map, mRows, mCols,
     cls, pos, ang, ratio,
-    rotate, rayBuf, fov, renderMap, renderView,
+    canRotate, canMove, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, rad, mapOff, drawOff,
-    showFps, mx, my, ceilClr, floorClr,
-    textures, txtrNum
+    mx, my, ceilClr, floorClr, textures, txtrNum
 
 /*
 interesction bug
 mobile compatibility
 group functions, make classes
 ray and pos border teleport
-constant render distance
-remove dif map controls
 only update some functions at change
 cellularAutomata() defines texture
-mouse ang bug on fit map
+don't spawn in cell
 */
 
 function setup() {
@@ -60,9 +57,8 @@ function setup() {
     floorClr = 'lightGreen'
     txtrNum = 0
 
-    renderMap = true
+    renderMap = false
     renderView = true
-    rotate = false
     pointerLock = false
 }
 
@@ -70,7 +66,7 @@ function draw() {
     rayBuf = castRays(ang, res)
     if (renderView) drawView(pos, rayBuf)
     if (renderMap) drawMap(pos, rayBuf)
-    move(ang)
+    if (canMove) move(ang)
 }
 
 
@@ -113,12 +109,13 @@ function mouseOnMap() {
 function renderMode(opt = 1) {
     if (opt == 1) {
         renderMap = false
-        rotate = true
+        canRotate = canMove = true
         pointerLock = true
         requestPointerLock()
     } else if (opt == 2) {
         renderMap = true
-        rotate = false
+        canMove = false
+        canRotate = false
         pointerLock = false
         exitPointerLock()
     }
@@ -145,7 +142,7 @@ function getTxcl(its) {
 }
 
 function multClr(color, m = 1) {
-    let clr = copyArr(color)
+    let clr = color.slice()
     for (let i = 0; i < clr.length; i++) {
         clr[i] *= m
         clr[i] = floor(clr[i])
@@ -256,12 +253,7 @@ function placeCell(mtrx, cell, val = 0) {
 
 function updateAng() {
     updateMouse()
-    if (renderMap) {
-        ang = degrees(Math.atan2(
-            mx - pos.x * cls,
-            my - pos.y * cls,
-        )) - 90
-    } else if (rotate) {
+    if (canRotate) {
         ang -= movedX * deltaTime / 100
         ang %= 360
     }
@@ -279,32 +271,29 @@ function move(ang, speed = 1) {
     if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) dir.x = 1
     if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) dir.x = -1
 
-    if (renderMap) {
-        vel.y = dir.y
-        vel.x = dir.x
-    } else {
-        if (dir.y == -1) {
-            vel.y += -sin(radians(ang))
-            vel.x += cos(radians(ang))
-        }
-        if (dir.y == 1) {
-            vel.y += sin(radians(ang))
-            vel.x += -cos(radians(ang))
-        }
-        if (dir.x == -1) {
-            vel.y += -cos(radians(ang))
-            vel.x += -sin(radians(ang))
-        }
-        if (dir.x == 1) {
-            vel.y += cos(radians(ang))
-            vel.x += sin(radians(ang))
-        }
 
-        dir.x = vel.x
-        if (dir.x != 0) dir.x = (dir.x > 0) * 2 - 1
-        dir.y = vel.y
-        if (dir.y != 0) dir.y = (dir.y > 0) * 2 - 1
+    if (dir.y == -1) {
+        vel.y += -sin(radians(ang))
+        vel.x += cos(radians(ang))
     }
+    if (dir.y == 1) {
+        vel.y += sin(radians(ang))
+        vel.x += -cos(radians(ang))
+    }
+    if (dir.x == -1) {
+        vel.y += -cos(radians(ang))
+        vel.x += -sin(radians(ang))
+    }
+    if (dir.x == 1) {
+        vel.y += cos(radians(ang))
+        vel.x += sin(radians(ang))
+    }
+
+    dir.x = vel.x
+    if (dir.x != 0) dir.x = (dir.x > 0) * 2 - 1
+    dir.y = vel.y
+    if (dir.y != 0) dir.y = (dir.y > 0) * 2 - 1
+
 
     let mag = sqrt(vel.x ** 2 + vel.y ** 2)
     if (mag != 0) {
@@ -335,8 +324,6 @@ function move(ang, speed = 1) {
     if (cellValue != 0 || cellValue == undefined) {
         pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * rad
     }
-
-    if (dir.x != 0 || dir.y != 0 && renderMap) updateAng()
 }
 
 
@@ -613,20 +600,10 @@ function makeMatrix(r, c, p = 0) {
     return mtrx
 }
 
-function copyArr(arr) {
-    let out = []
-    for (let i = 0; i < arr.length; i++)
-        out.push(arr[i])
-    return out
-}
-
 function copyMatrix(arr) {
     let out = []
     for (let i = 0; i < arr.length; i++) {
-        out[i] = new Array(arr[0].length)
-        for (let j = 0; j < arr[0].length; j++) {
-            out[i][j] = arr[i][j]
-        }
+        out[i] = arr[i].slice()
     }
     return out
 }
