@@ -95,12 +95,12 @@ function spawn(map) {
         for (let j = 0; j < spaces[0].length; j++) {
             const c = spaces[i][j]
             if (map[c.i][c.j] == 0) {
-                return { y: c.i, x: c.j }
+                return { y: 0.5 + c.i, x: 0.5 + c.j }
             }
         }
     }
 
-    return { x: map.length / 2, y: map[0].length / 2 }
+    return { x: 0.5 + map.length / 2 + 0.5, y: 0.5 + map[0].length / 2 }
 }
 
 function getDrawMapOff() {
