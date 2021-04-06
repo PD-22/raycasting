@@ -1,6 +1,6 @@
 let
     width, height, map, mRows, mCols,
-    cls, pos, ang, ratio,
+    cls, pos, ang, ratio, mapZoomed,
     canRotate, canMove, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, rad, mapOff, drawOff,
     mx, my, ceilClr, floorClr, textures, txtrNum
@@ -13,6 +13,7 @@ ray and pos border teleport
 only update some functions at change
 cellularAutomata() defines texture
 zoom fit map at start?
+if empty spawn centered
 */
 
 function setup() {
@@ -42,7 +43,7 @@ function setup() {
 
     map = makeMap(
         cellularAutomata(
-            makeMatrix(64, 64, 0.47), 64
+            makeMatrix(48, 48, 0.45), 8
         )
     )
 
@@ -51,8 +52,11 @@ function setup() {
     ang = 0
     res = width / 2
     rad = 1 / 4
-    cls = height / mRows
+    // cls = height / mRows
+    mapZoomed = false
+    fitMap()
     mapOff = getMapOff()
+    drawOff = getDrawMapOff()
     ceilClr = 'lightBlue'
     floorClr = 'lightGreen'
     txtrNum = 0
@@ -71,6 +75,10 @@ function draw() {
 
 
 // other functions
+
+function fitMap() {
+    cls = height / mRows
+}
 
 function spawn(map) {
     let spaces = copyMatrix(map)
@@ -213,6 +221,10 @@ function mouseWheel(event) {
     let scroll = event.delta < 0
     if (scroll) cls *= 1.1
     else cls /= 1.1
+
+    mapZoomed = cls * mCols > width || cls * mRows > height
+    if (!mapZoomed) fitMap()
+
     mapOff = getMapOff()
     drawOff = getDrawMapOff()
     return false;
@@ -266,8 +278,12 @@ function mouseDragged() {
 // Update functions
 
 function updateMouse() {
-    mx = mouseX - mapOff.x + (pos.x - mCols / 2) * cls
-    my = mouseY - mapOff.y + (pos.y - mRows / 2) * cls
+    mx = mouseX - mapOff.x
+    my = mouseY - mapOff.y
+    if (mapZoomed) {
+        mx += (pos.x - mCols / 2) * cls
+        my += (pos.y - mRows / 2) * cls
+    }
 }
 
 function placeCell(mtrx, cell, val = 0) {
