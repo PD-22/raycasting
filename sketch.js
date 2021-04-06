@@ -11,9 +11,6 @@ mobile compatibility
 group functions, make classes
 ray and pos border teleport
 only update some functions at change
-cellularAutomata() defines texture
-zoom fit map at start?
-if empty spawn centered
 */
 
 function setup() {
