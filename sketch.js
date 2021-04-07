@@ -3,7 +3,7 @@ let
     cls, pos, ang, ratio, mapZoomed,
     canRotate, canMove, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, rad, mapOff, drawOff,
-    mx, my, ceilClr, floorClr, textures, txtrNum
+    mx, my, ceilClr, floorClr, textures, txtrNum, pos2
 
 /*
 interesction bug?
@@ -11,6 +11,9 @@ mobile compatibility
 group functions, make classes
 ray and pos border teleport
 only update some functions at change
+render other player
+    check cell touches player (done)
+    calculate if ray/player distance
 */
 
 function setup() {
@@ -38,18 +41,19 @@ function setup() {
 
     textures = randomTextures(10, 2)
 
-    map = makeMap(
-        cellularAutomata(
-            makeMatrix(48, 48, 0.45), 8
-        )
-    )
+    // map = makeMap(
+    //     cellularAutomata(
+    //         makeMatrix(48, 48, 0.45), 8
+    //     )
+    // )
 
-    pos = spawn(map)
+    // pos = spawn(map)
+    pos = { x: 2, y: 2 }
+    pos2 = { x: 7, y: 2 }
     fov = 90
     ang = 0
     res = width / 2
     rad = 1 / 4
-    // cls = height / mRows
     mapZoomed = false
     fitMap()
     mapOff = getMapOff()
@@ -61,19 +65,37 @@ function setup() {
     renderMap = true
     renderView = true
     pointerLock = false
+
+    let cell = { x: 6, y: 1 }
 }
 
 function draw() {
     rayBuf = castRays(ang, res)
     if (renderView) drawView(pos, rayBuf)
     if (renderMap) drawMap(pos, rayBuf)
-    if (canMove) move(ang)
+    // if (canMove) move(ang)
+    move(ang)
+    noLoop()
 }
 
 
 // other functions
 
-function fitMap() {
+function containsPlayer(cell, pos) {
+    let cPos = { x: Math.round(pos.x), y: Math.round(pos.y) };
+
+    for (let i = -1; i <= 0; i++) {
+        for (let j = -1; j <= 0; j++) {
+            if (cell.x == cPos.x + j && cell.y == cPos.y + i) {
+                return true
+            }
+        }
+    }
+
+    return false
+}
+
+function fitMap() { // should depend on resolution
     cls = height / mRows
 }
 
@@ -249,16 +271,20 @@ function keyPressed() {
 }
 
 function mousePressed() {
-    if (renderMap) {
-        if (mouseOnMap()) {
-            let cell = getCell(mx, my)
-            placeCell(map, cell, txtrNum)
-        } else {
-            renderMode(1)
-        }
-    } else if (renderView) {
-        renderMode(1)
-    }
+    // temp
+    let cell = getCell(mx, my)
+    console.log(containsPlayer(cell, pos2))
+
+    // if (renderMap) {
+    //     if (mouseOnMap()) {
+    //         let cell = getCell(mx, my)
+    //         placeCell(map, cell, txtrNum)
+    //     } else {
+    //         renderMode(1)
+    //     }
+    // } else if (renderView) {
+    //     renderMode(1)
+    // }
 }
 
 function mouseMoved() {
@@ -422,6 +448,11 @@ function drawMap(pos, rayBuf, num = 5) {
     circle(pos.x * cls, pos.y * cls, cls)
     fill('black')
     circle(pos.x * cls, pos.y * cls, cls * 2 * rad)
+    // other player (pos2)
+    fill('gray')
+    circle(pos2.x * cls, pos2.y * cls, cls)
+    fill('black')
+    circle(pos2.x * cls, pos2.y * cls, cls * 2 * rad)
 
     let inc = (rayBuf.length - 1) / (num - 1)
     for (let i = 0; i < rayBuf.length; i += inc) {
