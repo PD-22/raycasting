@@ -12,8 +12,8 @@ group functions, make classes
 ray and pos border teleport
 only update some functions at change
 render other player
-    check cell touches player (done)
-    calculate if ray/player distance
+    render on top of view if is closer
+    calculate dst...
 */
 
 function setup() {
@@ -48,8 +48,8 @@ function setup() {
     // )
 
     // pos = spawn(map)
-    pos = { x: 2, y: 2 }
-    pos2 = { x: 7, y: 2 }
+    pos = { x: 2, y: 5 + 3.5 }
+    pos2 = { x: 7, y: 5 + 2 }
     fov = 90
     ang = 0
     res = width / 2
@@ -74,25 +74,65 @@ function draw() {
     if (renderView) drawView(pos, rayBuf)
     if (renderMap) drawMap(pos, rayBuf)
     // if (canMove) move(ang)
+    // let rayAng = -25
+    // rayCrclDst(pos, pos2, rayAng)
     move(ang)
-    noLoop()
+    // noLoop()
 }
 
 
 // other functions
 
-function containsPlayer(cell, pos) {
-    let cPos = { x: Math.round(pos.x), y: Math.round(pos.y) };
+function rayCrclDst(p1, p2, rayAng) {
+    let dx = p2.x - p1.x
+    let dy = p2.y - p1.y
+    let strghtDst = Math.sqrt(dx ** 2 + dy ** 2)
 
-    for (let i = -1; i <= 0; i++) {
-        for (let j = -1; j <= 0; j++) {
-            if (cell.x == cPos.x + j && cell.y == cPos.y + i) {
-                return true
-            }
-        }
-    }
+    let strghtAng = degrees(Math.atan(dy / dx))
+    let rayStrghtAng = rayAng - strghtAng
 
-    return false
+    // console.log(ang); // red
+    // console.log(rayAng); // green
+    // console.log(strghtAng); // blue
+    // console.log(rayStrghtAng); // yellow
+
+    let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
+    let rayDst = sOff / Math.sin(radians(rayStrghtAng))
+    let x = p1.x + (Math.cos(radians(rayAng)) * rayDst)
+    let y = p1.y + (Math.sin(radians(rayAng)) * rayDst)
+
+    push()
+    translate(drawOff.x, drawOff.y)
+    stroke('purple')
+    strokeWeight(4)
+    point(x * cls, y * cls)
+    pop()
+}
+
+function drawView(pos, rayBuf) {
+    noStroke()
+    push()
+    fill(ceilClr)
+    rect(0, 0, width, height / 2)
+    fill(floorClr)
+    rect(0, height / 2, width, height / 2)
+
+    let w = width / rayBuf.length
+    rayBuf.forEach((its, i) => {
+        let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2)
+        let offAng = its.ang
+        let p = d * cos(radians(ang - offAng))
+        let h = width / p / 2
+        let colw = width / res
+        h = round(h / colw) * colw
+        rayBuf[i].h = h
+
+        rayCrclDst(pos, pos2, offAng)
+
+        drawTextureCol(its, i, h, w,)
+    })
+
+    pop()
 }
 
 function fitMap() { // should depend on resolution
@@ -271,10 +311,6 @@ function keyPressed() {
 }
 
 function mousePressed() {
-    // temp
-    let cell = getCell(mx, my)
-    console.log(containsPlayer(cell, pos2))
-
     // if (renderMap) {
     //     if (mouseOnMap()) {
     //         let cell = getCell(mx, my)
@@ -390,28 +426,6 @@ function move(ang, speed = 1) {
 
 
 // Draw functions
-function drawView(pos, rayBuf) {
-    noStroke()
-    push()
-    fill(ceilClr)
-    rect(0, 0, width, height / 2)
-    fill(floorClr)
-    rect(0, height / 2, width, height / 2)
-
-    let w = width / rayBuf.length
-    rayBuf.forEach((its, i) => {
-        let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2)
-        let offAng = its.ang
-        let p = d * cos(radians(ang - offAng))
-        let h = width / p / 2
-        let colw = width / res
-        h = round(h / colw) * colw
-
-        drawTextureCol(its, i, h, w,)
-    })
-
-    pop()
-}
 
 function drawTextureCol(its, i, h, w) {
     let txcl = getTxcl(its)
