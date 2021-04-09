@@ -14,32 +14,35 @@ only update some functions at change
 render other player
     render on top of view if is closer
     calculate dst...
+    rewrite whole sprite function
 */
 
 function setup() {
     createMyCanvas()
     background('gray')
 
-    map = makeMap([
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 0, 0, 6, 0, 0, 1, 1, 0, 1, 1],
-        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1],
-        [1, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 4, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1],
-        [1, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    ])
+    // map = makeMap([
+    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    //     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+    //     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+    //     [1, 0, 0, 0, 0, 1, 0, 0, 6, 0, 0, 1, 1, 0, 1, 1],
+    //     [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    //     [1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    //     [1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1],
+    //     [1, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+    //     [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+    //     [1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    //     [1, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 1],
+    //     [1, 0, 4, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 1],
+    //     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1],
+    //     [1, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+    //     [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    // ])
 
     textures = randomTextures(10, 2)
+
+    map = makeMap(0, 16, 16)
 
     // map = makeMap(
     //     cellularAutomata(
@@ -48,11 +51,11 @@ function setup() {
     // )
 
     // pos = spawn(map)
-    pos = { x: 2, y: 5 + 3.5 }
+    pos = { x: 11, y: 5 + 1 }
     pos2 = { x: 7, y: 5 + 2 }
     fov = 90
     ang = 0
-    res = width / 2
+    res = width / 4
     rad = 1 / 4
     mapZoomed = false
     fitMap()
@@ -82,29 +85,58 @@ function draw() {
 
 
 // other functions
-
-function rayCrclDst(p1, p2, rayAng) {
+let temp = true
+function rayCrclDst(p1, p2, rayAng) { // fix angles (inversed)
     let dx = p2.x - p1.x
     let dy = p2.y - p1.y
     let strghtDst = Math.sqrt(dx ** 2 + dy ** 2)
 
-    let strghtAng = degrees(Math.atan(dy / dx))
+    let strghtAng = degrees(Math.atan(-dy / dx))
     let rayStrghtAng = rayAng - strghtAng
 
-    // console.log(ang); // red
-    // console.log(rayAng); // green
-    // console.log(strghtAng); // blue
-    // console.log(rayStrghtAng); // yellow
-
     let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
+    if (dx < 0) sOff = -sOff
+
+    let dir = getDir(rayAng)
+    let dir2 = { x: 0, y: 0 }
+    if (dx < 0) {
+        dir2.x = -1
+    } else if (dx > 0) {
+        dir2.x = 1
+    }
+    if (dy < 0) {
+        dir2.y = -1
+    } else if (dy > 0) {
+        dir2.y = 1
+    }
+
+    if (temp == true) {
+        console.log(
+            ang, // Red
+            strghtAng, // Green
+            rayAng, // Blue
+            rayStrghtAng // gray
+        )
+        console.log(dx, dy, strghtDst);
+        console.log(dir.x, dir.y);
+        temp = false
+    }
+
+    // ang change does not affect (inverse effect)
+    if (
+        Math.abs(sOff) > rad * 2 ||
+        dir2.x != dir.x ||
+        dir2.y != dir.y
+    ) return
+
     let rayDst = sOff / Math.sin(radians(rayStrghtAng))
     let x = p1.x + (Math.cos(radians(rayAng)) * rayDst)
-    let y = p1.y + (Math.sin(radians(rayAng)) * rayDst)
+    let y = p1.y - (Math.sin(radians(rayAng)) * rayDst)
 
     push()
     translate(drawOff.x, drawOff.y)
     stroke('purple')
-    strokeWeight(4)
+    strokeWeight(3)
     point(x * cls, y * cls)
     pop()
 }
@@ -119,20 +151,22 @@ function drawView(pos, rayBuf) {
 
     let w = width / rayBuf.length
     rayBuf.forEach((its, i) => {
-        let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2)
-        let offAng = its.ang
-        let p = d * cos(radians(ang - offAng))
-        let h = width / p / 2
-        let colw = width / res
-        h = round(h / colw) * colw
+        let h = calcColHeight(its)
         rayBuf[i].h = h
-
-        rayCrclDst(pos, pos2, offAng)
-
-        drawTextureCol(its, i, h, w,)
+        drawTextureCol(its, i, h, w)
     })
 
     pop()
+}
+
+function calcColHeight(its) {
+    let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2)
+    let offAng = its.ang
+    let p = d * cos(radians(ang - offAng))
+    let h = width / p / 2
+    let colw = width / res
+    h = round(h / colw) * colw
+    return h
 }
 
 function fitMap() { // should depend on resolution
@@ -311,6 +345,7 @@ function keyPressed() {
 }
 
 function mousePressed() {
+    requestPointerLock()
     // if (renderMap) {
     //     if (mouseOnMap()) {
     //         let cell = getCell(mx, my)
@@ -351,10 +386,9 @@ function placeCell(mtrx, cell, val = 0) {
 
 function updateAng() {
     updateMouse()
-    if (canRotate) {
-        ang -= movedX * deltaTime / 100
-        ang %= 360
-    }
+    // if (!canRotate) return
+    ang -= movedX * deltaTime / 100
+    ang %= 360
 }
 
 function move(ang, speed = 1) {
@@ -477,8 +511,12 @@ function drawMap(pos, rayBuf, num = 5) {
         noStroke()
         fill('yellow')
         circle(ray.x * cls, ray.y * cls, cls / 4)
+
     }
     pop()
+    for (let i = 0; i < rayBuf.length; i++) {
+        rayCrclDst(pos, pos2, rayBuf[i].ang)
+    }
 }
 
 function drawMatrix(mtrx, t = 1) {
