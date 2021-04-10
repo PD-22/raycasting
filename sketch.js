@@ -51,8 +51,8 @@ function setup() {
     // )
 
     // pos = spawn(map)
-    pos = { x: 11, y: 5 + 1 }
-    pos2 = { x: 7, y: 5 + 2 }
+    pos = { x: 2, y: 5 }
+    pos2 = { x: 7, y: 7 }
     fov = 90
     ang = 0
     res = width / 4
@@ -77,8 +77,6 @@ function draw() {
     if (renderView) drawView(pos, rayBuf)
     if (renderMap) drawMap(pos, rayBuf)
     // if (canMove) move(ang)
-    // let rayAng = -25
-    // rayCrclDst(pos, pos2, rayAng)
     move(ang)
     // noLoop()
 }
@@ -86,58 +84,40 @@ function draw() {
 
 // other functions
 let temp = true
-function rayCrclDst(p1, p2, rayAng) { // fix angles (inversed)
+function rayCrclDst(p1, p2, rayAng) { // fix back ray
     let dx = p2.x - p1.x
     let dy = p2.y - p1.y
     let strghtDst = Math.sqrt(dx ** 2 + dy ** 2)
 
-    let strghtAng = degrees(Math.atan(-dy / dx))
+    let strghtAng = -degrees(Math.atan(dy / dx)) - 180
     let rayStrghtAng = rayAng - strghtAng
 
-    let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
-    if (dx < 0) sOff = -sOff
-
-    let dir = getDir(rayAng)
-    let dir2 = { x: 0, y: 0 }
-    if (dx < 0) {
-        dir2.x = -1
-    } else if (dx > 0) {
-        dir2.x = 1
-    }
-    if (dy < 0) {
-        dir2.y = -1
-    } else if (dy > 0) {
-        dir2.y = 1
-    }
+    let min = ang - fov / 2
+    let max = ang + fov / 2
+    let test = strghtAng
+    if (test < 0) test += 360
+    if (test < min || test > max) return
 
     if (temp == true) {
-        console.log(
-            ang, // Red
-            strghtAng, // Green
-            rayAng, // Blue
-            rayStrghtAng // gray
-        )
-        console.log(dx, dy, strghtDst);
-        console.log(dir.x, dir.y);
+        console.log(ang, test);
+        console.log(min, max);
         temp = false
     }
 
-    // ang change does not affect (inverse effect)
-    if (
-        Math.abs(sOff) > rad * 2 ||
-        dir2.x != dir.x ||
-        dir2.y != dir.y
-    ) return
+    let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
+    // if (dx < 0) sOff = -sOff
+
+    if (Math.abs(sOff) > rad * 2) return
 
     let rayDst = sOff / Math.sin(radians(rayStrghtAng))
+
     let x = p1.x + (Math.cos(radians(rayAng)) * rayDst)
     let y = p1.y - (Math.sin(radians(rayAng)) * rayDst)
 
     push()
-    translate(drawOff.x, drawOff.y)
     stroke('purple')
-    strokeWeight(3)
-    point(x * cls, y * cls)
+    strokeWeight(4)
+    point(drawOff.x + x * cls, drawOff.y + y * cls)
     pop()
 }
 
@@ -389,6 +369,7 @@ function updateAng() {
     // if (!canRotate) return
     ang -= movedX * deltaTime / 100
     ang %= 360
+    if (ang < 0) ang += 360
 }
 
 function move(ang, speed = 1) {
