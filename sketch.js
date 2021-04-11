@@ -51,10 +51,11 @@ function setup() {
     // )
 
     // pos = spawn(map)
-    pos = { x: 2, y: 5 }
-    pos2 = { x: 7, y: 7 }
+    pos = { x: 8 - 5, y: 8 }
+    pos2 = { x: 8, y: 8 }
     fov = 90
     ang = 0
+    ang = normalAng(180)
     res = width / 4
     rad = 1 / 4
     mapZoomed = false
@@ -78,41 +79,63 @@ function draw() {
     if (renderMap) drawMap(pos, rayBuf)
     // if (canMove) move(ang)
     move(ang)
+    // rayCrclDst(pos, pos2, rayAng)
     // noLoop()
 }
 
 
 // other functions
-let temp = true
-function rayCrclDst(p1, p2, rayAng) { // fix back ray
+
+function normalAng(ang) {
+    if (ang > 180)
+        return ang - 360
+    if (ang < -180)
+        return ang + 360
+    return ang
+}
+
+let temp = true //
+function rayCrclDst(p1, p2, rayAng) {
     let dx = p2.x - p1.x
     let dy = p2.y - p1.y
-    let strghtDst = Math.sqrt(dx ** 2 + dy ** 2)
+    let strghtDst = Math.hypot(dx, dy)
 
-    let strghtAng = -degrees(Math.atan(dy / dx)) - 180
+    rayAng = normalAng(rayAng)
+
+    let strghtAng = degrees(atan2(-dy, dx))
+    strghtAng = normalAng(strghtAng)
+
     let rayStrghtAng = rayAng - strghtAng
+    rayStrghtAng = normalAng(rayStrghtAng)
 
-    let min = ang - fov / 2
-    let max = ang + fov / 2
-    let test = strghtAng
-    if (test < 0) test += 360
-    if (test < min || test > max) return
+    let minAng = ang - fov / 2
+    minAng = normalAng(minAng)
 
-    if (temp == true) {
-        console.log(ang, test);
-        console.log(min, max);
+    let maxAng = ang + fov / 2
+    maxAng = normalAng(maxAng)
+
+    if (temp) {
+        console.log(rayStrghtAng);
+        console.log(
+            ang + fov / 2,
+            ang - fov / 2
+        );
         temp = false
     }
 
-    let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
-    // if (dx < 0) sOff = -sOff
+    // if (
+    //     rayStrghtAng > maxAng ||
+    //     rayStrghtAng < minAng
+    // ) return
 
-    if (Math.abs(sOff) > rad * 2) return
+    let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
+
+    // if (Math.abs(sOff) > rad * 2) return
 
     let rayDst = sOff / Math.sin(radians(rayStrghtAng))
 
-    let x = p1.x + (Math.cos(radians(rayAng)) * rayDst)
-    let y = p1.y - (Math.sin(radians(rayAng)) * rayDst)
+    let x = p1.x + rayDst * Math.cos(radians(rayAng))
+    let y = p1.y - rayDst * Math.sin(radians(rayAng))
 
     push()
     stroke('purple')
@@ -368,8 +391,7 @@ function updateAng() {
     updateMouse()
     // if (!canRotate) return
     ang -= movedX * deltaTime / 100
-    ang %= 360
-    if (ang < 0) ang += 360
+    ang = normalAng(ang)
 }
 
 function move(ang, speed = 1) {
@@ -495,9 +517,8 @@ function drawMap(pos, rayBuf, num = 5) {
 
     }
     pop()
-    for (let i = 0; i < rayBuf.length; i++) {
+    for (let i = 0; i < rayBuf.length; i++)
         rayCrclDst(pos, pos2, rayBuf[i].ang)
-    }
 }
 
 function drawMatrix(mtrx, t = 1) {
