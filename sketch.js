@@ -14,7 +14,7 @@ only update some functions at change
 render other player
     render on top of view if is closer
     calculate dst...
-    rewrite whole sprite function
+    close sprite bug
 */
 
 function setup() {
@@ -55,7 +55,6 @@ function setup() {
     pos2 = { x: 8, y: 8 }
     fov = 90
     ang = 0
-    ang = normalAng(180)
     res = width / 4
     rad = 1 / 4
     mapZoomed = false
@@ -79,8 +78,6 @@ function draw() {
     if (renderMap) drawMap(pos, rayBuf)
     // if (canMove) move(ang)
     move(ang)
-    // rayCrclDst(pos, pos2, rayAng)
-    // noLoop()
 }
 
 
@@ -94,7 +91,6 @@ function normalAng(ang) {
     return ang
 }
 
-let temp = true //
 function rayCrclDst(p1, p2, rayAng) {
     let dx = p2.x - p1.x
     let dy = p2.y - p1.y
@@ -114,23 +110,11 @@ function rayCrclDst(p1, p2, rayAng) {
     let maxAng = ang + fov / 2
     maxAng = normalAng(maxAng)
 
-    if (temp) {
-        console.log(rayStrghtAng);
-        console.log(
-            ang + fov / 2,
-            ang - fov / 2
-        );
-        temp = false
-    }
-
-    // if (
-    //     rayStrghtAng > maxAng ||
-    //     rayStrghtAng < minAng
-    // ) return
+    if (Math.abs(rayStrghtAng) > fov / 2) return
 
     let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
 
-    // if (Math.abs(sOff) > rad * 2) return
+    if (Math.abs(sOff) > rad * 2) return
 
     let rayDst = sOff / Math.sin(radians(rayStrghtAng))
 
