@@ -3,7 +3,8 @@ let
     cls, pos, ang, ratio, mapZoomed,
     canRotate, canMove, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, rad, mapOff, drawOff,
-    mx, my, ceilClr, floorClr, textures, txtrNum, pos2
+    mx, my, ceilClr, floorClr, textures, txtrNum, pos2,
+    tempTxtr //
 
 /*
 interesction bug?
@@ -12,9 +13,8 @@ group functions, make classes
 ray and pos border teleport
 only update some functions at change
 render other player
+    use textures
     render on top of view if is closer
-    calculate dst...
-    close sprite bug
 */
 
 function setup() {
@@ -41,6 +41,9 @@ function setup() {
     // ])
 
     textures = randomTextures(10, 2)
+
+    tempTxtr = makeMatrix(1, 1, 0)
+    tempTxtr[0][0] = [127, 127, 127]
 
     map = makeMap(0, 16, 16)
 
@@ -91,7 +94,7 @@ function normalAng(ang) {
     return ang
 }
 
-function rayCrclDst(p1, p2, rayAng) {
+function rayCrcl(p1, p2, rayAng) {
     let dx = p2.x - p1.x
     let dy = p2.y - p1.y
     let strghtDst = Math.hypot(dx, dy)
@@ -121,11 +124,13 @@ function rayCrclDst(p1, p2, rayAng) {
     let x = p1.x + rayDst * Math.cos(radians(rayAng))
     let y = p1.y - rayDst * Math.sin(radians(rayAng))
 
-    push()
-    stroke('purple')
-    strokeWeight(4)
-    point(drawOff.x + x * cls, drawOff.y + y * cls)
-    pop()
+    // push()
+    // stroke('purple')
+    // strokeWeight(4)
+    // point(drawOff.x + x * cls, drawOff.y + y * cls)
+    // pop()
+
+    return { x, y, ang: rayAng }
 }
 
 function drawView(pos, rayBuf) {
@@ -140,7 +145,15 @@ function drawView(pos, rayBuf) {
     rayBuf.forEach((its, i) => {
         let h = calcColHeight(its)
         rayBuf[i].h = h
+
+        let plrIts = rayCrcl(pos, pos2, rayBuf[i].ang)
+
         drawTextureCol(its, i, h, w)
+
+        if (plrIts != undefined) {
+            let plrHeight = calcColHeight(plrIts)
+            drawTextureCol(undefined, i, plrHeight, w, tempTxtr)
+        }
     })
 
     pop()
@@ -448,18 +461,20 @@ function move(ang, speed = 1) {
 
 // Draw functions
 
-function drawTextureCol(its, i, h, w) {
-    let txcl = getTxcl(its)
-    let txtr = textures[its.val]
+function drawTextureCol(its, i, h, w, txtr) {
+    let txcl
+    if (its != undefined) txcl = getTxcl(its)
+
+    if (txtr == undefined) txtr = textures[its.val]
 
     let rows = txtr.length
     let cols = txtr[0].length
     let wcHeight = h / rows
 
     for (let y = 0; y < rows; y++) {
-        let x = floor(txcl * cols)
+        let x = txcl == undefined ? 0 : floor(txcl * cols)
         let color = txtr[y][x]
-        if (its.side == 'y')
+        if (its != undefined && its.side == 'y')
             color = multClr(color, 0.8)
         fill(color)
         rect(
@@ -502,7 +517,7 @@ function drawMap(pos, rayBuf, num = 5) {
     }
     pop()
     for (let i = 0; i < rayBuf.length; i++)
-        rayCrclDst(pos, pos2, rayBuf[i].ang)
+        rayCrcl(pos, pos2, rayBuf[i].ang)
 }
 
 function drawMatrix(mtrx, t = 1) {
