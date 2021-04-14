@@ -12,37 +12,37 @@ group functions, make classes
 ray and pos border teleport
 only update some functions at change
 render other player
-    render on top of view if is closer
+    add txtr depend ang
 */
 
 function setup() {
     createMyCanvas()
     background('gray')
 
-    // map = makeMap([
-    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    //     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-    //     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-    //     [1, 0, 0, 0, 0, 1, 0, 0, 6, 0, 0, 1, 1, 0, 1, 1],
-    //     [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    //     [1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    //     [1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1],
-    //     [1, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-    //     [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-    //     [1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    //     [1, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 1],
-    //     [1, 0, 4, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 1],
-    //     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1],
-    //     [1, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-    //     [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    // ])
+    map = makeMap([
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1],
+        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1],
+        [1, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 4, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1],
+        [1, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    ])
 
     textures = randomTextures(10, 2)
 
     spriteTxtr = randomTexture(3, 3)
 
-    map = makeMap(0, 16, 16)
+    // map = makeMap(0, 16, 16)
 
     // map = makeMap(
     //     cellularAutomata(
@@ -51,8 +51,8 @@ function setup() {
     // )
 
     // pos = spawn(map)
-    pos = { x: 8 - 5, y: 8 }
-    pos2 = { x: 8, y: 8 }
+    pos = { x: 3, y: 2 }
+    pos2 = { x: 8.5, y: 3.5 }
     fov = 90
     ang = 0
     res = width / 4
@@ -128,9 +128,10 @@ function castRayPlr(p1, p2, rayAng) {
         pop()
     }
 
-    return { x, y, ang: rayAng, sOff }
+    return { x, y, ang: rayAng, sOff, rayDst }
 }
 
+let temp = true
 function drawView(pos, rayBuf) {
     noStroke()
     push()
@@ -141,15 +142,18 @@ function drawView(pos, rayBuf) {
 
     let w = width / rayBuf.length
     rayBuf.forEach((its, i) => {
-        let h = calcColHeight(its)
+        let dst = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2)
+        let offAng = its.ang
+
+        let h = calcColHeight(dst, offAng)
         rayBuf[i].h = h
 
         let plrIts = castRayPlr(pos, pos2, rayBuf[i].ang)
 
         drawTextureCol(its, i, h, w)
 
-        if (plrIts != undefined) {
-            let plrHeight = calcColHeight(plrIts)
+        if (plrIts != undefined && plrIts.rayDst < dst) {
+            let plrHeight = calcColHeight(plrIts.rayDst, its.ang)
             drawTextureCol(undefined, i, plrHeight, w, spriteTxtr, plrIts.sOff)
         }
     })
@@ -157,10 +161,8 @@ function drawView(pos, rayBuf) {
     pop()
 }
 
-function calcColHeight(its) {
-    let d = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2)
-    let offAng = its.ang
-    let p = d * cos(radians(ang - offAng))
+function calcColHeight(dst, offAng) {
+    let p = dst * cos(radians(ang - offAng))
     let h = width / p / 2
     let colw = width / res
     h = round(h / colw) * colw
@@ -349,7 +351,6 @@ function mousePressed() {
         if (mouseOnMap()) {
             updateMouse()
             let cell = getCell(mx, my)
-            console.log(cell, txtrNum);
             placeCell(map, cell, txtrNum)
         } else {
             renderMode(1)
