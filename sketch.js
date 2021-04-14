@@ -3,8 +3,7 @@ let
     cls, pos, ang, ratio, mapZoomed,
     canRotate, canMove, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, rad, mapOff, drawOff,
-    mx, my, ceilClr, floorClr, textures, txtrNum, pos2,
-    tempTxtr //
+    mx, my, ceilClr, floorClr, textures, txtrNum, pos2, spriteTxtr
 
 /*
 interesction bug?
@@ -13,7 +12,6 @@ group functions, make classes
 ray and pos border teleport
 only update some functions at change
 render other player
-    use textures
     render on top of view if is closer
 */
 
@@ -42,8 +40,7 @@ function setup() {
 
     textures = randomTextures(10, 2)
 
-    tempTxtr = makeMatrix(1, 1, 0)
-    tempTxtr[0][0] = [127, 127, 127]
+    spriteTxtr = randomTexture(3, 3)
 
     map = makeMap(0, 16, 16)
 
@@ -68,7 +65,7 @@ function setup() {
     floorClr = 'lightGreen'
     txtrNum = 0
 
-    renderMap = true
+    renderMap = false
     renderView = true
     pointerLock = false
 
@@ -94,7 +91,7 @@ function normalAng(ang) {
     return ang
 }
 
-function rayCrcl(p1, p2, rayAng) {
+function castRayPlr(p1, p2, rayAng) {
     let dx = p2.x - p1.x
     let dy = p2.y - p1.y
     let strghtDst = Math.hypot(dx, dy)
@@ -124,13 +121,15 @@ function rayCrcl(p1, p2, rayAng) {
     let x = p1.x + rayDst * Math.cos(radians(rayAng))
     let y = p1.y - rayDst * Math.sin(radians(rayAng))
 
-    // push()
-    // stroke('purple')
-    // strokeWeight(4)
-    // point(drawOff.x + x * cls, drawOff.y + y * cls)
-    // pop()
+    if (renderMap) {
+        push()
+        stroke('purple')
+        strokeWeight(4)
+        point(drawOff.x + x * cls, drawOff.y + y * cls)
+        pop()
+    }
 
-    return { x, y, ang: rayAng }
+    return { x, y, ang: rayAng, sOff }
 }
 
 function drawView(pos, rayBuf) {
@@ -146,13 +145,13 @@ function drawView(pos, rayBuf) {
         let h = calcColHeight(its)
         rayBuf[i].h = h
 
-        let plrIts = rayCrcl(pos, pos2, rayBuf[i].ang)
+        let plrIts = castRayPlr(pos, pos2, rayBuf[i].ang)
 
         drawTextureCol(its, i, h, w)
 
         if (plrIts != undefined) {
             let plrHeight = calcColHeight(plrIts)
-            drawTextureCol(undefined, i, plrHeight, w, tempTxtr)
+            drawTextureCol(undefined, i, plrHeight, w, spriteTxtr, plrIts.sOff)
         }
     })
 
@@ -247,8 +246,10 @@ function renderMode(opt = 1) {
 
 // texture functions
 
-function getTxcl(its) {
+function getTxcl(its, sOff) {
     let txcl
+    if (its == undefined)
+        return sOff + 0.5
     if (its.side == 'x') {
         if (its.dir.x > 0) {
             txcl = its.y % 1
@@ -461,9 +462,13 @@ function move(ang, speed = 1) {
 
 // Draw functions
 
-function drawTextureCol(its, i, h, w, txtr) {
+function drawTextureCol(its, i, h, w, txtr, sOff) {
     let txcl
-    if (its != undefined) txcl = getTxcl(its)
+    if (its != undefined) {
+        txcl = getTxcl(its)
+    } else if (txtr != undefined) {
+        txcl = getTxcl(undefined, sOff)
+    }
 
     if (txtr == undefined) txtr = textures[its.val]
 
@@ -472,7 +477,8 @@ function drawTextureCol(its, i, h, w, txtr) {
     let wcHeight = h / rows
 
     for (let y = 0; y < rows; y++) {
-        let x = txcl == undefined ? 0 : floor(txcl * cols)
+        // let x = txcl == undefined ? 0 : floor(txcl * cols)
+        let x = floor(txcl * cols)
         let color = txtr[y][x]
         if (its != undefined && its.side == 'y')
             color = multClr(color, 0.8)
@@ -517,7 +523,7 @@ function drawMap(pos, rayBuf, num = 5) {
     }
     pop()
     for (let i = 0; i < rayBuf.length; i++)
-        rayCrcl(pos, pos2, rayBuf[i].ang)
+        castRayPlr(pos, pos2, rayBuf[i].ang)
 }
 
 function drawMatrix(mtrx, t = 1) {
