@@ -76,7 +76,6 @@ function draw() {
     rayBuf = castRays(ang, res)
     if (renderView) drawView(pos, rayBuf)
     if (renderMap) drawMap(pos, rayBuf)
-    // if (canMove) move(ang)
     move(ang)
 }
 
@@ -346,21 +345,22 @@ function keyPressed() {
 }
 
 function mousePressed() {
-    requestPointerLock()
-    // if (renderMap) {
-    //     if (mouseOnMap()) {
-    //         let cell = getCell(mx, my)
-    //         placeCell(map, cell, txtrNum)
-    //     } else {
-    //         renderMode(1)
-    //     }
-    // } else if (renderView) {
-    //     renderMode(1)
-    // }
+    if (renderMap) {
+        if (mouseOnMap()) {
+            updateMouse()
+            let cell = getCell(mx, my)
+            console.log(cell, txtrNum);
+            placeCell(map, cell, txtrNum)
+        } else {
+            renderMode(1)
+        }
+    } else if (renderView) {
+        renderMode(1)
+    }
 }
 
 function mouseMoved() {
-    updateAng()
+    if (canMove) updateAng()
 }
 
 function mouseDragged() {
