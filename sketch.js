@@ -13,6 +13,7 @@ ray and pos border teleport
 only update some functions at change
 render other player
     add txtr depend ang
+    add transparent txtr
 */
 
 function setup() {
@@ -42,6 +43,12 @@ function setup() {
 
     spriteTxtr = randomTexture(3, 3)
 
+    spriteTxtr = [
+        [0, randomColor(), randomColor(),],
+        [randomColor(), randomColor(), randomColor(),],
+        [randomColor(), randomColor(), randomColor(),],
+    ]
+
     // map = makeMap(0, 16, 16)
 
     // map = makeMap(
@@ -51,7 +58,7 @@ function setup() {
     // )
 
     // pos = spawn(map)
-    pos = { x: 3, y: 2 }
+    pos = { x: 4, y: 2 }
     pos2 = { x: 8.5, y: 3.5 }
     fov = 90
     ang = 0
@@ -129,7 +136,7 @@ function castRaySprt(p1, p2, rayAng) {
     }
 
     return {
-        x, y, ang: rayAng, txtrOff: sOff + 0.5,
+        x, y, ang: rayAng, txtrOff: 0.5 - sOff,
         rayDst, dir: getDir(rayAng),
     }
 }
@@ -440,7 +447,6 @@ function move(ang, speed = 1) {
 
 // Draw functions
 
-let temp = true
 function drawTextureCol(its, i, h, w, txtr) {
     let txtrOff = its.txtrOff
         || getTxtrOff(its, its.side, its.dir)
@@ -456,16 +462,7 @@ function drawTextureCol(its, i, h, w, txtr) {
         let color = txtr[y][x]
         if (its.side == 'y')
             color = multClr(color, 0.8)
-        try {
-            fill(color)
-        } catch (error) {
-            if (temp) {
-                console.log(color, txtr, y, x, txtrOff);
-                console.log(its.side, its.dir, its);
-                console.error(error);
-                temp = false
-            }
-        }
+        fill(color)
         rect(
             Math.round(i * w),
             (height - h) / 2 + wcHeight * y,
