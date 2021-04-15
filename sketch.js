@@ -13,7 +13,6 @@ ray and pos border teleport
 only update some functions at change
 render other player
     add txtr depend ang
-    add transparent txtr
 */
 
 function setup() {
@@ -43,10 +42,13 @@ function setup() {
 
     spriteTxtr = randomTexture(3, 3)
 
+    let c = randomColor()
     spriteTxtr = [
-        [0, randomColor(), randomColor(),],
-        [randomColor(), randomColor(), randomColor(),],
-        [randomColor(), randomColor(), randomColor(),],
+        [-1, -1, -1, -1, -1,],
+        [-1, -1, c, -1, -1,],
+        [-1, c, c, c, -1,],
+        [-1, -1, c, -1, -1,],
+        [-1, -1, c, -1, -1,],
     ]
 
     // map = makeMap(0, 16, 16)
@@ -447,6 +449,7 @@ function move(ang, speed = 1) {
 
 // Draw functions
 
+let temp = true
 function drawTextureCol(its, i, h, w, txtr) {
     let txtrOff = its.txtrOff
         || getTxtrOff(its, its.side, its.dir)
@@ -460,6 +463,7 @@ function drawTextureCol(its, i, h, w, txtr) {
     for (let y = 0; y < rows; y++) {
         let x = floor(txtrOff * cols)
         let color = txtr[y][x]
+        if (color < 0) continue
         if (its.side == 'y')
             color = multClr(color, 0.8)
         fill(color)
