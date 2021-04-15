@@ -1,6 +1,6 @@
 let
     width, height, map, mRows, mCols,
-    cls, pos, ang, ratio, mapZoomed,
+    cls, pos, ang, ang2, ratio, mapZoomed,
     canRotate, canMove, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, rad, mapOff, drawOff, pxl,
     mx, my, ceilClr, floorClr, textures, txtrNum, pos2, spriteTxtr
@@ -11,8 +11,7 @@ mobile compatibility
 group functions, make classes
 ray and pos border teleport
 only update some functions at change
-render other player
-    add txtr depend ang
+other player collision
 */
 
 function setup() {
@@ -40,16 +39,46 @@ function setup() {
 
     textures = randomTextures(10, 2)
 
-    spriteTxtr = randomTexture(3, 3)
-
-    let c = randomColor()
-    spriteTxtr = [
-        [-1, -1, -1, -1, -1,],
-        [-1, -1, c, -1, -1,],
-        [-1, c, c, c, -1,],
-        [-1, -1, c, -1, -1,],
-        [-1, -1, c, -1, -1,],
-    ]
+    let c0 = randomColor()
+    let c1 = randomColor()
+    let c2 = multClr(c0, 0.1)
+    spriteTxtr = [[
+        [-1, -1, -1, c0, c0, -1, -1, -1],
+        [-1, -1, -1, c0, c0, -1, -1, -1],
+        [-1, -1, c0, c0, c0, c0, -1, -1],
+        [-1, -1, c0, c0, c0, c0, -1, -1],
+        [-1, -1, c1, c0, c0, c0, -1, -1],
+        [-1, -1, -1, c0, c0, -1, -1, -1],
+        [-1, -1, -1, c0, c0, -1, -1, -1],
+        [-1, -1, c0, c0, c0, c0, -1, -1],
+    ], [
+        [-1, -1, -1, c0, c0, -1, -1, -1],
+        [-1, -1, -1, c0, c0, -1, -1, -1],
+        [-1, -1, c0, c0, c0, c0, - 1, -1],
+        [-1, c1, c0, c0, c0, c0, -1, -1],
+        [-1, -1, -1, c0, c0, c0, -1, -1],
+        [-1, -1, -1, c0, c0, -1, -1, -1],
+        [-1, -1, -1, c0, c0, -1, -1, -1],
+        [-1, -1, c0, c0, c0, -1, -1, -1],
+    ], [
+        [-1, -1, -1, c0, c0, -1, -1, -1],
+        [-1, -1, -1, c0, c0, -1, -1, -1],
+        [-1, -1, c0, c0, c0, c0, - 1, -1],
+        [-1, -1, c0, c0, c0, c0, c1, -1],
+        [-1, -1, c0, c0, c0, -1, -1, -1],
+        [-1, -1, -1, c0, c0, -1, -1, -1],
+        [-1, -1, -1, c0, c0, -1, -1, -1],
+        [-1, -1, -1, c0, c0, c0, -1, -1],
+    ], [
+        [-1, -1, -1, c2, c2, -1, -1, -1],
+        [-1, -1, -1, c2, c2, -1, -1, -1],
+        [-1, -1, c2, c2, c2, c2, -1, -1],
+        [-1, -1, c2, c2, c2, c2, -1, -1],
+        [-1, -1, c2, c2, c2, c2, -1, -1],
+        [-1, -1, -1, c2, c2, -1, -1, -1],
+        [-1, -1, -1, c2, c2, -1, -1, -1],
+        [-1, -1, c2, c2, c2, c2, -1, -1],
+    ]]
 
     // map = makeMap(0, 16, 16)
 
@@ -60,10 +89,11 @@ function setup() {
     // )
 
     // pos = spawn(map)
-    pos = { x: 4, y: 2 }
+    pos = { x: 6.3, y: 2 }
     pos2 = { x: 8.5, y: 3.5 }
     fov = 90
     ang = 0
+    ang2 = 0
     res = width / 4
     rad = 1 / 4
     mapZoomed = false
@@ -74,18 +104,25 @@ function setup() {
     floorClr = 'lightGreen'
     txtrNum = 0
 
-    renderMap = false
+    renderMap = true
     renderView = true
     pointerLock = false
 
     let cell = { x: 6, y: 1 }
 }
 
+
 function draw() {
     rayBuf = castRays(ang, res)
     if (renderView) drawView(rayBuf)
     if (renderMap) drawMap(pos, rayBuf)
     move(ang)
+
+    ang2 = degrees(atan2(
+        mouseY - (drawOff.y + pos2.y * cls),
+        mouseX - (drawOff.x + pos2.x * cls)
+    ))
+    ang2 = normalAng(ang2)
 }
 
 
@@ -108,6 +145,17 @@ function castRaySprt(p1, p2, rayAng) {
 
     let strghtAng = degrees(atan2(-dy, dx))
     strghtAng = normalAng(strghtAng)
+
+    let plrsAng = 180 + ang2 + strghtAng
+    plrsAng = normalAng(plrsAng)
+
+    if (Math.abs(plrsAng) > 135) {
+        txtrSide = 3
+    } else if (Math.abs(plrsAng) > 45) {
+        txtrSide = plrsAng > 0 ? 1 : 2
+    } else {
+        txtrSide = 0
+    }
 
     let rayStrghtAng = rayAng - strghtAng
     rayStrghtAng = normalAng(rayStrghtAng)
@@ -134,12 +182,18 @@ function castRaySprt(p1, p2, rayAng) {
         stroke('purple')
         strokeWeight(4)
         point(drawOff.x + x * cls, drawOff.y + y * cls)
+        translate(drawOff.x + pos2.x * cls, drawOff.y + pos2.y * cls)
+        stroke('blue')
+        let l = rad * 4 * cls
+        line(0, 0, l * Math.cos(radians(ang2)), l * Math.sin(radians(ang2)))
         pop()
     }
 
     return {
-        x, y, ang: rayAng, txtrOff: 0.5 - sOff,
-        rayDst, dir: getDir(rayAng),
+        x, y, ang: rayAng, type: 'sprite',
+        txtrOff: 0.5 - sOff,
+        rayDst, angOff: plrsAng,
+        dir: getDir(rayAng), txtrSide
     }
 }
 
@@ -347,11 +401,11 @@ function mousePressed() {
 }
 
 function mouseMoved() {
+    updateMouse()
     if (canMove) updateAng()
 }
 
 function mouseDragged() {
-    updateMouse()
     if (renderMap)
         placeCell(map, getCell(mx, my), txtrNum)
 }
@@ -449,12 +503,12 @@ function move(ang, speed = 1) {
 
 // Draw functions
 
-let temp = true
 function drawTextureCol(its, i, h, w, txtr) {
     let txtrOff = its.txtrOff
         || getTxtrOff(its, its.side, its.dir)
 
     if (txtr == undefined) txtr = textures[its.val]
+    if (its.type == 'sprite') txtr = txtr[its.txtrSide]
 
     let rows = txtr.length
     let cols = txtr[0].length
@@ -493,6 +547,10 @@ function drawMap(pos, rayBuf, num = 5) {
     circle(pos2.x * cls, pos2.y * cls, cls)
     fill('black')
     circle(pos2.x * cls, pos2.y * cls, cls * 2 * rad)
+    stroke('green')
+    // join plrs
+    strokeWeight(4)
+    line(pos.x * cls, pos.y * cls, pos2.x * cls, pos2.y * cls)
 
     let inc = (rayBuf.length - 1) / (num - 1)
     for (let i = 0; i < rayBuf.length; i += inc) {
