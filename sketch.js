@@ -1,9 +1,9 @@
 let
-    width, height, map, mRows, mCols,
-    cls, pos, ang, ang2, ratio, mapZoomed,
+    width, height, map, mRows, mCols, cls, ratio, mapZoomed,
     canRotate, canMove, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, rad, mapOff, drawOff, pxl,
-    mx, my, ceilClr, floorClr, textures, txtrNum, pos2, spriteTxtr
+    mx, my, ceilClr, floorClr, textures, placeTxtrNum, spriteTxtrs,
+    pl0, pl1
 
 /*
 interesction bug?
@@ -40,9 +40,8 @@ function setup() {
     textures = randomTextures(10, 2)
 
     let c0 = randomColor()
-    let c1 = randomColor()
-    let c2 = multClr(c0, 0.1)
-    spriteTxtr = [[
+    let c1 = multClr(c0, 0.1)
+    spriteTxtrs = [[
         [-1, -1, -1, c0, c0, -1, -1, -1],
         [-1, -1, -1, c0, c0, -1, -1, -1],
         [-1, -1, c0, c0, c0, c0, -1, -1],
@@ -70,14 +69,14 @@ function setup() {
         [-1, -1, -1, c0, c0, -1, -1, -1],
         [-1, -1, -1, c0, c0, c0, -1, -1],
     ], [
-        [-1, -1, -1, c2, c2, -1, -1, -1],
-        [-1, -1, -1, c2, c2, -1, -1, -1],
-        [-1, -1, c2, c2, c2, c2, -1, -1],
-        [-1, -1, c2, c2, c2, c2, -1, -1],
-        [-1, -1, c2, c2, c2, c2, -1, -1],
-        [-1, -1, -1, c2, c2, -1, -1, -1],
-        [-1, -1, -1, c2, c2, -1, -1, -1],
-        [-1, -1, c2, c2, c2, c2, -1, -1],
+        [-1, -1, -1, c1, c1, -1, -1, -1],
+        [-1, -1, -1, c1, c1, -1, -1, -1],
+        [-1, -1, c1, c1, c1, c1, -1, -1],
+        [-1, -1, c1, c1, c1, c1, -1, -1],
+        [-1, -1, c1, c1, c1, c1, -1, -1],
+        [-1, -1, -1, c1, c1, -1, -1, -1],
+        [-1, -1, -1, c1, c1, -1, -1, -1],
+        [-1, -1, c1, c1, c1, c1, -1, -1],
     ]]
 
     // map = makeMap(0, 16, 16)
@@ -88,12 +87,9 @@ function setup() {
     //     )
     // )
 
-    // pos = spawn(map)
-    pos = { x: 6.3, y: 2 }
-    pos2 = { x: 8.5, y: 3.5 }
+    pl0 = new Player(6, 2, 0)
+    pl1 = new Player(8.5, 3.5, 180)
     fov = 90
-    ang = 0
-    ang2 = 0
     res = width / 4
     rad = 1 / 4
     mapZoomed = false
@@ -102,27 +98,124 @@ function setup() {
     drawOff = getDrawMapOff()
     ceilClr = 'lightBlue'
     floorClr = 'lightGreen'
-    txtrNum = 0
+    placeTxtrNum = 0
 
-    renderMap = true
+    renderMap = false
     renderView = true
     pointerLock = false
-
-    let cell = { x: 6, y: 1 }
 }
 
 
 function draw() {
-    rayBuf = castRays(ang, res)
-    if (renderView) drawView(rayBuf)
-    if (renderMap) drawMap(pos, rayBuf)
-    move(ang)
+    rayBuf = castRays(pl0.pos, pl0.ang, res)
+    if (renderView) drawView(pl0.pos, rayBuf)
+    if (renderMap) drawMap(pl0.pos, rayBuf)
+    pl0.move(87, 65, 68, 83)
+    pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW)
+}
 
-    ang2 = degrees(atan2(
-        mouseY - (drawOff.y + pos2.y * cls),
-        mouseX - (drawOff.x + pos2.x * cls)
-    ))
-    ang2 = normalAng(ang2)
+
+class Player { // spawn if no args
+    constructor(x = 0, y = 0, ang = 0, speed = 1) {
+        this.pos = { x, y }
+        this.ang = ang
+        this.speed = speed
+    }
+
+    rotate() {
+        // if (!canRotate) return
+        this.ang -= normalAng(movedX * deltaTime / 100)
+    }
+
+    move(forward, left, back, right) {
+        let dir = { x: 0, y: 0 }
+        let vel = { x: 0, y: 0 }
+
+        if (keyIsDown(forward)) dir.y = -1
+        if (keyIsDown(left)) dir.x = -1
+        if (keyIsDown(back)) dir.y = 1
+        if (keyIsDown(right)) dir.x = 1
+
+        if (dir.y == -1) {
+            vel.y += -sin(radians(this.ang))
+            vel.x += cos(radians(this.ang))
+        }
+        if (dir.y == 1) {
+            vel.y += sin(radians(this.ang))
+            vel.x += -cos(radians(this.ang))
+        }
+        if (dir.x == -1) {
+            vel.y += -cos(radians(this.ang))
+            vel.x += -sin(radians(this.ang))
+        }
+        if (dir.x == 1) {
+            vel.y += cos(radians(this.ang))
+            vel.x += sin(radians(this.ang))
+        }
+
+        dir.x = vel.x
+        if (dir.x != 0) dir.x = (dir.x > 0) * 2 - 1
+        dir.y = vel.y
+        if (dir.y != 0) dir.y = (dir.y > 0) * 2 - 1
+
+        let mag = sqrt(vel.x ** 2 + vel.y ** 2)
+        if (mag != 0) {
+            vel.x /= mag
+            vel.y /= mag
+        }
+
+        vel.x *= this.speed
+        // vel.x /= deltaTime
+        vel.y *= this.speed
+        // vel.y /= deltaTime
+
+
+        if (keyIsDown(SHIFT)) {
+            vel.x *= 2
+            vel.y *= 2
+        }
+
+        this.pos.x += vel.x / 20
+        this.pos.y += vel.y / 20
+
+        // collision
+
+        let cell, cellValue
+
+        cell = getCell(this.pos.x, this.pos.y + dir.y * rad, false)
+        cellValue = getCellVal(cell)
+        if (cellValue != 0 || cellValue == undefined) {
+            this.pos.y = cell.y + 0.5 - dir.y * 0.5 - dir.y * rad
+        }
+
+        cell = getCell(this.pos.x + dir.x * rad, this.pos.y, false)
+        cellValue = getCellVal(cell)
+        if (cellValue != 0 || cellValue == undefined) {
+            this.pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * rad
+        }
+    }
+
+    spawn() {
+        let spaces = copyMatrix(map)
+        for (let i = 0; i < spaces.length; i++) {
+            for (let j = 0; j < map[0].length; j++) {
+                let ri = Math.floor(Math.random() * spaces.length)
+                let rj = Math.floor(Math.random() * spaces.length)
+                spaces[i][j] = { i: ri, j: rj }
+                spaces[ri][rj] = { i: i, j: j }
+            }
+        }
+
+        for (let i = 0; i < spaces.length; i++) {
+            for (let j = 0; j < spaces[0].length; j++) {
+                const c = spaces[i][j]
+                if (map[c.i][c.j] == 0) {
+                    return { y: 0.5 + c.i, x: 0.5 + c.j }
+                }
+            }
+        }
+        this.pos = { x: 0.5 + map.length / 2 + 0.5, y: 0.5 + map[0].length / 2 }
+    }
 }
 
 
@@ -136,9 +229,9 @@ function normalAng(ang) {
     return ang
 }
 
-function castRaySprt(p1, p2, rayAng) {
-    let dx = p2.x - p1.x
-    let dy = p2.y - p1.y
+function castRaySprt(p0, p1, rayAng) {
+    let dx = p1.x - p0.x
+    let dy = p1.y - p0.y
     let strghtDst = Math.hypot(dx, dy)
 
     rayAng = normalAng(rayAng)
@@ -146,7 +239,7 @@ function castRaySprt(p1, p2, rayAng) {
     let strghtAng = degrees(atan2(-dy, dx))
     strghtAng = normalAng(strghtAng)
 
-    let plrsAng = 180 + ang2 + strghtAng
+    let plrsAng = 180 + pl1.ang + strghtAng
     plrsAng = normalAng(plrsAng)
 
     if (Math.abs(plrsAng) > 135) {
@@ -160,10 +253,10 @@ function castRaySprt(p1, p2, rayAng) {
     let rayStrghtAng = rayAng - strghtAng
     rayStrghtAng = normalAng(rayStrghtAng)
 
-    let minAng = ang - fov / 2
+    let minAng = p0.ang - fov / 2
     minAng = normalAng(minAng)
 
-    let maxAng = ang + fov / 2
+    let maxAng = p0.ang + fov / 2
     maxAng = normalAng(maxAng)
 
     if (Math.abs(rayStrghtAng) > fov / 2) return
@@ -174,55 +267,42 @@ function castRaySprt(p1, p2, rayAng) {
 
     let rayDst = sOff / Math.sin(radians(rayStrghtAng))
 
-    let x = p1.x + rayDst * Math.cos(radians(rayAng))
-    let y = p1.y - rayDst * Math.sin(radians(rayAng))
-
-    if (renderMap) {
-        push()
-        stroke('purple')
-        strokeWeight(4)
-        point(drawOff.x + x * cls, drawOff.y + y * cls)
-        translate(drawOff.x + pos2.x * cls, drawOff.y + pos2.y * cls)
-        stroke('blue')
-        let l = rad * 4 * cls
-        line(0, 0, l * Math.cos(radians(ang2)), l * Math.sin(radians(ang2)))
-        pop()
-    }
+    let x = p0.x + rayDst * Math.cos(radians(rayAng))
+    let y = p0.y - rayDst * Math.sin(radians(rayAng))
 
     return {
         x, y, ang: rayAng, type: 'sprite',
         txtrOff: 0.5 - sOff,
-        rayDst, angOff: plrsAng,
-        dir: getDir(rayAng), txtrSide
+        dst: rayDst, angOff: plrsAng,
+        dir: angToDir(rayAng), txtrSide
     }
 }
 
-function drawView(rayBuf) {
+function drawView(pos, rayBuf) {
     noStroke()
     push()
     fill(ceilClr)
     rect(0, 0, width, height / 2)
     fill(floorClr)
     rect(0, height / 2, width, height / 2)
+    pop()
 
     rayBuf.forEach((its, i) => {
-        let h = calcColHeight(its.dst, its.ang)
-
-        let itsPlr = castRaySprt(pos, pos2, rayBuf[i].ang)
+        let h = calcColHeight(its)
 
         drawTextureCol(its, i, h, pxl)
 
-        if (itsPlr != undefined && itsPlr.rayDst < its.dst) {
-            let hPlr = calcColHeight(itsPlr.rayDst, its.ang)
-            drawTextureCol(itsPlr, i, hPlr, pxl, spriteTxtr)
+        let itsPlr = castRaySprt(pos, pl1.pos, rayBuf[i].ang)
+
+        if (itsPlr != undefined && itsPlr.dst < its.dst) {
+            let hPlr = calcColHeight(itsPlr)
+            drawTextureCol(itsPlr, i, hPlr, pxl, spriteTxtrs)
         }
     })
-
-    pop()
 }
 
-function calcColHeight(dst, offAng) {
-    let p = dst * cos(radians(ang - offAng))
+function calcColHeight(its) {
+    let p = its.dst * cos(radians(pl0.ang - its.ang))
     let h = height / p
     pxl = width / res
     h = round(h / pxl) * pxl
@@ -233,34 +313,11 @@ function fitMap() { // should depend on resolution
     cls = height / mRows
 }
 
-function spawn(map) {
-    let spaces = copyMatrix(map)
-    for (let i = 0; i < spaces.length; i++) {
-        for (let j = 0; j < map[0].length; j++) {
-            let ri = Math.floor(Math.random() * spaces.length)
-            let rj = Math.floor(Math.random() * spaces.length)
-            spaces[i][j] = { i: ri, j: rj }
-            spaces[ri][rj] = { i: i, j: j }
-        }
-    }
-
-    for (let i = 0; i < spaces.length; i++) {
-        for (let j = 0; j < spaces[0].length; j++) {
-            const c = spaces[i][j]
-            if (map[c.i][c.j] == 0) {
-                return { y: 0.5 + c.i, x: 0.5 + c.j }
-            }
-        }
-    }
-
-    return { x: 0.5 + map.length / 2 + 0.5, y: 0.5 + map[0].length / 2 }
-}
-
 function getDrawMapOff() {
     if (cls * mCols > width || cls * mRows > height) {
         return {
-            x: mapOff.x - (pos.x - mCols / 2) * cls,
-            y: mapOff.y - (pos.y - mRows / 2) * cls
+            x: mapOff.x - (pl0.pos.x - mCols / 2) * cls,
+            y: mapOff.y - (pl0.pos.y - mRows / 2) * cls
         }
     } else return { x: mapOff.x, y: mapOff.y }
 }
@@ -368,9 +425,9 @@ function mouseWheel(event) {
 function setKeyNum(kc) {
     let kn = kc - 48
     if (kn < 0 || kn > textures.length) {
-        txtrNum = 0
+        placeTxtrNum = 0
     } else {
-        txtrNum = kn
+        placeTxtrNum = kn
     }
 }
 
@@ -391,7 +448,7 @@ function mousePressed() {
         if (mouseOnMap()) {
             updateMouse()
             let cell = getCell(mx, my)
-            placeCell(map, cell, txtrNum)
+            placeCell(map, cell, placeTxtrNum)
         } else {
             renderMode(1)
         }
@@ -402,12 +459,12 @@ function mousePressed() {
 
 function mouseMoved() {
     updateMouse()
-    if (canMove) updateAng()
+    if (canMove) pl0.rotate()
 }
 
 function mouseDragged() {
     if (renderMap)
-        placeCell(map, getCell(mx, my), txtrNum)
+        placeCell(map, getCell(mx, my), placeTxtrNum)
 }
 
 
@@ -417,87 +474,13 @@ function updateMouse() {
     mx = mouseX - mapOff.x
     my = mouseY - mapOff.y
     if (mapZoomed) {
-        mx += (pos.x - mCols / 2) * cls
-        my += (pos.y - mRows / 2) * cls
+        mx += (pl0.pos.x - mCols / 2) * cls
+        my += (pl0.pos.y - mRows / 2) * cls
     }
 }
 
 function placeCell(mtrx, cell, val = 0) {
     if (cell != undefined) mtrx[cell.y][cell.x] = val
-}
-
-function updateAng() {
-    updateMouse()
-    // if (!canRotate) return
-    ang -= movedX * deltaTime / 100
-    ang = normalAng(ang)
-}
-
-function move(ang, speed = 1) {
-    if (keyIsDown(SHIFT)) speed *= 2
-    speed *= deltaTime / 16
-
-    let vel = { x: 0, y: 0 }
-    let dir = { x: 0, y: 0 }
-
-    if (keyIsDown(UP_ARROW) || keyIsDown(87)) dir.y = -1
-    if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) dir.y = 1
-    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) dir.x = 1
-    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) dir.x = -1
-
-
-    if (dir.y == -1) {
-        vel.y += -sin(radians(ang))
-        vel.x += cos(radians(ang))
-    }
-    if (dir.y == 1) {
-        vel.y += sin(radians(ang))
-        vel.x += -cos(radians(ang))
-    }
-    if (dir.x == -1) {
-        vel.y += -cos(radians(ang))
-        vel.x += -sin(radians(ang))
-    }
-    if (dir.x == 1) {
-        vel.y += cos(radians(ang))
-        vel.x += sin(radians(ang))
-    }
-
-    dir.x = vel.x
-    if (dir.x != 0) dir.x = (dir.x > 0) * 2 - 1
-    dir.y = vel.y
-    if (dir.y != 0) dir.y = (dir.y > 0) * 2 - 1
-
-
-    let mag = sqrt(vel.x ** 2 + vel.y ** 2)
-    if (mag != 0) {
-        vel.x /= mag
-        vel.y /= mag
-    }
-
-    if (speed != undefined) {
-        vel.y *= speed
-        vel.x *= speed
-    }
-    vel.y /= 24
-    vel.x /= 24
-
-    pos.x += vel.x
-    pos.y += vel.y
-
-    let cell, cellValue
-
-    cell = getCell(pos.x, pos.y + dir.y * rad, false)
-    cellValue = getCellVal(cell)
-    if (cellValue != 0 || cellValue == undefined) {
-        pos.y = cell.y + 0.5 - dir.y * 0.5 - dir.y * rad
-    }
-
-    cell = getCell(pos.x + dir.x * rad, pos.y, false)
-    cellValue = getCellVal(cell)
-    if (cellValue != 0 || cellValue == undefined) {
-        pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * rad
-    }
 }
 
 
@@ -542,15 +525,20 @@ function drawMap(pos, rayBuf, num = 5) {
     circle(pos.x * cls, pos.y * cls, cls)
     fill('black')
     circle(pos.x * cls, pos.y * cls, cls * 2 * rad)
-    // other player (pos2)
+    // other player (pl1.pos)
     fill('gray')
-    circle(pos2.x * cls, pos2.y * cls, cls)
+    circle(pl1.pos.x * cls, pl1.pos.y * cls, cls)
     fill('black')
-    circle(pos2.x * cls, pos2.y * cls, cls * 2 * rad)
-    stroke('green')
+    circle(pl1.pos.x * cls, pl1.pos.y * cls, cls * 2 * rad)
+    stroke('purple')
+    let l = rad * 4 * cls
+    line(pl1.pos.x * cls, pl1.pos.y * cls,
+        pl1.pos.x * cls + l * Math.cos(radians(pl1.ang)),
+        pl1.pos.y * cls + l * Math.sin(radians(pl1.ang)))
     // join plrs
+    stroke('green')
     strokeWeight(4)
-    line(pos.x * cls, pos.y * cls, pos2.x * cls, pos2.y * cls)
+    line(pos.x * cls, pos.y * cls, pl1.pos.x * cls, pl1.pos.y * cls)
 
     let inc = (rayBuf.length - 1) / (num - 1)
     for (let i = 0; i < rayBuf.length; i += inc) {
@@ -564,8 +552,6 @@ function drawMap(pos, rayBuf, num = 5) {
 
     }
     pop()
-    for (let i = 0; i < rayBuf.length; i++)
-        castRaySprt(pos, pos2, rayBuf[i].ang)
 }
 
 function drawMatrix(mtrx, t = 1) {
@@ -598,7 +584,7 @@ function drawCell(mtrx, i, j, t = 1) {
 
 // Ray casting functions
 
-function castRays(offAng, r = width) {
+function castRays(pos, offAng, r = width) {
     res = r
     rayBuf = []
     let inc = fov / res
@@ -627,14 +613,16 @@ function getTxtrOff(its, side, dir) {
 
 function castRay(pos, ang) {
     let cell = { x: Math.floor(pos.x), y: Math.floor(pos.y) }
-    let off = getOff(pos, cell)
-    let dir = getDir(ang)
+    let off = { x: pos.x - cell.x, y: pos.y - cell.y }
+    let dir = angToDir(ang)
     let tg = abs(tan(radians(ang)))
     let ctg = 1 / tg
-    let xsi = getXsfi(pos, off, dir, tg)
-    let ysi = getYsfi(pos, off, dir, ctg)
-    let dx = getDx(dir, ctg)
-    let dy = getDy(dir, tg)
+    let xsi = { x: pos.x - off.x + (1 + dir.x) / 2, }
+    xsi.y = pos.y + abs(xsi.x - pos.x) * tg * dir.y
+    let ysi = { y: pos.y - off.y + (1 + dir.y) / 2 }
+    ysi.x = pos.x + abs(ysi.y - pos.y) * ctg * dir.x
+    let dx = ctg * dir.x
+    let dy = tg * dir.y
 
     while (true) {
         while (abs(pos.x - xsi.x) <= abs(pos.x - ysi.x)) {
@@ -672,38 +660,11 @@ function castRay(pos, ang) {
     }
 }
 
-function getOff(pos, cell) {
-    let x = pos.x - cell.x
-    let y = pos.y - cell.y
-    return { x, y }
-}
-
-function getDir(ang) {
+function angToDir(ang) {
     let y = Math.floor(ang / 180) % 2 ? 1 : -1
     let x = Math.floor((ang - 90) / 180) % 2 ? 1 : -1
     return { x, y }
 }
-
-function getXsfi(pos, off, dir, tg) {
-    let x = pos.x - off.x + (1 + dir.x) / 2
-    let y = pos.y + abs(x - pos.x) * tg * dir.y
-    return { x, y }
-}
-
-function getYsfi(pos, off, dir, ctg) {
-    let y = pos.y - off.y + (1 + dir.y) / 2
-    let x = pos.x + abs(y - pos.y) * ctg * dir.x
-    return { x, y }
-}
-
-function getDx(dir, ctg) {
-    return ctg * dir.x
-}
-
-function getDy(dir, tg) {
-    return tg * dir.y
-}
-
 
 // Cellular automata functions
 
