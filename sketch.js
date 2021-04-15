@@ -2,7 +2,7 @@ let
     width, height, map, mRows, mCols,
     cls, pos, ang, ratio, mapZoomed,
     canRotate, canMove, rayBuf, fov, renderMap, renderView,
-    pointerLock, speed, res, rad, mapOff, drawOff,
+    pointerLock, speed, res, rad, mapOff, drawOff, pxl,
     mx, my, ceilClr, floorClr, textures, txtrNum, pos2, spriteTxtr
 
 /*
@@ -74,7 +74,7 @@ function setup() {
 
 function draw() {
     rayBuf = castRays(ang, res)
-    if (renderView) drawView(pos, rayBuf)
+    if (renderView) drawView(rayBuf)
     if (renderMap) drawMap(pos, rayBuf)
     move(ang)
 }
@@ -90,7 +90,7 @@ function normalAng(ang) {
     return ang
 }
 
-function castRayPlr(p1, p2, rayAng) {
+function castRaySprt(p1, p2, rayAng) {
     let dx = p2.x - p1.x
     let dy = p2.y - p1.y
     let strghtDst = Math.hypot(dx, dy)
@@ -128,11 +128,13 @@ function castRayPlr(p1, p2, rayAng) {
         pop()
     }
 
-    return { x, y, ang: rayAng, sOff, rayDst }
+    return {
+        x, y, ang: rayAng, txtrOff: sOff + 0.5,
+        rayDst, dir: getDir(rayAng),
+    }
 }
 
-let temp = true
-function drawView(pos, rayBuf) {
+function drawView(rayBuf) {
     noStroke()
     push()
     fill(ceilClr)
@@ -140,21 +142,16 @@ function drawView(pos, rayBuf) {
     fill(floorClr)
     rect(0, height / 2, width, height / 2)
 
-    let w = width / rayBuf.length
     rayBuf.forEach((its, i) => {
-        let dst = sqrt((pos.x - its.x) ** 2 + (pos.y - its.y) ** 2)
-        let offAng = its.ang
+        let h = calcColHeight(its.dst, its.ang)
 
-        let h = calcColHeight(dst, offAng)
-        rayBuf[i].h = h
+        let itsPlr = castRaySprt(pos, pos2, rayBuf[i].ang)
 
-        let plrIts = castRayPlr(pos, pos2, rayBuf[i].ang)
+        drawTextureCol(its, i, h, pxl)
 
-        drawTextureCol(its, i, h, w)
-
-        if (plrIts != undefined && plrIts.rayDst < dst) {
-            let plrHeight = calcColHeight(plrIts.rayDst, its.ang)
-            drawTextureCol(undefined, i, plrHeight, w, spriteTxtr, plrIts.sOff)
+        if (itsPlr != undefined && itsPlr.rayDst < its.dst) {
+            let hPlr = calcColHeight(itsPlr.rayDst, its.ang)
+            drawTextureCol(itsPlr, i, hPlr, pxl, spriteTxtr)
         }
     })
 
@@ -163,9 +160,9 @@ function drawView(pos, rayBuf) {
 
 function calcColHeight(dst, offAng) {
     let p = dst * cos(radians(ang - offAng))
-    let h = width / p / 2
-    let colw = width / res
-    h = round(h / colw) * colw
+    let h = height / p
+    pxl = width / res
+    h = round(h / pxl) * pxl
     return h
 }
 
@@ -246,26 +243,6 @@ function renderMode(opt = 1) {
 }
 
 // texture functions
-
-function getTxcl(its, sOff) {
-    let txcl
-    if (its == undefined)
-        return sOff + 0.5
-    if (its.side == 'x') {
-        if (its.dir.x > 0) {
-            txcl = its.y % 1
-        } else {
-            txcl = (mRows - its.y) % 1
-        }
-    } else if (its.side == 'y') {
-        if (its.dir.y < 0) {
-            txcl = its.x % 1
-        } else {
-            txcl = (mCols - its.x) % 1
-        }
-    }
-    return txcl
-}
 
 function multClr(color, m = 1) {
     let clr = Array.from(color)
@@ -463,13 +440,10 @@ function move(ang, speed = 1) {
 
 // Draw functions
 
-function drawTextureCol(its, i, h, w, txtr, sOff) {
-    let txcl
-    if (its != undefined) {
-        txcl = getTxcl(its)
-    } else if (txtr != undefined) {
-        txcl = getTxcl(undefined, sOff)
-    }
+let temp = true
+function drawTextureCol(its, i, h, w, txtr) {
+    let txtrOff = its.txtrOff
+        || getTxtrOff(its, its.side, its.dir)
 
     if (txtr == undefined) txtr = textures[its.val]
 
@@ -478,12 +452,20 @@ function drawTextureCol(its, i, h, w, txtr, sOff) {
     let wcHeight = h / rows
 
     for (let y = 0; y < rows; y++) {
-        // let x = txcl == undefined ? 0 : floor(txcl * cols)
-        let x = floor(txcl * cols)
+        let x = floor(txtrOff * cols)
         let color = txtr[y][x]
-        if (its != undefined && its.side == 'y')
+        if (its.side == 'y')
             color = multClr(color, 0.8)
-        fill(color)
+        try {
+            fill(color)
+        } catch (error) {
+            if (temp) {
+                console.log(color, txtr, y, x, txtrOff);
+                console.log(its.side, its.dir, its);
+                console.error(error);
+                temp = false
+            }
+        }
         rect(
             Math.round(i * w),
             (height - h) / 2 + wcHeight * y,
@@ -524,7 +506,7 @@ function drawMap(pos, rayBuf, num = 5) {
     }
     pop()
     for (let i = 0; i < rayBuf.length; i++)
-        castRayPlr(pos, pos2, rayBuf[i].ang)
+        castRaySprt(pos, pos2, rayBuf[i].ang)
 }
 
 function drawMatrix(mtrx, t = 1) {
@@ -568,6 +550,22 @@ function castRays(offAng, r = width) {
     return rayBuf
 }
 
+function getTxtrOff(its, side, dir) {
+    if (side == 'x') {
+        if (dir.x > 0) {
+            return its.y % 1
+        } else {
+            return (mRows - its.y) % 1
+        }
+    } else if (side == 'y') {
+        if (dir.y < 0) {
+            return its.x % 1
+        } else {
+            return (mCols - its.x) % 1
+        }
+    }
+}
+
 function castRay(pos, ang) {
     let cell = { x: Math.floor(pos.x), y: Math.floor(pos.y) }
     let off = getOff(pos, cell)
@@ -585,6 +583,7 @@ function castRay(pos, ang) {
             if (map[cell.y] == undefined
                 || map[cell.y][cell.x] != 0) {
                 return {
+                    dst: Math.hypot(pos.x - xsi.x, pos.y - xsi.y),
                     x: xsi.x, y: xsi.y,
                     side: 'x', ang, dir,
                     val: map[cell.y] != undefined
@@ -600,6 +599,7 @@ function castRay(pos, ang) {
             if (map[cell.y] == undefined
                 || map[cell.y][cell.x] != 0) {
                 return {
+                    dst: Math.hypot(pos.x - ysi.x, pos.y - ysi.y),
                     x: ysi.x, y: ysi.y,
                     side: 'y', ang, dir,
                     val: map[cell.y] != undefined
