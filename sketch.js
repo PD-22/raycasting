@@ -8,7 +8,7 @@ let
 /*
 interesction bug?
 mobile compatibility
-group functions, make classes
+fullscreen crashes
 ray and pos border teleport
 only update some functions at change
 other player collision
