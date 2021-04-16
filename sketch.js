@@ -12,8 +12,7 @@ fullscreen crashes
 ray and pos border teleport
 only update some functions at change
 other player collision
-pl1 ang inversed
-    bug invisible (need normalAng()?)
+pl1 ang inversed?
 */
 
 function setup() {
@@ -126,7 +125,8 @@ class Player { // spawn if no args
 
     rotate() {
         // if (!canRotate) return
-        this.ang -= normalAng(movedX * deltaTime / 100)
+        this.ang -= movedX * deltaTime / 100
+        this.ang = normalAng(this.ang)
     }
 
     move(forward, left, back, right) {
