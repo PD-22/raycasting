@@ -12,6 +12,7 @@ fullscreen crashes
 ray and pos border teleport
 only update some functions at change
 other player collision
+pl1 ang inversed
 */
 
 function setup() {
@@ -87,8 +88,8 @@ function setup() {
     //     )
     // )
 
-    pl0 = new Player(6, 2, 0)
-    pl1 = new Player(8.5, 3.5, 180)
+    pl0 = new Player(6, 2, -45)
+    pl1 = new Player(8.5, 3.5, -45)
     fov = 90
     res = width / 4
     rad = 1 / 4
@@ -100,7 +101,7 @@ function setup() {
     floorClr = 'lightGreen'
     placeTxtrNum = 0
 
-    renderMap = false
+    renderMap = true
     renderView = true
     pointerLock = false
 }
@@ -229,17 +230,23 @@ function normalAng(ang) {
     return ang
 }
 
-function castRaySprt(p0, p1, rayAng) {
-    let dx = p1.x - p0.x
-    let dy = p1.y - p0.y
+function castRaySprt(pl0, pl1, rayAng) {
+    let dx = pl1.pos.x - pl0.pos.x
+    let dy = pl1.pos.y - pl0.pos.y
     let strghtDst = Math.hypot(dx, dy)
+
+    pl1.ang = 180 - degrees(atan2(
+        pl1.pos.y * cls + drawOff.y - mouseY,
+        pl1.pos.x * cls + drawOff.x - mouseX
+    ))
+    pl1.ang = normalAng(pl1.ang)
 
     rayAng = normalAng(rayAng)
 
     let strghtAng = degrees(atan2(-dy, dx))
     strghtAng = normalAng(strghtAng)
 
-    let plrsAng = 180 + pl1.ang + strghtAng
+    let plrsAng = 180 - pl1.ang + strghtAng
     plrsAng = normalAng(plrsAng)
 
     if (Math.abs(plrsAng) > 135) {
@@ -253,10 +260,10 @@ function castRaySprt(p0, p1, rayAng) {
     let rayStrghtAng = rayAng - strghtAng
     rayStrghtAng = normalAng(rayStrghtAng)
 
-    let minAng = p0.ang - fov / 2
+    let minAng = pl0.ang - fov / 2
     minAng = normalAng(minAng)
 
-    let maxAng = p0.ang + fov / 2
+    let maxAng = pl0.ang + fov / 2
     maxAng = normalAng(maxAng)
 
     if (Math.abs(rayStrghtAng) > fov / 2) return
@@ -267,8 +274,8 @@ function castRaySprt(p0, p1, rayAng) {
 
     let rayDst = sOff / Math.sin(radians(rayStrghtAng))
 
-    let x = p0.x + rayDst * Math.cos(radians(rayAng))
-    let y = p0.y - rayDst * Math.sin(radians(rayAng))
+    let x = pl0.pos.x + rayDst * Math.cos(radians(rayAng))
+    let y = pl0.pos.y - rayDst * Math.sin(radians(rayAng))
 
     return {
         x, y, ang: rayAng, type: 'sprite',
@@ -292,7 +299,7 @@ function drawView(pos, rayBuf) {
 
         drawTextureCol(its, i, h, pxl)
 
-        let itsPlr = castRaySprt(pos, pl1.pos, rayBuf[i].ang)
+        let itsPlr = castRaySprt(pl0, pl1, rayBuf[i].ang)
 
         if (itsPlr != undefined && itsPlr.dst < its.dst) {
             let hPlr = calcColHeight(itsPlr)
@@ -534,7 +541,7 @@ function drawMap(pos, rayBuf, num = 5) {
     let l = rad * 4 * cls
     line(pl1.pos.x * cls, pl1.pos.y * cls,
         pl1.pos.x * cls + l * Math.cos(radians(pl1.ang)),
-        pl1.pos.y * cls + l * Math.sin(radians(pl1.ang)))
+        pl1.pos.y * cls - l * Math.sin(radians(pl1.ang)))
     // join plrs
     stroke('green')
     strokeWeight(4)
