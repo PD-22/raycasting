@@ -110,7 +110,7 @@ function draw() {
     rayBuf = castRays(pl0.pos, pl0.ang, res)
     if (renderView) drawView(pl0.pos, rayBuf)
     if (renderMap) drawMap(pl0.pos, rayBuf)
-    pl0.move(87, 65, 68, 83)
+    pl0.move(87, 65, 83, 68)
     pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW)
 }
 
