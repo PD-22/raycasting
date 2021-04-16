@@ -13,6 +13,7 @@ ray and pos border teleport
 only update some functions at change
 other player collision
 pl1 ang inversed
+    bug invisible (need normalAng()?)
 */
 
 function setup() {
