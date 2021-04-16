@@ -12,7 +12,6 @@ fullscreen crashes
 ray and pos border teleport
 only update some functions at change
 other player collision
-pl1 ang inversed?
 */
 
 function setup() {
@@ -78,6 +77,15 @@ function setup() {
         [-1, -1, -1, c1, c1, -1, -1, -1],
         [-1, -1, -1, c1, c1, -1, -1, -1],
         [-1, -1, c1, c1, c1, c1, -1, -1],
+    ], [
+        [-1, -1, -1, -1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1, -1, - 1, -1],
+        [-1, -1, -1, -1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1, -1, -1, -1],
+        [-1, -1, -1, c1, c1, -1, -1, -1],
+        [-1, -1, c1, c1, c1, c1, -1, -1],
     ]]
 
     // map = makeMap(0, 16, 16)
@@ -88,8 +96,8 @@ function setup() {
     //     )
     // )
 
-    pl0 = new Player(6, 2, -45)
-    pl1 = new Player(8.5, 3.5, -45)
+    pl0 = new Player(6, 2, -30)
+    pl1 = new Player(8.5, 3.5, 180 - 30)
     fov = 90
     res = width / 4
     rad = 1 / 4
@@ -101,7 +109,7 @@ function setup() {
     floorClr = 'lightGreen'
     placeTxtrNum = 0
 
-    renderMap = true
+    renderMap = false
     renderView = true
     pointerLock = false
 }
@@ -121,12 +129,17 @@ class Player { // spawn if no args
         this.pos = { x, y }
         this.ang = ang
         this.speed = speed
+        this.alive = true
+    }
+
+    shoot() {
+        if (castRaySprt(this, pl1) != undefined)
+            pl1.alive = false
     }
 
     rotate() {
         // if (!canRotate) return
-        this.ang -= movedX * deltaTime / 100
-        this.ang = normalAng(this.ang)
+        this.ang -= normalAng(movedX * deltaTime / 100)
     }
 
     move(forward, left, back, right) {
@@ -236,13 +249,12 @@ function castRaySprt(pl0, pl1, rayAng) {
     let dy = pl1.pos.y - pl0.pos.y
     let strghtDst = Math.hypot(dx, dy)
 
-    pl1.ang = 180 - degrees(atan2(
-        pl1.pos.y * cls + drawOff.y - mouseY,
-        pl1.pos.x * cls + drawOff.x - mouseX
-    ))
-    pl1.ang = normalAng(pl1.ang)
+    rayAng = rayAng == undefined ? pl0.ang : normalAng(rayAng)
 
-    rayAng = normalAng(rayAng)
+    if (rayAng == undefined) {
+        console.log('noRay');
+        console.log(rayAng, pl0.ang);
+    }
 
     let strghtAng = degrees(atan2(-dy, dx))
     strghtAng = normalAng(strghtAng)
@@ -307,6 +319,14 @@ function drawView(pos, rayBuf) {
             drawTextureCol(itsPlr, i, hPlr, pxl, spriteTxtrs)
         }
     })
+    push()
+    let r = width / 100
+    stroke(0)
+    strokeWeight(r / 4)
+    fill(255)
+    rectMode(CENTER)
+    square(width / 2, height / 2, r)
+    pop()
 }
 
 function calcColHeight(its) {
@@ -461,6 +481,7 @@ function mousePressed() {
             renderMode(1)
         }
     } else if (renderView) {
+        if (pointerLock) pl0.shoot()
         renderMode(1)
     }
 }
@@ -468,6 +489,13 @@ function mousePressed() {
 function mouseMoved() {
     updateMouse()
     if (canMove) pl0.rotate()
+    if (renderMap) {
+        pl1.ang = 180 - degrees(atan2(
+            pl1.pos.y * cls + drawOff.y - mouseY,
+            pl1.pos.x * cls + drawOff.x - mouseX
+        ))
+        pl1.ang = normalAng(pl1.ang)
+    }
 }
 
 function mouseDragged() {
@@ -499,7 +527,11 @@ function drawTextureCol(its, i, h, w, txtr) {
         || getTxtrOff(its, its.side, its.dir)
 
     if (txtr == undefined) txtr = textures[its.val]
-    if (its.type == 'sprite') txtr = txtr[its.txtrSide]
+    if (its.type == 'sprite') {
+        txtr = pl1.alive ?
+            txtr[its.txtrSide] :
+            txtr[txtr.length - 1]
+    }
 
     let rows = txtr.length
     let cols = txtr[0].length
