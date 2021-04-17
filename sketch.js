@@ -11,7 +11,7 @@ mobile compatibility
 fullscreen crashes
 ray and pos border teleport
 only update some functions at change
-other player collision
+fix render player order
 */
 
 function setup() {
@@ -97,7 +97,11 @@ function setup() {
     // )
 
     pl0 = new Player(6, 2, -30)
-    pl1 = new Player(8.5, 3.5, 180 - 30)
+    // pl1 = new Player(8.5, 3.5, 180 - 30)
+    pl1 = new Sprite(8.5, 3.5, 180 - 30)
+    pl1.textures = spriteTxtrs
+    pl2 = new Sprite(8.5, 3, 180 - 30)
+    pl2.textures = spriteTxtrs
     fov = 90
     res = width / 4
     rad = 1 / 4
@@ -120,9 +124,17 @@ function draw() {
     if (renderView) drawView(pl0.pos, rayBuf)
     if (renderMap) drawMap(pl0.pos, rayBuf)
     pl0.move(87, 65, 83, 68)
-    pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW)
+    // pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW)
 }
 
+
+class Sprite {
+    constructor(x, y, ang = 0) {
+        this.pos = { x, y }
+        this.ang = ang
+        this.visible = true
+    }
+}
 
 class Player { // spawn if no args
     constructor(x = 0, y = 0, ang = 0, speed = 1) {
@@ -312,11 +324,16 @@ function drawView(pos, rayBuf) {
 
         drawTextureCol(its, i, h, pxl)
 
-        let itsPlr = castRaySprt(pl0, pl1, rayBuf[i].ang)
+        let itsPlr1 = castRaySprt(pl0, pl1, rayBuf[i].ang)
+        let itsPlr2 = castRaySprt(pl0, pl2, rayBuf[i].ang)
 
-        if (itsPlr != undefined && itsPlr.dst < its.dst) {
-            let hPlr = calcColHeight(itsPlr)
-            drawTextureCol(itsPlr, i, hPlr, pxl, spriteTxtrs)
+        if (itsPlr1 != undefined && itsPlr1.dst < its.dst) {
+            let hPlr = calcColHeight(itsPlr1)
+            drawTextureCol(itsPlr1, i, hPlr, pxl, spriteTxtrs)
+        }
+        if (itsPlr2 != undefined && itsPlr2.dst < its.dst) {
+            let hPlr = calcColHeight(itsPlr2)
+            drawTextureCol(itsPlr2, i, hPlr, pxl, spriteTxtrs)
         }
     })
     push()
@@ -528,9 +545,10 @@ function drawTextureCol(its, i, h, w, txtr) {
 
     if (txtr == undefined) txtr = textures[its.val]
     if (its.type == 'sprite') {
-        txtr = pl1.alive ?
-            txtr[its.txtrSide] :
-            txtr[txtr.length - 1]
+        // txtr = pl1.alive ?
+        //     txtr[its.txtrSide] :
+        //     txtr[txtr.length - 1]
+        txtr = txtr[its.txtrSide]
     }
 
     let rows = txtr.length
