@@ -11,7 +11,7 @@ mobile compatibility
 fullscreen crashes
 ray and pos border teleport
 only update some functions at change
-fix render player order
+add classes for sprites and players
 */
 
 function setup() {
@@ -327,14 +327,14 @@ function drawView(pos, rayBuf) {
         let itsPlr1 = castRaySprt(pl0, pl1, rayBuf[i].ang)
         let itsPlr2 = castRaySprt(pl0, pl2, rayBuf[i].ang)
 
-        if (itsPlr1 != undefined && itsPlr1.dst < its.dst) {
-            let hPlr = calcColHeight(itsPlr1)
-            drawTextureCol(itsPlr1, i, hPlr, pxl, spriteTxtrs)
-        }
-        if (itsPlr2 != undefined && itsPlr2.dst < its.dst) {
-            let hPlr = calcColHeight(itsPlr2)
-            drawTextureCol(itsPlr2, i, hPlr, pxl, spriteTxtrs)
-        }
+        let plrItss = [itsPlr1, itsPlr2]
+            .filter(e => e != undefined && e.dst < its.dst)
+            .sort((a, b) => b.dst - a.dst)
+
+        plrItss.forEach(plrIts => {
+            let hPlr = calcColHeight(plrIts)
+            drawTextureCol(plrIts, i, hPlr, pxl, spriteTxtrs)
+        });
     })
     push()
     let r = width / 100
