@@ -2,7 +2,7 @@ let
     width, height, map, mRows, mCols, cls, ratio, mapZoomed,
     canRotate, canMove, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, rad, mapOff, drawOff, pxl,
-    mx, my, ceilClr, floorClr, textures, placeTxtrNum, spriteTxtrs,
+    mx, my, ceilClr, floorClr, textures, placeTxtrNum, plrTxtrs,
     pl0, pl1
 
 /*
@@ -12,6 +12,7 @@ fullscreen crashes
 ray and pos border teleport
 only update some functions at change
 add classes for sprites and players
+fix shoot
 */
 
 function setup() {
@@ -41,7 +42,7 @@ function setup() {
 
     let c0 = randomColor()
     let c1 = multClr(c0, 0.1)
-    spriteTxtrs = [[
+    plrTxtrs = [[
         [-1, -1, -1, c0, c0, -1, -1, -1],
         [-1, -1, -1, c0, c0, -1, -1, -1],
         [-1, -1, c0, c0, c0, c0, -1, -1],
@@ -97,11 +98,8 @@ function setup() {
     // )
 
     pl0 = new Player(6, 2, -30)
-    // pl1 = new Player(8.5, 3.5, 180 - 30)
-    pl1 = new Sprite(8.5, 3.5, 180 - 30)
-    pl1.textures = spriteTxtrs
-    pl2 = new Sprite(8.5, 3, 180 - 30)
-    pl2.textures = spriteTxtrs
+    pl1 = new Player(8.5, 3.5, 180 - 30)
+    for (let i = 0; i < 4; i++) new Player()
     fov = 90
     res = width / 4
     rad = 1 / 4
@@ -124,7 +122,7 @@ function draw() {
     if (renderView) drawView(pl0.pos, rayBuf)
     if (renderMap) drawMap(pl0.pos, rayBuf)
     pl0.move(87, 65, 83, 68)
-    // pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW)
+    pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW)
 }
 
 
@@ -133,19 +131,97 @@ class Sprite {
         this.pos = { x, y }
         this.ang = ang
         this.visible = true
+        Sprite.all.push(this)
+    }
+
+    static all = []
+
+    static castAll(wallDst, i) {
+        Sprite.all
+            .map(s => s.castRaySprt(pl0, rayBuf[i].ang))
+            .filter(s => s != undefined && s.dst < wallDst && s.me != true)
+            .sort((a, b) => b.dst - a.dst)
+            .forEach(plrIts => {
+                let hPlr = calcColHeight(plrIts)
+                drawTextureCol(plrIts, i, hPlr, pxl, plrTxtrs)
+            });
+    }
+
+    castRaySprt(pl0, rayAng = Player.all[0].ang) {
+        let dx = this.pos.x - pl0.pos.x
+        let dy = this.pos.y - pl0.pos.y
+        let strghtDst = Math.hypot(dx, dy)
+
+        rayAng = rayAng == undefined ? pl0.ang : normalAng(rayAng)
+
+        if (rayAng == undefined) {
+            console.log('noRay');
+            console.log(rayAng, pl0.ang);
+        }
+
+        let strghtAng = degrees(atan2(-dy, dx))
+        strghtAng = normalAng(strghtAng)
+
+        let plrsAng = 180 - this.ang + strghtAng
+        plrsAng = normalAng(plrsAng)
+
+        let txtrSide
+        if (Math.abs(plrsAng) > 135) {
+            txtrSide = 3
+        } else if (Math.abs(plrsAng) > 45) {
+            txtrSide = plrsAng > 0 ? 1 : 2
+        } else {
+            txtrSide = 0
+        }
+
+        let rayStrghtAng = rayAng - strghtAng
+        rayStrghtAng = normalAng(rayStrghtAng)
+
+        let minAng = pl0.ang - fov / 2
+        minAng = normalAng(minAng)
+
+        let maxAng = pl0.ang + fov / 2
+        maxAng = normalAng(maxAng)
+
+        if (Math.abs(rayStrghtAng) > fov / 2) return
+
+        let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
+
+        if (Math.abs(sOff) > rad * 2) return
+
+        let rayDst = sOff / Math.sin(radians(rayStrghtAng))
+
+        let x = pl0.pos.x + rayDst * Math.cos(radians(rayAng))
+        let y = pl0.pos.y - rayDst * Math.sin(radians(rayAng))
+
+        return {
+            x, y, ang: rayAng, type: 'sprite',
+            txtrOff: 0.5 - sOff,
+            dst: rayDst, angOff: plrsAng,
+            dir: angToDir(rayAng), txtrSide
+        }
     }
 }
 
-class Player { // spawn if no args
-    constructor(x = 0, y = 0, ang = 0, speed = 1) {
-        this.pos = { x, y }
-        this.ang = ang
+class Player extends Sprite {
+    constructor(x, y, ang = Math.floor(Math.random() * 180), speed = 1) {
+        if (x == undefined || y == undefined) {
+            let spawned = Player.spawn()
+            x = spawned.x
+            y = spawned.y
+        }
+        super(x, y, ang)
         this.speed = speed
         this.alive = true
+        this.textures = plrTxtrs
+        this.me = Player.all.length == 0
+        Player.all.push(this)
     }
 
+    static all = []
+
     shoot() {
-        if (castRaySprt(this, pl1) != undefined)
+        if (pl1.castRaySprt(pl0) != undefined)
             pl1.alive = false
     }
 
@@ -222,7 +298,7 @@ class Player { // spawn if no args
         }
     }
 
-    spawn() {
+    static spawn() {
         let spaces = copyMatrix(map)
         for (let i = 0; i < spaces.length; i++) {
             for (let j = 0; j < map[0].length; j++) {
@@ -241,7 +317,7 @@ class Player { // spawn if no args
                 }
             }
         }
-        this.pos = { x: 0.5 + map.length / 2 + 0.5, y: 0.5 + map[0].length / 2 }
+        return { x: 0.5 + map.length / 2 + 0.5, y: 0.5 + map[0].length / 2 }
     }
 }
 
@@ -256,60 +332,6 @@ function normalAng(ang) {
     return ang
 }
 
-function castRaySprt(pl0, pl1, rayAng) {
-    let dx = pl1.pos.x - pl0.pos.x
-    let dy = pl1.pos.y - pl0.pos.y
-    let strghtDst = Math.hypot(dx, dy)
-
-    rayAng = rayAng == undefined ? pl0.ang : normalAng(rayAng)
-
-    if (rayAng == undefined) {
-        console.log('noRay');
-        console.log(rayAng, pl0.ang);
-    }
-
-    let strghtAng = degrees(atan2(-dy, dx))
-    strghtAng = normalAng(strghtAng)
-
-    let plrsAng = 180 - pl1.ang + strghtAng
-    plrsAng = normalAng(plrsAng)
-
-    if (Math.abs(plrsAng) > 135) {
-        txtrSide = 3
-    } else if (Math.abs(plrsAng) > 45) {
-        txtrSide = plrsAng > 0 ? 1 : 2
-    } else {
-        txtrSide = 0
-    }
-
-    let rayStrghtAng = rayAng - strghtAng
-    rayStrghtAng = normalAng(rayStrghtAng)
-
-    let minAng = pl0.ang - fov / 2
-    minAng = normalAng(minAng)
-
-    let maxAng = pl0.ang + fov / 2
-    maxAng = normalAng(maxAng)
-
-    if (Math.abs(rayStrghtAng) > fov / 2) return
-
-    let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
-
-    if (Math.abs(sOff) > rad * 2) return
-
-    let rayDst = sOff / Math.sin(radians(rayStrghtAng))
-
-    let x = pl0.pos.x + rayDst * Math.cos(radians(rayAng))
-    let y = pl0.pos.y - rayDst * Math.sin(radians(rayAng))
-
-    return {
-        x, y, ang: rayAng, type: 'sprite',
-        txtrOff: 0.5 - sOff,
-        dst: rayDst, angOff: plrsAng,
-        dir: angToDir(rayAng), txtrSide
-    }
-}
-
 function drawView(pos, rayBuf) {
     noStroke()
     push()
@@ -321,21 +343,10 @@ function drawView(pos, rayBuf) {
 
     rayBuf.forEach((its, i) => {
         let h = calcColHeight(its)
-
         drawTextureCol(its, i, h, pxl)
-
-        let itsPlr1 = castRaySprt(pl0, pl1, rayBuf[i].ang)
-        let itsPlr2 = castRaySprt(pl0, pl2, rayBuf[i].ang)
-
-        let plrItss = [itsPlr1, itsPlr2]
-            .filter(e => e != undefined && e.dst < its.dst)
-            .sort((a, b) => b.dst - a.dst)
-
-        plrItss.forEach(plrIts => {
-            let hPlr = calcColHeight(plrIts)
-            drawTextureCol(plrIts, i, hPlr, pxl, spriteTxtrs)
-        });
+        Sprite.castAll(its.dst, i)
     })
+
     push()
     let r = width / 100
     stroke(0)
