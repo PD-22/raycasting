@@ -11,7 +11,6 @@ mobile compatibility
 fullscreen crashes
 ray and pos border teleport
 only update some functions at change
-add classes for sprites and players
 */
 
 function setup() {
@@ -233,7 +232,6 @@ class Player extends Sprite {
             .filter(e => e.its != undefined)
             .sort((a, b) => a.its.dst - b.its.dst)[0]
         shot.p.alive = false
-        console.log(shot);
     }
 
     rotate() {
