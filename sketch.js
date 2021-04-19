@@ -227,7 +227,7 @@ class Player extends Sprite {
     static all = []
 
     shoot() {
-        let shot = Player.all.filter(p => !p.me)
+        let shot = Player.all.filter(p => !p.me && p.alive)
             .map(p => ({ p, its: p.castRaySprt(pl0) }))
             .filter(e => e.its != undefined)
             .sort((a, b) => a.its.dst - b.its.dst)[0]
