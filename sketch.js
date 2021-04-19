@@ -12,7 +12,6 @@ fullscreen crashes
 ray and pos border teleport
 only update some functions at change
 add classes for sprites and players
-fix shoot
 */
 
 function setup() {
@@ -42,7 +41,7 @@ function setup() {
 
     let c0 = randomColor()
     let c1 = multClr(c0, 0.1)
-    plrTxtrs = [[
+    Player.textures = [[
         [-1, -1, -1, c0, c0, -1, -1, -1],
         [-1, -1, -1, c0, c0, -1, -1, -1],
         [-1, -1, c0, c0, c0, c0, -1, -1],
@@ -125,25 +124,24 @@ function draw() {
     pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW)
 }
 
-
 class Sprite {
-    constructor(x, y, ang = 0) {
+    constructor(x, y, texture) {
         this.pos = { x, y }
-        this.ang = ang
         this.visible = true
+        this.texture = texture
         Sprite.all.push(this)
     }
 
     static all = []
 
     static castAll(wallDst, i) {
-        Sprite.all
-            .map(s => s.castRaySprt(pl0, rayBuf[i].ang))
-            .filter(s => s != undefined && s.dst < wallDst && s.me != true)
-            .sort((a, b) => b.dst - a.dst)
-            .forEach(plrIts => {
-                let hPlr = calcColHeight(plrIts)
-                drawTextureCol(plrIts, i, hPlr, pxl, plrTxtrs)
+        Sprite.all.filter(s => s.visible)
+            .map(s => ({ s, its: s.castRaySprt(pl0, rayBuf[i].ang) }))
+            .filter(e => e.its != undefined && e.its.dst < wallDst && e.s.me != true)
+            .sort((a, b) => b.its.dst - a.its.dst)
+            .forEach(e => {
+                let hPlr = calcColHeight(e.its)
+                drawTextureCol(e.its, i, hPlr, pxl, e.s.texture)
             });
     }
 
@@ -154,25 +152,11 @@ class Sprite {
 
         rayAng = rayAng == undefined ? pl0.ang : normalAng(rayAng)
 
-        if (rayAng == undefined) {
-            console.log('noRay');
-            console.log(rayAng, pl0.ang);
-        }
-
         let strghtAng = degrees(atan2(-dy, dx))
         strghtAng = normalAng(strghtAng)
 
         let plrsAng = 180 - this.ang + strghtAng
         plrsAng = normalAng(plrsAng)
-
-        let txtrSide
-        if (Math.abs(plrsAng) > 135) {
-            txtrSide = 3
-        } else if (Math.abs(plrsAng) > 45) {
-            txtrSide = plrsAng > 0 ? 1 : 2
-        } else {
-            txtrSide = 0
-        }
 
         let rayStrghtAng = rayAng - strghtAng
         rayStrghtAng = normalAng(rayStrghtAng)
@@ -197,32 +181,59 @@ class Sprite {
         return {
             x, y, ang: rayAng, type: 'sprite',
             txtrOff: 0.5 - sOff,
-            dst: rayDst, angOff: plrsAng,
-            dir: angToDir(rayAng), txtrSide
+            dst: rayDst, plrsAng,
+            dir: angToDir(rayAng)
         }
     }
 }
 
 class Player extends Sprite {
-    constructor(x, y, ang = Math.floor(Math.random() * 180), speed = 1) {
+    constructor(x, y, ang = 0, speed = 1) {
         if (x == undefined || y == undefined) {
             let spawned = Player.spawn()
             x = spawned.x
             y = spawned.y
         }
-        super(x, y, ang)
+        super(x, y, Player.textures[0])
+        this.ang = ang
         this.speed = speed
         this.alive = true
-        this.textures = plrTxtrs
         this.me = Player.all.length == 0
         Player.all.push(this)
+    }
+
+    castRaySprt(pl0, rayAng = Player.all[0].ang) {
+        let its = super.castRaySprt(pl0, rayAng)
+        if (its != undefined)
+            this.updateTexture(its.plrsAng)
+        return its
+    }
+
+    updateTexture(plrsAng) {
+        let txtrSide
+        if (!this.alive) {
+            txtrSide = 4
+        } else if (Math.abs(plrsAng) > 135) {
+            txtrSide = 3
+        } else if (Math.abs(plrsAng) > 45) {
+            txtrSide = plrsAng > 0 ? 1 : 2
+        } else {
+            txtrSide = 0
+        }
+        let txtr = Player.textures[txtrSide]
+        this.texture = txtr
+        return txtr
     }
 
     static all = []
 
     shoot() {
-        if (pl1.castRaySprt(pl0) != undefined)
-            pl1.alive = false
+        let shot = Player.all.filter(p => !p.me)
+            .map(p => ({ p, its: p.castRaySprt(pl0) }))
+            .filter(e => e.its != undefined)
+            .sort((a, b) => a.its.dst - b.its.dst)[0]
+        shot.p.alive = false
+        console.log(shot);
     }
 
     rotate() {
@@ -343,7 +354,7 @@ function drawView(pos, rayBuf) {
 
     rayBuf.forEach((its, i) => {
         let h = calcColHeight(its)
-        drawTextureCol(its, i, h, pxl)
+        drawTextureCol(its, i, h, pxl, textures[its.val])
         Sprite.castAll(its.dst, i)
     })
 
@@ -553,14 +564,6 @@ function placeCell(mtrx, cell, val = 0) {
 function drawTextureCol(its, i, h, w, txtr) {
     let txtrOff = its.txtrOff
         || getTxtrOff(its, its.side, its.dir)
-
-    if (txtr == undefined) txtr = textures[its.val]
-    if (its.type == 'sprite') {
-        // txtr = pl1.alive ?
-        //     txtr[its.txtrSide] :
-        //     txtr[txtr.length - 1]
-        txtr = txtr[its.txtrSide]
-    }
 
     let rows = txtr.length
     let cols = txtr[0].length
