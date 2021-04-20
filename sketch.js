@@ -1,7 +1,7 @@
 let
     width, height, map, mRows, mCols, cls, ratio, mapZoomed,
     canRotate, canMove, rayBuf, fov, renderMap, renderView,
-    pointerLock, speed, res, rad, mapOff, drawOff, pxl,
+    pointerLock, speed, res, mapOff, drawOff, pxl,
     mx, my, ceilClr, floorClr, textures, placeTxtrNum, plrTxtrs,
     pl0, pl1
 
@@ -100,7 +100,6 @@ function setup() {
     for (let i = 0; i < 4; i++) new Player()
     fov = 90
     res = width / 4
-    rad = 1 / 4
     mapZoomed = false
     fitMap()
     mapOff = getMapOff()
@@ -119,8 +118,9 @@ function draw() {
     rayBuf = castRays(pl0.pos, pl0.ang, res)
     if (renderView) drawView(pl0.pos, rayBuf)
     if (renderMap) drawMap(pl0.pos, rayBuf)
+    fill(0, 127)
+    if (!pl0.alive) rect(0, 0, width, height)
     pl0.move(87, 65, 83, 68)
-    pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW)
 }
 
 class Sprite {
@@ -170,7 +170,7 @@ class Sprite {
 
         let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
 
-        if (Math.abs(sOff) > rad * 2) return
+        if (Math.abs(sOff) > Player.rad * 2) return
 
         let rayDst = sOff / Math.sin(radians(rayStrghtAng))
 
@@ -201,6 +201,8 @@ class Player extends Sprite {
         Player.all.push(this)
     }
 
+    static rad = 1 / 8;
+
     castRaySprt(pl0, rayAng = Player.all[0].ang) {
         let its = super.castRaySprt(pl0, rayAng)
         if (its != undefined)
@@ -227,7 +229,8 @@ class Player extends Sprite {
     static all = []
 
     shoot() {
-        let shot = Player.all.filter(p => !p.me && p.alive)
+        if (!this.alive) return
+        let shot = Player.all.filter(p => p != this && p.alive)
             .map(p => ({ p, its: p.castRaySprt(pl0) }))
             .filter(e => e.its != undefined)
             .sort((a, b) => a.its.dst - b.its.dst)[0]
@@ -235,11 +238,12 @@ class Player extends Sprite {
     }
 
     rotate() {
-        // if (!canRotate) return
+        if (!this.alive) return
         this.ang -= normalAng(movedX * deltaTime / 100)
     }
 
     move(forward, left, back, right) {
+        if (!this.alive) return
         let dir = { x: 0, y: 0 }
         let vel = { x: 0, y: 0 }
 
@@ -294,16 +298,16 @@ class Player extends Sprite {
 
         let cell, cellValue
 
-        cell = getCell(this.pos.x, this.pos.y + dir.y * rad, false)
+        cell = getCell(this.pos.x, this.pos.y + dir.y * Player.rad, false)
         cellValue = getCellVal(cell)
         if (cellValue != 0 || cellValue == undefined) {
-            this.pos.y = cell.y + 0.5 - dir.y * 0.5 - dir.y * rad
+            this.pos.y = cell.y + 0.5 - dir.y * 0.5 - dir.y * Player.rad
         }
 
-        cell = getCell(this.pos.x + dir.x * rad, this.pos.y, false)
+        cell = getCell(this.pos.x + dir.x * Player.rad, this.pos.y, false)
         cellValue = getCellVal(cell)
         if (cellValue != 0 || cellValue == undefined) {
-            this.pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * rad
+            this.pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * Player.rad
         }
     }
 
@@ -594,14 +598,14 @@ function drawMap(pos, rayBuf, num = 5) {
     fill('gray')
     circle(pos.x * cls, pos.y * cls, cls)
     fill('black')
-    circle(pos.x * cls, pos.y * cls, cls * 2 * rad)
+    circle(pos.x * cls, pos.y * cls, cls * 2 * Player.rad)
     // other player (pl1.pos)
     fill('gray')
     circle(pl1.pos.x * cls, pl1.pos.y * cls, cls)
     fill('black')
-    circle(pl1.pos.x * cls, pl1.pos.y * cls, cls * 2 * rad)
+    circle(pl1.pos.x * cls, pl1.pos.y * cls, cls * 2 * Player.rad)
     stroke('purple')
-    let l = rad * 4 * cls
+    let l = Player.rad * 4 * cls
     line(pl1.pos.x * cls, pl1.pos.y * cls,
         pl1.pos.x * cls + l * Math.cos(radians(pl1.ang)),
         pl1.pos.y * cls - l * Math.sin(radians(pl1.ang)))
