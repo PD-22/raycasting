@@ -11,6 +11,10 @@ mobile compatibility
 fullscreen crashes
 ray and pos border teleport
 only update some functions at change
+fix shoot cast
+    bug draw plr txtr because radius
+    cant see map when create new
+    fix player rad
 */
 
 function setup() {
@@ -39,7 +43,7 @@ function setup() {
     textures = randomTextures(10, 2)
 
     let c0 = randomColor()
-    let c1 = multClr(c0, 0.1)
+    let c1 = multClr(c0, 0.2)
     Player.textures = [[
         [-1, -1, -1, c0, c0, -1, -1, -1],
         [-1, -1, -1, c0, c0, -1, -1, -1],
@@ -201,7 +205,7 @@ class Player extends Sprite {
         Player.all.push(this)
     }
 
-    static rad = 1 / 8;
+    static rad = 1 / 4;
 
     castRaySprt(pl0, rayAng = Player.all[0].ang) {
         let its = super.castRaySprt(pl0, rayAng)
@@ -234,7 +238,8 @@ class Player extends Sprite {
             .map(p => ({ p, its: p.castRaySprt(pl0) }))
             .filter(e => e.its != undefined)
             .sort((a, b) => a.its.dst - b.its.dst)[0]
-        shot.p.alive = false
+        if (shot != undefined)
+            shot.p.alive = false
     }
 
     rotate() {
