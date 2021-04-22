@@ -11,9 +11,9 @@ mobile compatibility
 fullscreen crashes
 ray and pos border teleport
 only update some functions at change
+cant see map when create new
 fix shoot cast
     bug draw plr txtr because radius
-    cant see map when create new
     fix player rad
 */
 
@@ -174,7 +174,7 @@ class Sprite {
 
         let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
 
-        if (Math.abs(sOff) > Player.rad * 2) return
+        if (Math.abs(sOff) > 0.5) return
 
         let rayDst = sOff / Math.sin(radians(rayStrghtAng))
 
@@ -191,7 +191,7 @@ class Sprite {
 }
 
 class Player extends Sprite {
-    constructor(x, y, ang = 0, speed = 1) {
+    constructor(x, y, ang = Math.floor(Math.random() * 360), speed = 1) {
         if (x == undefined || y == undefined) {
             let spawned = Player.spawn()
             x = spawned.x
@@ -204,8 +204,6 @@ class Player extends Sprite {
         this.me = Player.all.length == 0
         Player.all.push(this)
     }
-
-    static rad = 1 / 4;
 
     castRaySprt(pl0, rayAng = Player.all[0].ang) {
         let its = super.castRaySprt(pl0, rayAng)
@@ -246,6 +244,8 @@ class Player extends Sprite {
         if (!this.alive) return
         this.ang -= normalAng(movedX * deltaTime / 100)
     }
+
+    static collisionRad = 1 / 4;
 
     move(forward, left, back, right) {
         if (!this.alive) return
@@ -303,16 +303,16 @@ class Player extends Sprite {
 
         let cell, cellValue
 
-        cell = getCell(this.pos.x, this.pos.y + dir.y * Player.rad, false)
+        cell = getCell(this.pos.x, this.pos.y + dir.y * Player.collisionRad, false)
         cellValue = getCellVal(cell)
         if (cellValue != 0 || cellValue == undefined) {
-            this.pos.y = cell.y + 0.5 - dir.y * 0.5 - dir.y * Player.rad
+            this.pos.y = cell.y + 0.5 - dir.y * 0.5 - dir.y * Player.collisionRad
         }
 
-        cell = getCell(this.pos.x + dir.x * Player.rad, this.pos.y, false)
+        cell = getCell(this.pos.x + dir.x * Player.collisionRad, this.pos.y, false)
         cellValue = getCellVal(cell)
         if (cellValue != 0 || cellValue == undefined) {
-            this.pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * Player.rad
+            this.pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * Player.collisionRad
         }
     }
 
@@ -599,26 +599,22 @@ function drawMap(pos, rayBuf, num = 5) {
     strokeWeight(cls / 16)
     drawMatrix(map, 0.8)
 
-    noStroke()
-    fill('gray')
-    circle(pos.x * cls, pos.y * cls, cls)
-    fill('black')
-    circle(pos.x * cls, pos.y * cls, cls * 2 * Player.rad)
-    // other player (pl1.pos)
-    fill('gray')
-    circle(pl1.pos.x * cls, pl1.pos.y * cls, cls)
-    fill('black')
-    circle(pl1.pos.x * cls, pl1.pos.y * cls, cls * 2 * Player.rad)
-    stroke('purple')
-    let l = Player.rad * 4 * cls
-    line(pl1.pos.x * cls, pl1.pos.y * cls,
-        pl1.pos.x * cls + l * Math.cos(radians(pl1.ang)),
-        pl1.pos.y * cls - l * Math.sin(radians(pl1.ang)))
-    // join plrs
-    stroke('green')
-    strokeWeight(4)
-    line(pos.x * cls, pos.y * cls, pl1.pos.x * cls, pl1.pos.y * cls)
+    // draw Players
+    Player.all.forEach(p => {
+        let { pos, ang } = p;
+        noStroke()
+        fill('gray')
+        circle(pos.x * cls, pos.y * cls, cls)
+        fill('black')
+        circle(pos.x * cls, pos.y * cls, cls * 2 * Player.collisionRad)
+        stroke('purple')
+        let l = cls / 2
+        line(pos.x * cls, pos.y * cls,
+            pos.x * cls + l * Math.cos(radians(ang)),
+            pos.y * cls - l * Math.sin(radians(ang)))
+    })
 
+    // draw view rays
     let inc = (rayBuf.length - 1) / (num - 1)
     for (let i = 0; i < rayBuf.length; i += inc) {
         stroke('red')
@@ -628,7 +624,6 @@ function drawMap(pos, rayBuf, num = 5) {
         noStroke()
         fill('yellow')
         circle(ray.x * cls, ray.y * cls, cls / 4)
-
     }
     pop()
 }
