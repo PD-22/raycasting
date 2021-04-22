@@ -7,11 +7,8 @@ let
 
 /*
 interesction bug?
-mobile compatibility
 fullscreen crashes
-ray and pos border teleport
-only update some functions at change
-add fps dependance
+delete sprite if delete player (deconstructor)
 */
 
 function setup() {
@@ -122,8 +119,7 @@ function draw() {
     fill(0, 127)
     if (!pl0.alive) rect(0, 0, width, height)
     pl0.move(87, 65, 83, 68)
-    // for testing
-    pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW)
+    pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW) // for testing
 }
 
 class Sprite {
@@ -201,6 +197,7 @@ class Player extends Sprite {
         this.speed = speed
         this.alive = true
         this.me = Player.all.length == 0
+        if (this.me) this.aim = false;
         Player.all.push(this)
     }
 
@@ -241,8 +238,8 @@ class Player extends Sprite {
 
     rotate() {
         if (!this.alive) return
-        let angD = -normalAng(movedX * deltaTime / 100)
-        if (this.me && mouseButton == RIGHT) angD /= 2;
+        let angD = -normalAng(movedX * deltaTime / 110)
+        if (this.aim) angD /= 2;
         this.ang += angD;
     }
 
@@ -291,9 +288,9 @@ class Player extends Sprite {
         }
 
         vel.x *= this.speed
-        // vel.x /= deltaTime
+        vel.x *= deltaTime / 14
         vel.y *= this.speed
-        // vel.y /= deltaTime
+        vel.y *= deltaTime / 14
 
 
         if (this.me && keyIsDown(SHIFT)) {
@@ -370,8 +367,10 @@ function drawView(pos, rayBuf) {
         Sprite.castAll(its.dst, i)
     })
 
+    // aim dot
     push()
     let r = width / 100
+    r -= r / 4 * pl0.aim
     stroke(0)
     strokeWeight(r / 4)
     fill(255)
@@ -523,6 +522,7 @@ function keyPressed(e) {
 }
 
 function mousePressed() {
+    pl0.aim = (mouseButton == RIGHT);
     if (renderMap) {
         if (mouseOnMap()) {
             updateMouse()
@@ -536,6 +536,10 @@ function mousePressed() {
         renderMode(1)
     }
 }
+
+document.oncontextmenu = () => false;
+
+function mouseReleased() { pl0.aim = false; }
 
 function mouseMoved() {
     updateMouse()
