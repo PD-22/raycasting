@@ -12,8 +12,6 @@ fullscreen crashes
 ray and pos border teleport
 only update some functions at change
 add fps dependance
-fix draw dragMouse
-fix mouse pressed rotate
 */
 
 function setup() {
@@ -553,6 +551,7 @@ function mouseMoved() {
 }
 
 function mouseDragged() {
+    mouseMoved();
     if (renderMap)
         placeCell(map, getCell(mx, my), placeTxtrNum)
 }
