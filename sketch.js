@@ -11,10 +11,9 @@ mobile compatibility
 fullscreen crashes
 ray and pos border teleport
 only update some functions at change
-cant see map when create new
-fix shoot cast
-    bug draw plr txtr because radius
-    fix player rad
+add fps dependance
+fix draw dragMouse
+fix mouse pressed rotate
 */
 
 function setup() {
@@ -101,7 +100,7 @@ function setup() {
 
     pl0 = new Player(6, 2, -30)
     pl1 = new Player(8.5, 3.5, 180 - 30)
-    for (let i = 0; i < 4; i++) new Player()
+    Player.spawnMany(5);
     fov = 90
     res = width / 4
     mapZoomed = false
@@ -125,6 +124,8 @@ function draw() {
     fill(0, 127)
     if (!pl0.alive) rect(0, 0, width, height)
     pl0.move(87, 65, 83, 68)
+    // for testing
+    pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW)
 }
 
 class Sprite {
@@ -148,7 +149,7 @@ class Sprite {
             });
     }
 
-    castRaySprt(pl0, rayAng = Player.all[0].ang) {
+    castRaySprt(pl0, rayAng = Player.all[0].ang, maxOff = 0.5) {
         let dx = this.pos.x - pl0.pos.x
         let dy = this.pos.y - pl0.pos.y
         let strghtDst = Math.hypot(dx, dy)
@@ -174,7 +175,7 @@ class Sprite {
 
         let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
 
-        if (Math.abs(sOff) > 0.5) return
+        if (Math.abs(sOff) > maxOff) return
 
         let rayDst = sOff / Math.sin(radians(rayStrghtAng))
 
@@ -193,7 +194,7 @@ class Sprite {
 class Player extends Sprite {
     constructor(x, y, ang = Math.floor(Math.random() * 360), speed = 1) {
         if (x == undefined || y == undefined) {
-            let spawned = Player.spawn()
+            let spawned = Player.randPos()
             x = spawned.x
             y = spawned.y
         }
@@ -205,8 +206,8 @@ class Player extends Sprite {
         Player.all.push(this)
     }
 
-    castRaySprt(pl0, rayAng = Player.all[0].ang) {
-        let its = super.castRaySprt(pl0, rayAng)
+    castRaySprt(pl0, rayAng = Player.all[0].ang, maxOff = 0.5) {
+        let its = super.castRaySprt(pl0, rayAng, maxOff)
         if (its != undefined)
             this.updateTexture(its.plrsAng)
         return its
@@ -233,7 +234,7 @@ class Player extends Sprite {
     shoot() {
         if (!this.alive) return
         let shot = Player.all.filter(p => p != this && p.alive)
-            .map(p => ({ p, its: p.castRaySprt(pl0) }))
+            .map(p => ({ p, its: p.castRaySprt(pl0, pl0.ang, 1 / 4) }))
             .filter(e => e.its != undefined)
             .sort((a, b) => a.its.dst - b.its.dst)[0]
         if (shot != undefined)
@@ -242,10 +243,16 @@ class Player extends Sprite {
 
     rotate() {
         if (!this.alive) return
-        this.ang -= normalAng(movedX * deltaTime / 100)
+        let angD = -normalAng(movedX * deltaTime / 100)
+        if (this.me && mouseButton == RIGHT) angD /= 2;
+        this.ang += angD;
     }
 
-    static collisionRad = 1 / 4;
+    static spawnMany(n) {
+        for (let i = 0; i < n; i++) new Player()
+    }
+
+    static rad = 1 / 4;
 
     move(forward, left, back, right) {
         if (!this.alive) return
@@ -291,7 +298,7 @@ class Player extends Sprite {
         // vel.y /= deltaTime
 
 
-        if (keyIsDown(SHIFT)) {
+        if (this.me && keyIsDown(SHIFT)) {
             vel.x *= 2
             vel.y *= 2
         }
@@ -303,20 +310,20 @@ class Player extends Sprite {
 
         let cell, cellValue
 
-        cell = getCell(this.pos.x, this.pos.y + dir.y * Player.collisionRad, false)
+        cell = getCell(this.pos.x, this.pos.y + dir.y * Player.rad, false)
         cellValue = getCellVal(cell)
         if (cellValue != 0 || cellValue == undefined) {
-            this.pos.y = cell.y + 0.5 - dir.y * 0.5 - dir.y * Player.collisionRad
+            this.pos.y = cell.y + 0.5 - dir.y * 0.5 - dir.y * Player.rad
         }
 
-        cell = getCell(this.pos.x + dir.x * Player.collisionRad, this.pos.y, false)
+        cell = getCell(this.pos.x + dir.x * Player.rad, this.pos.y, false)
         cellValue = getCellVal(cell)
         if (cellValue != 0 || cellValue == undefined) {
-            this.pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * Player.collisionRad
+            this.pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * Player.rad
         }
     }
 
-    static spawn() {
+    static randPos() {
         let spaces = copyMatrix(map)
         for (let i = 0; i < spaces.length; i++) {
             for (let j = 0; j < map[0].length; j++) {
@@ -505,7 +512,7 @@ function setKeyNum(kc) {
     }
 }
 
-function keyPressed() {
+function keyPressed(e) {
     setKeyNum(keyCode)
 
     if (keyCode == 70) {
@@ -535,6 +542,7 @@ function mousePressed() {
 function mouseMoved() {
     updateMouse()
     if (canMove) pl0.rotate()
+    // for testing
     if (renderMap) {
         pl1.ang = 180 - degrees(atan2(
             pl1.pos.y * cls + drawOff.y - mouseY,
@@ -606,7 +614,7 @@ function drawMap(pos, rayBuf, num = 5) {
         fill('gray')
         circle(pos.x * cls, pos.y * cls, cls)
         fill('black')
-        circle(pos.x * cls, pos.y * cls, cls * 2 * Player.collisionRad)
+        circle(pos.x * cls, pos.y * cls, cls * 2 * Player.rad)
         stroke('purple')
         let l = cls / 2
         line(pos.x * cls, pos.y * cls,
