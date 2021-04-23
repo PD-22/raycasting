@@ -1,0 +1,63 @@
+makeMap
+  makeMatrix
+
+cellularAutomata
+  makeMatrix
+  copyMatrix
+  countWallNeighbors
+
+
+randomTextures
+  randomTexture
+    makeMatrix
+    randomColor
+
+multColor
+
+castRays
+  castRay
+    angTodir
+
+drawView
+  calcColHeight
+  drawTextureCol
+    getTxtrOff
+    multClr
+  Sprite
+
+drawMap
+  getDrawMapOff
+  drawMatrix
+    drawCell
+    Player
+  Player
+
+Player
+  Sprite
+  normalAng
+  getCell
+  getCellVal
+  copyMatrix
+
+Sprite
+  normalAng
+  calcColHeight
+  drawTextureCol
+
+// add inputs and others
+// group similar
+
+// other functions
+
+fitMap
+getMapOff
+getDrawMapOff
+createMyCanvas
+mouseOnMap
+renderMode
+setKeyNum
+renderMode
+updateMouse
+placeCell
+mouseMoved
+updateMouse
