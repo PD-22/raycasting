@@ -3,12 +3,13 @@ let
     canRotate, canMove, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, mapOff, drawOff, pxl,
     mx, my, ceilClr, floorClr, textures, placeTxtrNum, plrTxtrs,
-    pl0, pl1
+    pl0, pl1, blt
 
 /*
 interesction bug?
 fullscreen crashes
 delete sprite if delete player (deconstructor)
+making bullet
 */
 
 function setup() {
@@ -85,6 +86,9 @@ function setup() {
         [-1, -1, c1, c1, c1, c1, -1, -1],
     ]]
 
+    let bltTxtr = makeMatrix(7, 7).map((r, i) =>
+        r.map((c, j) => i == 3 && j == 3 ? 'yellow' : -1))
+
     // map = makeMap(0, 16, 16)
 
     // map = makeMap(
@@ -95,6 +99,7 @@ function setup() {
 
     pl0 = new Player(6, 2, -30)
     pl1 = new Player(8.5, 3.5, 180 - 30)
+    blt = new Sprite(7.5, 3.5, bltTxtr)
     Player.spawnMany(5);
     fov = 90
     res = width / 4
