@@ -10,6 +10,7 @@ interesction bug?
 fullscreen crashes
 delete sprite if delete player (deconstructor)
 making bullet
+    making blt kill
 */
 
 function setup() {
@@ -86,8 +87,23 @@ function setup() {
         [-1, -1, c1, c1, c1, c1, -1, -1],
     ]]
 
-    let bltTxtr = makeMatrix(7, 7).map((r, i) =>
-        r.map((c, j) => i == 3 && j == 3 ? 'yellow' : -1))
+    let bltTxtr = makeMatrix(10, 10).map((r, i) =>
+        r.map((c, j) => (i == 4 || i == 5) &&
+            (j == 4 || j == 5) ? 'yellow' : -1))
+
+    bltRad = 1 / 10; // temp
+    maxDst = bltRad + Player.rad // temp
+
+    function checkBltKill() {
+        let dx = blt.pos.x - pl1.pos.x;
+        let dy = blt.pos.y - pl1.pos.y;
+        let dst = Math.hypot(dy, dx);
+        console.log(dst);
+        console.log(maxDst);
+        if (dst < maxDst) {
+            pl1.alive = false;
+        }
+    }
 
     // map = makeMap(0, 16, 16)
 
@@ -99,7 +115,8 @@ function setup() {
 
     pl0 = new Player(6, 2, -30)
     pl1 = new Player(8.5, 3.5, 180 - 30)
-    blt = new Sprite(7.5, 3.5, bltTxtr)
+    blt = new Sprite(8.5, 2.5 + 0.6+0.05*1, bltTxtr)
+    checkBltKill()
     Player.spawnMany(5);
     fov = 90
     res = width / 4
