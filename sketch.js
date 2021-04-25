@@ -3,14 +3,14 @@ let
     canRotate, canMove, rayBuf, fov, renderMap, renderView,
     pointerLock, speed, res, mapOff, drawOff, pxl,
     mx, my, ceilClr, floorClr, textures, placeTxtrNum, plrTxtrs,
-    pl0, pl1, blt
+    pl0, pl1
 
 /*
-interesction bug?
+pos int bug
 fullscreen crashes
-delete sprite if delete player (deconstructor)
-making bullet
-    making blt kill
+sprite gaps
+separate files for classes
+no rotate on no Pointerlock
 */
 
 function setup() {
@@ -87,24 +87,6 @@ function setup() {
         [-1, -1, c1, c1, c1, c1, -1, -1],
     ]]
 
-    let bltTxtr = makeMatrix(10, 10).map((r, i) =>
-        r.map((c, j) => (i == 4 || i == 5) &&
-            (j == 4 || j == 5) ? 'yellow' : -1))
-
-    bltRad = 1 / 10; // temp
-    maxDst = bltRad + Player.rad // temp
-
-    function checkBltKill() {
-        let dx = blt.pos.x - pl1.pos.x;
-        let dy = blt.pos.y - pl1.pos.y;
-        let dst = Math.hypot(dy, dx);
-        console.log(dst);
-        console.log(maxDst);
-        if (dst < maxDst) {
-            pl1.alive = false;
-        }
-    }
-
     // map = makeMap(0, 16, 16)
 
     // map = makeMap(
@@ -115,8 +97,6 @@ function setup() {
 
     pl0 = new Player(6, 2, -30)
     pl1 = new Player(8.5, 3.5, 180 - 30)
-    blt = new Sprite(8.5, 2.5 + 0.6+0.05*1, bltTxtr)
-    checkBltKill()
     Player.spawnMany(5);
     fov = 90
     res = width / 4
@@ -142,6 +122,7 @@ function draw() {
     if (!pl0.alive) rect(0, 0, width, height)
     pl0.move(87, 65, 83, 68)
     pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW) // for testing
+    Bullet.updateAll();
 }
 
 class Sprite {
@@ -149,8 +130,18 @@ class Sprite {
         this.pos = { x, y }
         this.visible = true
         this.texture = texture
+        this.id = Sprite.idCount++;
         Sprite.all.push(this)
     }
+
+    delete(thisClass = Sprite) {
+        thisClass.all = thisClass.all
+            .filter(s => s.id != this.id);
+        if (thisClass == Sprite)
+            Sprite.idCount--;
+    }
+
+    static idCount = 0;
 
     static all = []
 
@@ -207,6 +198,71 @@ class Sprite {
     }
 }
 
+class Bullet extends Sprite {
+    constructor(x, y, ang = 0, spd = 0, plr = pl0, txtr = Bullet.texture) {
+        if (x == undefined || y == undefined) {
+            x = pl0.pos.x;
+            y = pl0.pos.y;
+        }
+        super(x, y, txtr);
+        this.speed = spd;
+        this.ang = ang;
+        this.parent = plr;
+        this.texture = txtr;
+        this.rad = Bullet.rad;
+        Bullet.all.push(this);
+    }
+
+    delete() {
+        super.delete();
+        super.delete.call(this, this.constructor);
+    }
+
+    static updateAll() {
+        Bullet.all.forEach(b => {
+            b.move();
+            if (b.checkWall())
+                b.delete();
+            b.checkPlrs()
+                .filter(p => p != this.parent)
+                .forEach(p => p.alive = false);
+        });
+    }
+
+    move() {
+        let vx = this.speed * Math.cos(radians(this.ang));
+        let vy = this.speed * -Math.sin(radians(this.ang));
+        this.pos.x += vx;
+        this.pos.y += vy;
+
+    }
+
+    static all = []
+
+    checkWall() {
+        let { x, y } = this.pos;
+        let cell = getCell(x, y, false);
+        let val = getCellVal(cell);
+        let inWall = val != 0;
+        return inWall ? cell : null;
+    }
+
+    checkPlrs() {
+        return Player.all.filter(plr => {
+            let dx = this.pos.x - plr.pos.x;
+            let dy = this.pos.y - plr.pos.y;
+            let dst = Math.hypot(dy, dx);
+            return dst < Player.rad + this.rad;
+        });
+    }
+
+    static texture = makeMatrix(16, 16).map((r, i) =>
+        r.map((c, j) => (i == 8 || i == 7) &&
+            (j == 8 || j == 7) ? 'yellow' : -1))
+
+    static rad = 1 / 16;
+}
+
 class Player extends Sprite {
     constructor(x, y, ang = Math.floor(Math.random() * 360), speed = 1) {
         if (x == undefined || y == undefined) {
@@ -221,6 +277,11 @@ class Player extends Sprite {
         this.me = Player.all.length == 0
         if (this.me) this.aim = false;
         Player.all.push(this)
+    }
+
+    delete() {
+        super.delete();
+        super.delete.call(this, this.constructor);
     }
 
     castRaySprt(pl0, rayAng = Player.all[0].ang, maxOff = 0.5) {
@@ -249,13 +310,13 @@ class Player extends Sprite {
     static all = []
 
     shoot() {
-        if (!this.alive) return
-        let shot = Player.all.filter(p => p != this && p.alive)
-            .map(p => ({ p, its: p.castRaySprt(pl0, pl0.ang, 1 / 4) }))
-            .filter(e => e.its != undefined)
-            .sort((a, b) => a.its.dst - b.its.dst)[0]
-        if (shot != undefined)
-            shot.p.alive = false
+        if (!this.alive) return;
+        let { x, y } = this.pos;
+        let ang = this.ang;
+        let rad = Player.rad;
+        x += rad * Math.cos(radians(ang));
+        y += rad * -Math.sin(radians(ang));
+        new Bullet(x, y, ang, 0.25);
     }
 
     rotate() {
@@ -841,6 +902,7 @@ function makeMap(arr = 0, r, c) {
 
 function makeMatrix(r, c, p = 0) {
     let mtrx = []
+    if (c == undefined) c = r;
     for (let i = 0; i < r; i++) {
         mtrx.push(new Array(c))
         for (let j = 0; j < c; j++) {
