@@ -1,7 +1,7 @@
 let
     width, height, map, mRows, mCols, cls, ratio, mapZoomed,
-    canRotate, canMove, rayBuf, fov, renderMap, renderView,
-    pointerLock, speed, res, mapOff, drawOff, pxl,
+    rayBuf, fov, renderMap, renderView,
+    speed, res, mapOff, drawOff, pxl,
     mx, my, ceilClr, floorClr, textures, placeTxtrNum, plrTxtrs,
     pl0, pl1
 
@@ -9,8 +9,10 @@ let
 pos int bug
 fullscreen crashes
 sprite gaps
+rare gray screen (window size?)
+rare shoot bug (castAll invalid color)
 separate files for classes
-no rotate on no Pointerlock
+fix plr collision? (it uses 4 grids...?)
 */
 
 function setup() {
@@ -110,7 +112,6 @@ function setup() {
 
     renderMap = false
     renderView = true
-    pointerLock = false
 }
 
 
@@ -120,9 +121,15 @@ function draw() {
     if (renderMap) drawMap(pl0.pos, rayBuf)
     fill(0, 127)
     if (!pl0.alive) rect(0, 0, width, height)
-    pl0.move(87, 65, 83, 68)
-    pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW) // for testing
+    if (pointerLocked()) {
+        pl0.move(87, 65, 83, 68)
+        pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW) // for testings
+    }
     Bullet.updateAll();
+}
+
+function pointerLocked() {
+    return document.pointerLockElement !== null;
 }
 
 class Sprite {
@@ -511,14 +518,9 @@ function mouseOnMap() {
 function renderMode(opt = 1) {
     if (opt == 1) {
         renderMap = false
-        canRotate = canMove = true
-        pointerLock = true
         requestPointerLock()
     } else if (opt == 2) {
         renderMap = true
-        canMove = false
-        canRotate = false
-        pointerLock = false
         exitPointerLock()
     }
 }
@@ -615,7 +617,7 @@ function mousePressed() {
             renderMode(1)
         }
     } else if (renderView) {
-        if (pointerLock) pl0.shoot()
+        if (pointerLocked()) pl0.shoot()
         renderMode(1)
     }
 }
@@ -626,7 +628,7 @@ function mouseReleased() { pl0.aim = false; }
 
 function mouseMoved() {
     updateMouse()
-    if (canMove) pl0.rotate()
+    if (pointerLocked()) pl0.rotate()
     // for testing
     if (renderMap) {
         pl1.ang = 180 - degrees(atan2(
