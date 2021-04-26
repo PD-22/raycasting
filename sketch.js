@@ -7,10 +7,8 @@ let
 
 /*
 pos int bug
-fullscreen crashes
+fullscreen crashes (gray screen)
 sprite gaps
-rare gray screen (window size?)
-rare shoot bug (castAll invalid color)
 separate files for classes
 fix plr collision? (it uses 4 grids...?)
 */
@@ -231,7 +229,7 @@ class Bullet extends Sprite {
             if (b.checkWall())
                 b.delete();
             b.checkPlrs()
-                .filter(p => p != this.parent)
+                .filter(p => p.id != b.parent.id)
                 .forEach(p => p.alive = false);
         });
     }
@@ -676,7 +674,7 @@ function drawTextureCol(its, i, h, w, txtr) {
         let x = floor(txtrOff * cols)
         let color = txtr[y][x]
         if (color < 0) continue
-        if (its.side == 'y')
+        if (its.side != undefined && its.side == 'y')
             color = multClr(color, 0.8)
         fill(color)
         rect(
