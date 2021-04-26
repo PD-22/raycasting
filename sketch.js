@@ -1,16 +1,13 @@
-let
-    width, height, map, mRows, mCols, cls, ratio, mapZoomed,
-    rayBuf, fov, renderMap, renderView,
-    speed, res, mapOff, drawOff, pxl,
-    mx, my, ceilClr, floorClr, textures, placeTxtrNum, plrTxtrs,
-    pl0, pl1
+let width, height, map, mRows, mCols, cls, ratio, mapZoomed,
+    rayBuf, fov, renderMap, renderView, speed, res, mapOff, drawOff, pxl,
+    mx, my, ceilClr, floorClr, textures, placeTxtrNum, plrTxtrs, pl0, pl1
 
 /*
 pos int bug
 fullscreen crashes (gray screen)
-sprite gaps
+sprites have gaps (not walls)
 separate files for classes
-fix plr collision? (it uses 4 grids...?)
+plr collision (under construction)...
 */
 
 function setup() {
@@ -119,10 +116,10 @@ function draw() {
     if (renderMap) drawMap(pl0.pos, rayBuf)
     fill(0, 127)
     if (!pl0.alive) rect(0, 0, width, height)
-    if (pointerLocked()) {
-        pl0.move(87, 65, 83, 68)
-        pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW) // for testings
-    }
+    // if (pointerLocked()) { temp
+    pl0.move(87, 65, 83, 68)
+    pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW) // for testings
+    // }
     Bullet.updateAll();
 }
 
@@ -375,9 +372,9 @@ class Player extends Sprite {
             vel.y /= mag
         }
 
-        vel.x *= this.speed
+        vel.x *= this.speed / 20
         vel.x *= deltaTime / 14
-        vel.y *= this.speed
+        vel.y *= this.speed / 20
         vel.y *= deltaTime / 14
 
 
@@ -386,24 +383,35 @@ class Player extends Sprite {
             vel.y *= 2
         }
 
-        this.pos.x += vel.x / 20
-        this.pos.y += vel.y / 20
+        /*
+            collision
+                check circle as box
+                check 4 wall corners
+                    use cellCenters
+        */
 
-        // collision
+        this.pos.x += vel.x;
+        this.pos.y += vel.y
+    }
 
-        let cell, cellValue
-
-        cell = getCell(this.pos.x, this.pos.y + dir.y * Player.rad, false)
-        cellValue = getCellVal(cell)
-        if (cellValue != 0 || cellValue == undefined) {
-            this.pos.y = cell.y + 0.5 - dir.y * 0.5 - dir.y * Player.rad
+    getAdjCells() {
+        let cells = [];
+        let x = Math.round(this.pos.x);
+        let y = Math.round(this.pos.y);
+        for (let i = 0; i >= -1; i--) {
+            for (let j = 0; j >= -1; j--) {
+                cells.push(getCell(x + j, y + i, false))
+            }
         }
+        return cells;
+    }
 
-        cell = getCell(this.pos.x + dir.x * Player.rad, this.pos.y, false)
-        cellValue = getCellVal(cell)
-        if (cellValue != 0 || cellValue == undefined) {
-            this.pos.x = cell.x + 0.5 - dir.x * 0.5 - dir.x * Player.rad
-        }
+    checkCollision(pos, cellCenter) { // also check cell value // give me cell to check?
+        let r = Player.rad;
+        if ((pos.x + r < cellCenter.x - 0.5 || pos.x - r > cellCenter.x + 0.5) ||
+            (pos.y + r < cellCenter.y - 0.5 || pos.y - r > cellCenter.y + 0.5)
+        ) return false
+        // check angles
     }
 
     static randPos() {
