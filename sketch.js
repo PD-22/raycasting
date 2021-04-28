@@ -8,6 +8,7 @@ fullscreen crashes (gray screen)
 sprites have gaps (not walls)
 separate files for classes
 plr collision (under construction)...
+    add collision response
 */
 
 function setup() {
@@ -92,7 +93,7 @@ function setup() {
     //     )
     // )
 
-    pl0 = new Player(6, 2, -30)
+    pl0 = new Player(6.5, 2.5, 90, 0.5) // temp speed
     pl1 = new Player(8.5, 3.5, 180 - 30)
     Player.spawnMany(5);
     fov = 90
@@ -105,7 +106,7 @@ function setup() {
     floorClr = 'lightGreen'
     placeTxtrNum = 0
 
-    renderMap = false
+    renderMap = true
     renderView = true
 }
 
@@ -113,7 +114,8 @@ function setup() {
 function draw() {
     rayBuf = castRays(pl0.pos, pl0.ang, res)
     if (renderView) drawView(pl0.pos, rayBuf)
-    if (renderMap) drawMap(pl0.pos, rayBuf)
+    // if (renderMap) drawMap(pl0.pos, rayBuf)
+    drawMap(pl0.pos, rayBuf) // temp
     fill(0, 127)
     if (!pl0.alive) rect(0, 0, width, height)
     // if (pointerLocked()) { temp
@@ -383,35 +385,62 @@ class Player extends Sprite {
             vel.y *= 2
         }
 
-        /*
-            collision
-                check circle as box
-                check 4 wall corners
-                    use cellCenters
-        */
 
         this.pos.x += vel.x;
-        this.pos.y += vel.y
+        this.pos.y += vel.y;
+
+        if (this.me) {
+            let cellCount = 0;
+            this.getAdjCells().forEach((cell, i) => {
+                let blocks = false;
+                if (getCellVal(cell) != 0 && this.checkCollision(cell)) {
+                    blocks = true;
+                    cellCount++;
+                }
+                text(`cell [${cell.y}][${cell.x}]: ${blocks}`, 20, 20 * (i + 2));
+            })
+            text(`collisions: ${cellCount}`, 20, 20);
+        }
+    }
+
+    checkCollision(cell) {
+        let rad = Player.rad;
+        let cellCenter = { x: cell.x + 0.5, y: cell.y + 0.5 };
+        let crclDst = {
+            x: Math.abs(this.pos.x - cellCenter.x),
+            y: Math.abs(this.pos.y - cellCenter.y),
+        };
+
+        if (crclDst.x >= (0.5 + rad)) return false;
+        if (crclDst.y >= (0.5 + rad)) return false;
+
+        if (crclDst.x <= 0.5) return true;
+        if (crclDst.y <= 0.5) return true;
+
+        for (let i = 0; i <= 1; i++) {
+            for (let j = 0; j <= 1; j++) {
+                let corner = { x: cell.x + j, y: cell.y + i };
+                let dst = Math.hypot(
+                    Math.abs(this.pos.x - corner.x),
+                    Math.abs(this.pos.y - corner.y),
+                );
+                if (dst <= rad) return true
+            }
+        }
+
+        return false;
     }
 
     getAdjCells() {
         let cells = [];
         let x = Math.round(this.pos.x);
         let y = Math.round(this.pos.y);
-        for (let i = 0; i >= -1; i--) {
-            for (let j = 0; j >= -1; j--) {
+        for (let i = -1; i <= 0; i++) {
+            for (let j = -1; j <= 0; j++) {
                 cells.push(getCell(x + j, y + i, false))
             }
         }
         return cells;
-    }
-
-    checkCollision(pos, cellCenter) { // also check cell value // give me cell to check?
-        let r = Player.rad;
-        if ((pos.x + r < cellCenter.x - 0.5 || pos.x - r > cellCenter.x + 0.5) ||
-            (pos.y + r < cellCenter.y - 0.5 || pos.y - r > cellCenter.y + 0.5)
-        ) return false
-        // check angles
     }
 
     static randPos() {
@@ -697,19 +726,19 @@ function drawMap(pos, rayBuf, num = 5) {
     push()
     drawOff = getDrawMapOff()
     translate(drawOff.x, drawOff.y)
-    stroke(127)
-    strokeWeight(cls / 16)
+    // stroke(127)
+    // strokeWeight(cls / 16)
     drawMatrix(map, 0.8)
 
     // draw Players
     Player.all.forEach(p => {
         let { pos, ang } = p;
         noStroke()
-        fill('gray')
+        fill(127, 127)
         circle(pos.x * cls, pos.y * cls, cls)
-        fill('black')
+        fill(0, 222)
         circle(pos.x * cls, pos.y * cls, cls * 2 * Player.rad)
-        stroke('purple')
+        stroke(127, 0, 127, 200)
         let l = cls / 2
         line(pos.x * cls, pos.y * cls,
             pos.x * cls + l * Math.cos(radians(ang)),
@@ -719,12 +748,12 @@ function drawMap(pos, rayBuf, num = 5) {
     // draw view rays
     let inc = (rayBuf.length - 1) / (num - 1)
     for (let i = 0; i < rayBuf.length; i += inc) {
-        stroke('red')
+        stroke(255, 0, 0, 222)
         strokeWeight(cls / 16)
         let ray = rayBuf[Math.floor(i)]
         line(pos.x * cls, pos.y * cls, ray.x * cls, ray.y * cls)
         noStroke()
-        fill('yellow')
+        fill(255, 255, 0, 222)
         circle(ray.x * cls, ray.y * cls, cls / 4)
     }
     pop()
