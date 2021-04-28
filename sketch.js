@@ -7,8 +7,7 @@ pos int bug
 fullscreen crashes (gray screen)
 sprites have gaps (not walls)
 separate files for classes
-plr collision (under construction)...
-    add collision response
+    make useful functions more global
 */
 
 function setup() {
@@ -20,7 +19,7 @@ function setup() {
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
         [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1],
-        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1],
         [1, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -93,7 +92,7 @@ function setup() {
     //     )
     // )
 
-    pl0 = new Player(6.5, 2.5, 90, 0.5) // temp speed
+    pl0 = new Player(6.5, 2.5, 0)
     pl1 = new Player(8.5, 3.5, 180 - 30)
     Player.spawnMany(5);
     fov = 90
@@ -106,7 +105,7 @@ function setup() {
     floorClr = 'lightGreen'
     placeTxtrNum = 0
 
-    renderMap = true
+    renderMap = false
     renderView = true
 }
 
@@ -114,14 +113,13 @@ function setup() {
 function draw() {
     rayBuf = castRays(pl0.pos, pl0.ang, res)
     if (renderView) drawView(pl0.pos, rayBuf)
-    // if (renderMap) drawMap(pl0.pos, rayBuf)
-    drawMap(pl0.pos, rayBuf) // temp
+    if (renderMap) drawMap(pl0.pos, rayBuf)
     fill(0, 127)
     if (!pl0.alive) rect(0, 0, width, height)
-    // if (pointerLocked()) { temp
-    pl0.move(87, 65, 83, 68)
-    pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW) // for testings
-    // }
+    if (pointerLocked()) {
+        pl0.move(87, 65, 83, 68)
+        pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW) // for testings
+    }
     Bullet.updateAll();
 }
 
@@ -131,18 +129,18 @@ function pointerLocked() {
 
 class Sprite {
     constructor(x, y, texture) {
-        this.pos = { x, y }
-        this.visible = true
-        this.texture = texture
-        this.id = Sprite.idCount++;
-        Sprite.all.push(this)
+        this.pos = { x, y };
+        this.visible = true;
+        this.texture = texture;
+        this.id = Sprite.idCount;
+        Sprite.all.push(this);
+        Sprite.idCount = Sprite.all.length;
     }
 
     delete(thisClass = Sprite) {
         thisClass.all = thisClass.all
             .filter(s => s.id != this.id);
-        if (thisClass == Sprite)
-            Sprite.idCount--;
+        Sprite.idCount = Sprite.all.length;
     }
 
     static idCount = 0;
@@ -186,7 +184,7 @@ class Sprite {
 
         let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
 
-        if (Math.abs(sOff) > maxOff) return
+        if (Math.abs(sOff) >= maxOff) return
 
         let rayDst = sOff / Math.sin(radians(rayStrghtAng))
 
@@ -195,7 +193,7 @@ class Sprite {
 
         return {
             x, y, ang: rayAng, type: 'sprite',
-            txtrOff: 0.5 - sOff,
+            txtrOff: (0.5 - sOff),
             dst: rayDst, plrsAng,
             dir: angToDir(rayAng)
         }
@@ -203,7 +201,7 @@ class Sprite {
 }
 
 class Bullet extends Sprite {
-    constructor(x, y, ang = 0, spd = 0, plr = pl0, txtr = Bullet.texture) {
+    constructor(x, y, ang = pl0.ang, spd = 0, plr = pl0, txtr = Bullet.texture) {
         if (x == undefined || y == undefined) {
             x = pl0.pos.x;
             y = pl0.pos.y;
@@ -262,7 +260,7 @@ class Bullet extends Sprite {
 
     static texture = makeMatrix(16, 16).map((r, i) =>
         r.map((c, j) => (i == 8 || i == 7) &&
-            (j == 8 || j == 7) ? 'yellow' : -1))
+            (j == 8 || j == 7) ? [255, 255, 0] : -1))
 
     static rad = 1 / 16;
 }
@@ -389,18 +387,29 @@ class Player extends Sprite {
         this.pos.x += vel.x;
         this.pos.y += vel.y;
 
-        if (this.me) {
-            let cellCount = 0;
-            this.getAdjCells().forEach((cell, i) => {
-                let blocks = false;
-                if (getCellVal(cell) != 0 && this.checkCollision(cell)) {
-                    blocks = true;
-                    cellCount++;
+        // collision response (make another function?)
+        this.getAdjCells().forEach((cell, i) => {
+            let cellVal = getCellVal(cell);
+            let collision = this.checkCollision(cell);
+            if (cellVal != 0 && collision != null) {
+                if (collision.type == 'side') {
+                    let axis = collision.value;
+                    let center = cell[axis] + 0.5
+                    let sign = Math.sign(this.pos[axis] - center);
+                    this.pos[axis] = center + sign * (0.5 + Player.rad);
+                } else if (collision.type == 'corner') {
+                    let delta = {
+                        x: this.pos.x - collision.value.x,
+                        y: this.pos.y - collision.value.y
+                    }
+                    let axis = Math.abs(delta.x) < Math.abs(delta.y) ? 'y' : 'x';
+                    let axis2 = axis == 'y' ? 'x' : 'y';
+                    this.pos[axis] =
+                        collision.value[axis] + Math.sign(delta[axis]) *
+                        Math.sqrt(Player.rad ** 2 - delta[axis2] ** 2);
                 }
-                text(`cell [${cell.y}][${cell.x}]: ${blocks}`, 20, 20 * (i + 2));
-            })
-            text(`collisions: ${cellCount}`, 20, 20);
-        }
+            }
+        })
     }
 
     checkCollision(cell) {
@@ -411,11 +420,11 @@ class Player extends Sprite {
             y: Math.abs(this.pos.y - cellCenter.y),
         };
 
-        if (crclDst.x >= (0.5 + rad)) return false;
-        if (crclDst.y >= (0.5 + rad)) return false;
+        if (crclDst.x >= (0.5 + rad)) return null;
+        if (crclDst.y >= (0.5 + rad)) return null;
 
-        if (crclDst.x <= 0.5) return true;
-        if (crclDst.y <= 0.5) return true;
+        if (crclDst.x <= 0.5) return { type: 'side', value: 'y' };
+        if (crclDst.y <= 0.5) return { type: 'side', value: 'x' };
 
         for (let i = 0; i <= 1; i++) {
             for (let j = 0; j <= 1; j++) {
@@ -424,11 +433,11 @@ class Player extends Sprite {
                     Math.abs(this.pos.x - corner.x),
                     Math.abs(this.pos.y - corner.y),
                 );
-                if (dst <= rad) return true
+                if (dst <= rad) return { type: 'corner', value: corner };
             }
         }
 
-        return false;
+        return null;
     }
 
     getAdjCells() {
@@ -703,12 +712,15 @@ function drawTextureCol(its, i, h, w, txtr) {
     let txtrOff = its.txtrOff
         || getTxtrOff(its, its.side, its.dir)
 
+    if (txtrOff >= 1) throw new Error('txtrOff over max')
+
     let rows = txtr.length
     let cols = txtr[0].length
     let wcHeight = h / rows
 
     for (let y = 0; y < rows; y++) {
         let x = floor(txtrOff * cols)
+        // debbugger got txtrOff = 1 (length)
         let color = txtr[y][x]
         if (color < 0) continue
         if (its.side != undefined && its.side == 'y')
