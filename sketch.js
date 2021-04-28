@@ -1,6 +1,24 @@
 let width, height, map, mRows, mCols, cls, ratio, mapZoomed,
-    rayBuf, fov, renderMap, renderView, speed, res, mapOff, drawOff, pxl,
-    mx, my, ceilClr, floorClr, textures, placeTxtrNum, plrTxtrs, pl0, pl1
+    fov, renderMap, renderView, mapOff, drawOff,
+    mx, my, ceilClr, floorClr, wallTextures, placeTxtrNum, pl0, pl1
+
+export {
+    map, pl0, fov, mRows, cls, mCols, mapOff,
+    ceilClr, floorClr, wallTextures
+};
+
+import {
+    multClr, randomTextures, randomTexture, randomColor
+} from "./textures.js";
+import Sprite from "./Sprite.js";
+import Player from "./Player.js";
+import Bullet from "./Bullet.js";
+import { getCell, getCellVal, makeMatrix, copyMatrix }
+    from "./Matrix.js";
+import { normalAng, angToDir } from "./angles.js";
+import { res, drawView, calcColHeight, fitMap, getDrawMapOff, getMapOff }
+    from "./render.js";
+import { castRay, castRays, getTxtrOff, rayBuff } from "./rayCasting.js";
 
 /*
 pos int bug
@@ -8,9 +26,10 @@ fullscreen crashes (gray screen)
 sprites have gaps (not walls)
 separate files for classes
     make useful functions more global
+moving to modules mode...
 */
 
-function setup() {
+window.setup = function () {
     createMyCanvas()
     background('gray')
 
@@ -33,7 +52,7 @@ function setup() {
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ])
 
-    textures = randomTextures(10, 2)
+    wallTextures = randomTextures(10, 2)
 
     let c0 = randomColor()
     let c1 = multClr(c0, 0.2)
@@ -96,9 +115,9 @@ function setup() {
     pl1 = new Player(8.5, 3.5, 180 - 30)
     Player.spawnMany(5);
     fov = 90
-    res = width / 4
+    res.setRes(width / 4);
     mapZoomed = false
-    fitMap()
+    cls = fitMap()
     mapOff = getMapOff()
     drawOff = getDrawMapOff()
     ceilClr = 'lightBlue'
@@ -110,10 +129,10 @@ function setup() {
 }
 
 
-function draw() {
-    rayBuf = castRays(pl0.pos, pl0.ang, res)
-    if (renderView) drawView(pl0.pos, rayBuf)
-    if (renderMap) drawMap(pl0.pos, rayBuf)
+window.draw = function () {
+    castRays(pl0.pos, pl0.ang, res)
+    if (renderView) drawView(pl0.pos, rayBuff)
+    if (renderMap) drawMap(pl0.pos, rayBuff)
     fill(0, 127)
     if (!pl0.alive) rect(0, 0, width, height)
     if (pointerLocked()) {
@@ -127,418 +146,8 @@ function pointerLocked() {
     return document.pointerLockElement !== null;
 }
 
-class Sprite {
-    constructor(x, y, texture) {
-        this.pos = { x, y };
-        this.visible = true;
-        this.texture = texture;
-        this.id = Sprite.idCount;
-        Sprite.all.push(this);
-        Sprite.idCount = Sprite.all.length;
-    }
-
-    delete(thisClass = Sprite) {
-        thisClass.all = thisClass.all
-            .filter(s => s.id != this.id);
-        Sprite.idCount = Sprite.all.length;
-    }
-
-    static idCount = 0;
-
-    static all = []
-
-    static castAll(wallDst, i) {
-        Sprite.all.filter(s => s.visible)
-            .map(s => ({ s, its: s.castRaySprt(pl0, rayBuf[i].ang) }))
-            .filter(e => e.its != undefined && e.its.dst < wallDst && e.s.me != true)
-            .sort((a, b) => b.its.dst - a.its.dst)
-            .forEach(e => {
-                let hPlr = calcColHeight(e.its)
-                drawTextureCol(e.its, i, hPlr, pxl, e.s.texture)
-            });
-    }
-
-    castRaySprt(pl0, rayAng = Player.all[0].ang, maxOff = 0.5) {
-        let dx = this.pos.x - pl0.pos.x
-        let dy = this.pos.y - pl0.pos.y
-        let strghtDst = Math.hypot(dx, dy)
-
-        rayAng = rayAng == undefined ? pl0.ang : normalAng(rayAng)
-
-        let strghtAng = degrees(atan2(-dy, dx))
-        strghtAng = normalAng(strghtAng)
-
-        let plrsAng = 180 - this.ang + strghtAng
-        plrsAng = normalAng(plrsAng)
-
-        let rayStrghtAng = rayAng - strghtAng
-        rayStrghtAng = normalAng(rayStrghtAng)
-
-        let minAng = pl0.ang - fov / 2
-        minAng = normalAng(minAng)
-
-        let maxAng = pl0.ang + fov / 2
-        maxAng = normalAng(maxAng)
-
-        if (Math.abs(rayStrghtAng) > fov / 2) return
-
-        let sOff = Math.tan(radians(rayStrghtAng)) * strghtDst
-
-        if (Math.abs(sOff) >= maxOff) return
-
-        let rayDst = sOff / Math.sin(radians(rayStrghtAng))
-
-        let x = pl0.pos.x + rayDst * Math.cos(radians(rayAng))
-        let y = pl0.pos.y - rayDst * Math.sin(radians(rayAng))
-
-        return {
-            x, y, ang: rayAng, type: 'sprite',
-            txtrOff: (0.5 - sOff),
-            dst: rayDst, plrsAng,
-            dir: angToDir(rayAng)
-        }
-    }
-}
-
-class Bullet extends Sprite {
-    constructor(x, y, ang = pl0.ang, spd = 0, plr = pl0, txtr = Bullet.texture) {
-        if (x == undefined || y == undefined) {
-            x = pl0.pos.x;
-            y = pl0.pos.y;
-        }
-        super(x, y, txtr);
-        this.speed = spd;
-        this.ang = ang;
-        this.parent = plr;
-        this.texture = txtr;
-        this.rad = Bullet.rad;
-        Bullet.all.push(this);
-    }
-
-    delete() {
-        super.delete();
-        super.delete.call(this, this.constructor);
-    }
-
-    static updateAll() {
-        Bullet.all.forEach(b => {
-            b.move();
-            if (b.checkWall())
-                b.delete();
-            b.checkPlrs()
-                .filter(p => p.id != b.parent.id)
-                .forEach(p => p.alive = false);
-        });
-    }
-
-    move() {
-        let vx = this.speed * Math.cos(radians(this.ang));
-        let vy = this.speed * -Math.sin(radians(this.ang));
-        this.pos.x += vx;
-        this.pos.y += vy;
-
-    }
-
-    static all = []
-
-    checkWall() {
-        let { x, y } = this.pos;
-        let cell = getCell(x, y, false);
-        let val = getCellVal(cell);
-        let inWall = val != 0;
-        return inWall ? cell : null;
-    }
-
-    checkPlrs() {
-        return Player.all.filter(plr => {
-            let dx = this.pos.x - plr.pos.x;
-            let dy = this.pos.y - plr.pos.y;
-            let dst = Math.hypot(dy, dx);
-            return dst < Player.rad + this.rad;
-        });
-    }
-
-    static texture = makeMatrix(16, 16).map((r, i) =>
-        r.map((c, j) => (i == 8 || i == 7) &&
-            (j == 8 || j == 7) ? [255, 255, 0] : -1))
-
-    static rad = 1 / 16;
-}
-
-class Player extends Sprite {
-    constructor(x, y, ang = Math.floor(Math.random() * 360), speed = 1) {
-        if (x == undefined || y == undefined) {
-            let spawned = Player.randPos()
-            x = spawned.x
-            y = spawned.y
-        }
-        super(x, y, Player.textures[0])
-        this.ang = ang
-        this.speed = speed
-        this.alive = true
-        this.me = Player.all.length == 0
-        if (this.me) this.aim = false;
-        Player.all.push(this)
-    }
-
-    delete() {
-        super.delete();
-        super.delete.call(this, this.constructor);
-    }
-
-    castRaySprt(pl0, rayAng = Player.all[0].ang, maxOff = 0.5) {
-        let its = super.castRaySprt(pl0, rayAng, maxOff)
-        if (its != undefined)
-            this.updateTexture(its.plrsAng)
-        return its
-    }
-
-    updateTexture(plrsAng) {
-        let txtrSide
-        if (!this.alive) {
-            txtrSide = 4
-        } else if (Math.abs(plrsAng) > 135) {
-            txtrSide = 3
-        } else if (Math.abs(plrsAng) > 45) {
-            txtrSide = plrsAng > 0 ? 1 : 2
-        } else {
-            txtrSide = 0
-        }
-        let txtr = Player.textures[txtrSide]
-        this.texture = txtr
-        return txtr
-    }
-
-    static all = []
-
-    shoot() {
-        if (!this.alive) return;
-        let { x, y } = this.pos;
-        let ang = this.ang;
-        let rad = Player.rad;
-        x += rad * Math.cos(radians(ang));
-        y += rad * -Math.sin(radians(ang));
-        new Bullet(x, y, ang, 0.25);
-    }
-
-    rotate() {
-        if (!this.alive) return
-        let angD = -normalAng(movedX * deltaTime / 110)
-        if (this.aim) angD /= 2;
-        this.ang += angD;
-    }
-
-    static spawnMany(n) {
-        for (let i = 0; i < n; i++) new Player()
-    }
-
-    static rad = 1 / 4;
-
-    move(forward, left, back, right) {
-        if (!this.alive) return
-        let dir = { x: 0, y: 0 }
-        let vel = { x: 0, y: 0 }
-
-        if (keyIsDown(forward)) dir.y = -1
-        if (keyIsDown(left)) dir.x = -1
-        if (keyIsDown(back)) dir.y = 1
-        if (keyIsDown(right)) dir.x = 1
-
-        if (dir.y == -1) {
-            vel.y += -sin(radians(this.ang))
-            vel.x += cos(radians(this.ang))
-        }
-        if (dir.y == 1) {
-            vel.y += sin(radians(this.ang))
-            vel.x += -cos(radians(this.ang))
-        }
-        if (dir.x == -1) {
-            vel.y += -cos(radians(this.ang))
-            vel.x += -sin(radians(this.ang))
-        }
-        if (dir.x == 1) {
-            vel.y += cos(radians(this.ang))
-            vel.x += sin(radians(this.ang))
-        }
-
-        dir.x = vel.x
-        if (dir.x != 0) dir.x = (dir.x > 0) * 2 - 1
-        dir.y = vel.y
-        if (dir.y != 0) dir.y = (dir.y > 0) * 2 - 1
-
-        let mag = sqrt(vel.x ** 2 + vel.y ** 2)
-        if (mag != 0) {
-            vel.x /= mag
-            vel.y /= mag
-        }
-
-        vel.x *= this.speed / 20
-        vel.x *= deltaTime / 14
-        vel.y *= this.speed / 20
-        vel.y *= deltaTime / 14
-
-
-        if (this.me && keyIsDown(SHIFT)) {
-            vel.x *= 2
-            vel.y *= 2
-        }
-
-
-        this.pos.x += vel.x;
-        this.pos.y += vel.y;
-
-        // collision response (make another function?)
-        this.getAdjCells().forEach((cell, i) => {
-            let cellVal = getCellVal(cell);
-            let collision = this.checkCollision(cell);
-            if (cellVal != 0 && collision != null) {
-                if (collision.type == 'side') {
-                    let axis = collision.value;
-                    let center = cell[axis] + 0.5
-                    let sign = Math.sign(this.pos[axis] - center);
-                    this.pos[axis] = center + sign * (0.5 + Player.rad);
-                } else if (collision.type == 'corner') {
-                    let delta = {
-                        x: this.pos.x - collision.value.x,
-                        y: this.pos.y - collision.value.y
-                    }
-                    let axis = Math.abs(delta.x) < Math.abs(delta.y) ? 'y' : 'x';
-                    let axis2 = axis == 'y' ? 'x' : 'y';
-                    this.pos[axis] =
-                        collision.value[axis] + Math.sign(delta[axis]) *
-                        Math.sqrt(Player.rad ** 2 - delta[axis2] ** 2);
-                }
-            }
-        })
-    }
-
-    checkCollision(cell) {
-        let rad = Player.rad;
-        let cellCenter = { x: cell.x + 0.5, y: cell.y + 0.5 };
-        let crclDst = {
-            x: Math.abs(this.pos.x - cellCenter.x),
-            y: Math.abs(this.pos.y - cellCenter.y),
-        };
-
-        if (crclDst.x >= (0.5 + rad)) return null;
-        if (crclDst.y >= (0.5 + rad)) return null;
-
-        if (crclDst.x <= 0.5) return { type: 'side', value: 'y' };
-        if (crclDst.y <= 0.5) return { type: 'side', value: 'x' };
-
-        for (let i = 0; i <= 1; i++) {
-            for (let j = 0; j <= 1; j++) {
-                let corner = { x: cell.x + j, y: cell.y + i };
-                let dst = Math.hypot(
-                    Math.abs(this.pos.x - corner.x),
-                    Math.abs(this.pos.y - corner.y),
-                );
-                if (dst <= rad) return { type: 'corner', value: corner };
-            }
-        }
-
-        return null;
-    }
-
-    getAdjCells() {
-        let cells = [];
-        let x = Math.round(this.pos.x);
-        let y = Math.round(this.pos.y);
-        for (let i = -1; i <= 0; i++) {
-            for (let j = -1; j <= 0; j++) {
-                cells.push(getCell(x + j, y + i, false))
-            }
-        }
-        return cells;
-    }
-
-    static randPos() {
-        let spaces = copyMatrix(map)
-        for (let i = 0; i < spaces.length; i++) {
-            for (let j = 0; j < map[0].length; j++) {
-                let ri = Math.floor(Math.random() * spaces.length)
-                let rj = Math.floor(Math.random() * spaces.length)
-                spaces[i][j] = { i: ri, j: rj }
-                spaces[ri][rj] = { i: i, j: j }
-            }
-        }
-
-        for (let i = 0; i < spaces.length; i++) {
-            for (let j = 0; j < spaces[0].length; j++) {
-                const c = spaces[i][j]
-                if (map[c.i][c.j] == 0) {
-                    return { y: 0.5 + c.i, x: 0.5 + c.j }
-                }
-            }
-        }
-        return { x: 0.5 + map.length / 2 + 0.5, y: 0.5 + map[0].length / 2 }
-    }
-}
-
 
 // other functions
-
-function normalAng(ang) {
-    if (ang > 180)
-        return ang - 360
-    if (ang < -180)
-        return ang + 360
-    return ang
-}
-
-function drawView(pos, rayBuf) {
-    noStroke()
-    push()
-    fill(ceilClr)
-    rect(0, 0, width, height / 2)
-    fill(floorClr)
-    rect(0, height / 2, width, height / 2)
-    pop()
-
-    rayBuf.forEach((its, i) => {
-        let h = calcColHeight(its)
-        drawTextureCol(its, i, h, pxl, textures[its.val])
-        Sprite.castAll(its.dst, i)
-    })
-
-    // aim dot
-    push()
-    let r = width / 100
-    r -= r / 4 * pl0.aim
-    stroke(0)
-    strokeWeight(r / 4)
-    fill(255)
-    rectMode(CENTER)
-    square(width / 2, height / 2, r)
-    pop()
-}
-
-function calcColHeight(its) {
-    let p = its.dst * cos(radians(pl0.ang - its.ang))
-    let h = height / p
-    pxl = width / res
-    h = round(h / pxl) * pxl
-    return h
-}
-
-function fitMap() { // should depend on resolution
-    cls = height / mRows
-}
-
-function getDrawMapOff() {
-    if (cls * mCols > width || cls * mRows > height) {
-        return {
-            x: mapOff.x - (pl0.pos.x - mCols / 2) * cls,
-            y: mapOff.y - (pl0.pos.y - mRows / 2) * cls
-        }
-    } else return { x: mapOff.x, y: mapOff.y }
-}
-function getMapOff() {
-    return {
-        x: (width - mCols * cls) / 2,
-        y: (height - mRows * cls) / 2
-    }
-}
 
 function createMyCanvas() {
     ratio = window.screen.height / window.screen.width
@@ -569,50 +178,6 @@ function renderMode(opt = 1) {
     }
 }
 
-// texture functions
-
-function multClr(color, m = 1) {
-    let clr = Array.from(color)
-    for (let i = 0; i < clr.length; i++) {
-        clr[i] *= m
-        clr[i] = floor(clr[i])
-    }
-    return clr
-}
-
-function randomTextures(n, r, c) {
-    let arr = []
-    for (let i = 0; i < n; i++)
-        arr.push(randomTexture(r, c))
-    return arr
-}
-
-function randomTexture(r, c) {
-    let mtrx = makeMatrix(r, c)
-    if (c == undefined) {
-        let clr = []
-        for (let i = 0; i < r; i++) {
-            clr.push(randomColor())
-        }
-        for (let i = 0; i < r; i++)
-            for (let j = 0; j < r; j++)
-                mtrx[i][j] = clr[(i + j) % clr.length]
-    } else {
-        for (let i = 0; i < r; i++)
-            for (let j = 0; j < c; j++)
-                mtrx[i][j] = randomColor()
-    }
-    return mtrx
-}
-
-function randomColor() {
-    return [
-        Math.floor(Math.random() * 256),
-        Math.floor(Math.random() * 256),
-        Math.floor(Math.random() * 256),
-    ]
-}
-
 
 // Input functions
 
@@ -622,7 +187,7 @@ function mouseWheel(event) {
     else cls /= 1.1
 
     mapZoomed = cls * mCols > width || cls * mRows > height
-    if (!mapZoomed) fitMap()
+    if (!mapZoomed) cls = fitMap()
 
     mapOff = getMapOff()
     drawOff = getDrawMapOff()
@@ -708,33 +273,7 @@ function placeCell(mtrx, cell, val = 0) {
 
 // Draw functions
 
-function drawTextureCol(its, i, h, w, txtr) {
-    let txtrOff = its.txtrOff
-        || getTxtrOff(its, its.side, its.dir)
-
-    if (txtrOff >= 1) throw new Error('txtrOff over max')
-
-    let rows = txtr.length
-    let cols = txtr[0].length
-    let wcHeight = h / rows
-
-    for (let y = 0; y < rows; y++) {
-        let x = floor(txtrOff * cols)
-        // debbugger got txtrOff = 1 (length)
-        let color = txtr[y][x]
-        if (color < 0) continue
-        if (its.side != undefined && its.side == 'y')
-            color = multClr(color, 0.8)
-        fill(color)
-        rect(
-            Math.round(i * w),
-            (height - h) / 2 + wcHeight * y,
-            w, wcHeight
-        )
-    }
-}
-
-function drawMap(pos, rayBuf, num = 5) {
+function drawMap(pos, rayBuff, num = 5) {
     push()
     drawOff = getDrawMapOff()
     translate(drawOff.x, drawOff.y)
@@ -758,11 +297,11 @@ function drawMap(pos, rayBuf, num = 5) {
     })
 
     // draw view rays
-    let inc = (rayBuf.length - 1) / (num - 1)
-    for (let i = 0; i < rayBuf.length; i += inc) {
+    let inc = (rayBuff.length - 1) / (num - 1)
+    for (let i = 0; i < rayBuff.length; i += inc) {
         stroke(255, 0, 0, 222)
         strokeWeight(cls / 16)
-        let ray = rayBuf[Math.floor(i)]
+        let ray = rayBuff[Math.floor(i)]
         line(pos.x * cls, pos.y * cls, ray.x * cls, ray.y * cls)
         noStroke()
         fill(255, 255, 0, 222)
@@ -798,90 +337,6 @@ function drawCell(mtrx, i, j, t = 1) {
     rect(j * cls, i * cls, cls, cls)
 }
 
-
-// Ray casting functions
-
-function castRays(pos, offAng, r = width) {
-    res = r
-    rayBuf = []
-    let inc = fov / res
-    for (let ang = offAng - fov / 2; ang < offAng + fov / 2; ang += inc) {
-        let its = castRay(pos, ang)
-        rayBuf.unshift(its)
-    }
-    return rayBuf
-}
-
-function getTxtrOff(its, side, dir) {
-    if (side == 'x') {
-        if (dir.x > 0) {
-            return its.y % 1
-        } else {
-            return (mRows - its.y) % 1
-        }
-    } else if (side == 'y') {
-        if (dir.y < 0) {
-            return its.x % 1
-        } else {
-            return (mCols - its.x) % 1
-        }
-    }
-}
-
-function castRay(pos, ang) {
-    let cell = { x: Math.floor(pos.x), y: Math.floor(pos.y) }
-    let off = { x: pos.x - cell.x, y: pos.y - cell.y }
-    let dir = angToDir(ang)
-    let tg = abs(tan(radians(ang)))
-    let ctg = 1 / tg
-    let xsi = { x: pos.x - off.x + (1 + dir.x) / 2, }
-    xsi.y = pos.y + abs(xsi.x - pos.x) * tg * dir.y
-    let ysi = { y: pos.y - off.y + (1 + dir.y) / 2 }
-    ysi.x = pos.x + abs(ysi.y - pos.y) * ctg * dir.x
-    let dx = ctg * dir.x
-    let dy = tg * dir.y
-
-    while (true) {
-        while (abs(pos.x - xsi.x) <= abs(pos.x - ysi.x)) {
-            cell.x += dir.x
-            if (map[cell.y] == undefined
-                || map[cell.y][cell.x] != 0) {
-                return {
-                    dst: Math.hypot(pos.x - xsi.x, pos.y - xsi.y),
-                    x: xsi.x, y: xsi.y,
-                    side: 'x', ang, dir,
-                    val: map[cell.y] != undefined
-                        && map[cell.y][cell.x] != undefined
-                        ? map[cell.y][cell.x] : 0
-                }
-            }
-            xsi.x += dir.x
-            xsi.y += dy
-        }
-        while (abs(pos.y - ysi.y) <= abs(pos.y - xsi.y)) {
-            cell.y += dir.y
-            if (map[cell.y] == undefined
-                || map[cell.y][cell.x] != 0) {
-                return {
-                    dst: Math.hypot(pos.x - ysi.x, pos.y - ysi.y),
-                    x: ysi.x, y: ysi.y,
-                    side: 'y', ang, dir,
-                    val: map[cell.y] != undefined
-                        && map[cell.y][cell.x] != undefined
-                        ? map[cell.y][cell.x] : 0
-                }
-            }
-            ysi.x += dx
-            ysi.y += dir.y
-        }
-    }
-}
-
-function angToDir(ang) {
-    let y = Math.floor(ang / 180) % 2 ? 1 : -1
-    let x = Math.floor((ang - 90) / 180) % 2 ? 1 : -1
-    return { x, y }
-}
 
 // Cellular automata functions
 
@@ -926,18 +381,7 @@ function countWallNeighbors(arr, i, j) {
 }
 
 
-// Matrix functions
-
-function getCell(x1, y1, px = true) {
-    let x = Math.floor(px ? x1 / cls : x1)
-    let y = Math.floor(px ? y1 / cls : y1)
-    return { x, y }
-}
-
-function getCellVal(cell) {
-    if (map[cell.y] == undefined) return undefined
-    return map[cell.y][cell.x]
-}
+//
 
 function makeMap(arr = 0, r, c) {
     let mtrx = []
@@ -947,27 +391,4 @@ function makeMap(arr = 0, r, c) {
     mRows = mtrx.length
     mCols = mtrx[0].length
     return mtrx
-}
-
-function makeMatrix(r, c, p = 0) {
-    let mtrx = []
-    if (c == undefined) c = r;
-    for (let i = 0; i < r; i++) {
-        mtrx.push(new Array(c))
-        for (let j = 0; j < c; j++) {
-            if (p == 0 || p == 1) {
-                mtrx[i][j] = p
-            } else {
-                mtrx[i][j] = random() < p ? 1 : 0;
-            }
-        }
-    }
-    return mtrx
-}
-
-function copyMatrix(mtrx) {
-    let out = []
-    for (let i = 0; i < mtrx.length; i++)
-        out[i] = Array.from(mtrx[i])
-    return out
 }
