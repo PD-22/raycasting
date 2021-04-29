@@ -1,7 +1,10 @@
 import Sprite from "./Sprite.js";
+import Bullet from "./Bullet.js";
 import { getCell, getCellVal, makeMatrix, copyMatrix }
-    from "./Matrix.js"
-import { map } from "./sketch.js";
+    from "./Matrix.js";
+import { map } from "./data.js";
+import { normalAng } from "./angles.js";
+import { PlayerTextures } from "./data.js";
 
 export default class Player extends Sprite {
     constructor(x, y, ang = Math.floor(Math.random() * 360), speed = 1) {
@@ -18,6 +21,8 @@ export default class Player extends Sprite {
         if (this.me) this.aim = false;
         Player.all.push(this)
     }
+
+    static textures = PlayerTextures;
 
     delete() {
         super.delete();
@@ -56,7 +61,7 @@ export default class Player extends Sprite {
         let rad = Player.rad;
         x += rad * Math.cos(radians(ang));
         y += rad * -Math.sin(radians(ang));
-        new Bullet(x, y, ang, 0.25);
+        new Bullet(x, y, ang, 0.25, this);
     }
 
     rotate() {
@@ -127,7 +132,7 @@ export default class Player extends Sprite {
 
         // collision response (make another function?)
         this.getAdjCells().forEach((cell, i) => {
-            let cellVal = getCellVal(cell);
+            let cellVal = getCellVal(cell, map);
             let collision = this.checkCollision(cell);
             if (cellVal != 0 && collision != null) {
                 if (collision.type == 'side') {

@@ -3,7 +3,9 @@ export { rayBuff };
 
 import { fov } from "./sketch.js";
 import { angToDir } from "./angles.js";
-import { res } from "./render.js";
+import { res, setRes } from "./render.js";
+import { mCols, mRows } from "./Matrix.js";
+import { map } from "./data.js";
 
 export function castRay(pos, ang) {
     let cell = { x: Math.floor(pos.x), y: Math.floor(pos.y) }
@@ -55,9 +57,9 @@ export function castRay(pos, ang) {
 }
 
 export function castRays(pos, offAng, r = width) {
-    res.setRes(r);
+    setRes(r);
     rayBuff = []
-    let inc = fov / res.value
+    let inc = fov / res
     for (let ang = offAng - fov / 2; ang < offAng + fov / 2; ang += inc) {
         let its = castRay(pos, ang)
         rayBuff.unshift(its)

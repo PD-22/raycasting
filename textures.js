@@ -4,7 +4,7 @@ export function multClr(color, m = 1) {
     let clr = Array.from(color)
     for (let i = 0; i < clr.length; i++) {
         clr[i] *= m
-        clr[i] = floor(clr[i])
+        clr[i] = Math.floor(clr[i])
     }
     return clr
 }

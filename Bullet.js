@@ -1,6 +1,9 @@
 import Sprite from "./Sprite.js";
+import Player from "./Player.js";
 import { getCell, getCellVal, makeMatrix, copyMatrix }
     from "./Matrix.js";
+import { pl0 } from "./sketch.js";
+import { map } from "./data.js";
 
 export default class Bullet extends Sprite {
     constructor(x, y, ang = pl0.ang, spd = 0, plr = pl0, txtr = Bullet.texture) {
@@ -38,7 +41,6 @@ export default class Bullet extends Sprite {
         let vy = this.speed * -Math.sin(radians(this.ang));
         this.pos.x += vx;
         this.pos.y += vy;
-
     }
 
     static all = []
@@ -46,7 +48,7 @@ export default class Bullet extends Sprite {
     checkWall() {
         let { x, y } = this.pos;
         let cell = getCell(x, y, false);
-        let val = getCellVal(cell);
+        let val = getCellVal(cell, map);
         let inWall = val != 0;
         return inWall ? cell : null;
     }

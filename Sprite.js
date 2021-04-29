@@ -3,6 +3,7 @@ import { normalAng, angToDir } from "./angles.js";
 import { calcColHeight } from "./render.js";
 import { pxl } from "./render.js";
 import { rayBuff } from "./rayCasting.js";
+import { drawTextureCol } from "./render.js";
 
 export default class Sprite {
     constructor(x, y, texture) {
