@@ -5,8 +5,8 @@ function getCell(x1, y1, px = true) {
 }
 
 function getCellVal(cell) {
-    if (map[cell.y] == undefined) return undefined
-    return map[cell.y][cell.x]
+    if (worldMap[cell.y] == undefined) return undefined
+    return worldMap[cell.y][cell.x]
 }
 
 function makeMap(arr = 0, r, c) {

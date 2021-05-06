@@ -23,7 +23,7 @@ function drawMap(pos, rayBuf, num = 5) {
     translate(drawOff.x, drawOff.y)
     // stroke(127)
     // strokeWeight(cls / 16)
-    drawMatrix(map, 0.8)
+    drawMatrix(worldMap, 0.8)
 
     // draw Players
     Player.all.forEach(p => {

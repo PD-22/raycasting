@@ -186,9 +186,9 @@ class Player extends Sprite {
     }
 
     static randPos() {
-        let spaces = copyMatrix(map)
+        let spaces = copyMatrix(worldMap)
         for (let i = 0; i < spaces.length; i++) {
-            for (let j = 0; j < map[0].length; j++) {
+            for (let j = 0; j < worldMap[0].length; j++) {
                 let ri = Math.floor(Math.random() * spaces.length)
                 let rj = Math.floor(Math.random() * spaces.length)
                 spaces[i][j] = { i: ri, j: rj }
@@ -199,11 +199,14 @@ class Player extends Sprite {
         for (let i = 0; i < spaces.length; i++) {
             for (let j = 0; j < spaces[0].length; j++) {
                 const c = spaces[i][j]
-                if (map[c.i][c.j] == 0) {
+                if (worldMap[c.i][c.j] == 0) {
                     return { y: 0.5 + c.i, x: 0.5 + c.j }
                 }
             }
         }
-        return { x: 0.5 + map.length / 2 + 0.5, y: 0.5 + map[0].length / 2 }
+        return {
+            x: 0.5 + worldMap.length / 2 + 0.5,
+            y: 0.5 + worldMap[0].length / 2
+        }
     }
 }

@@ -41,15 +41,15 @@ function castRay(pos, ang) {
     while (true) {
         while (abs(pos.x - xsi.x) <= abs(pos.x - ysi.x)) {
             cell.x += dir.x
-            if (map[cell.y] == undefined
-                || map[cell.y][cell.x] != 0) {
+            if (worldMap[cell.y] == undefined
+                || worldMap[cell.y][cell.x] != 0) {
                 return {
                     dst: Math.hypot(pos.x - xsi.x, pos.y - xsi.y),
                     x: xsi.x, y: xsi.y,
                     side: 'x', ang, dir,
-                    val: map[cell.y] != undefined
-                        && map[cell.y][cell.x] != undefined
-                        ? map[cell.y][cell.x] : 0
+                    val: worldMap[cell.y] != undefined
+                        && worldMap[cell.y][cell.x] != undefined
+                        ? worldMap[cell.y][cell.x] : 0
                 }
             }
             xsi.x += dir.x
@@ -57,15 +57,15 @@ function castRay(pos, ang) {
         }
         while (abs(pos.y - ysi.y) <= abs(pos.y - xsi.y)) {
             cell.y += dir.y
-            if (map[cell.y] == undefined
-                || map[cell.y][cell.x] != 0) {
+            if (worldMap[cell.y] == undefined
+                || worldMap[cell.y][cell.x] != 0) {
                 return {
                     dst: Math.hypot(pos.x - ysi.x, pos.y - ysi.y),
                     x: ysi.x, y: ysi.y,
                     side: 'y', ang, dir,
-                    val: map[cell.y] != undefined
-                        && map[cell.y][cell.x] != undefined
-                        ? map[cell.y][cell.x] : 0
+                    val: worldMap[cell.y] != undefined
+                        && worldMap[cell.y][cell.x] != undefined
+                        ? worldMap[cell.y][cell.x] : 0
                 }
             }
             ysi.x += dx
