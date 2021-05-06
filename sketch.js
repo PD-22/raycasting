@@ -1,5 +1,5 @@
 let width, height, mRows, mCols, cls, ratio, mapZoomed,
-    rayBuf, fov, renderMap, renderView, speed, res, mapOff, drawOff, pxl,
+    rayBuf, fov, worldMap, renderMap, renderView, speed, res, mapOff, drawOff, pxl,
     mx, my, ceilClr, floorClr, placeTxtrNum, plrTxtrs, pl0, pl1
 
 function setup() {
