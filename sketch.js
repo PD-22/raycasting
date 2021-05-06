@@ -1,6 +1,6 @@
 let width, height, mRows, mCols, cls, ratio, mapZoomed,
-    rayBuf, fov, worldMap, renderMap, renderView, speed, res, mapOff, drawOff, pxl,
-    mx, my, ceilClr, floorClr, placeTxtrNum, plrTxtrs, pl0, pl1
+    rayBuf, fov, worldMap, renderMap, renderView, res, mapOff, drawOff, pxl,
+    mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1
 
 function setup() {
     createMyCanvas()
