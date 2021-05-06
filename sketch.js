@@ -126,7 +126,7 @@ function mousePressed() {
         if (mouseOnMap()) {
             updateMouse()
             let cell = getCell(mx, my)
-            placeCell(map, cell, placeTxtrNum)
+            placeCell(worldMap, cell, placeTxtrNum)
         } else {
             renderMode(1)
         }
@@ -156,7 +156,7 @@ function mouseMoved() {
 function mouseDragged() {
     mouseMoved();
     if (renderMap)
-        placeCell(map, getCell(mx, my), placeTxtrNum)
+        placeCell(worldMap, getCell(mx, my), placeTxtrNum)
 }
 
 
