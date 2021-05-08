@@ -10,7 +10,8 @@ function setup() {
 
     // worldMap = makeMap(cellularAutomata(makeMatrix(48, 48, 0.45), 8));
     // loadTxtrs().then(ts => Player.textures = ts.map(t => wolfenFilter(t)));
-    // loadTxtrs().then(ts => wallTextures[1] = ts[0]);
+    // loadTxtrs().then(ts => wallTextures[1]=wallTextures[1] = ts[0]);
+    // Player.spawnMany(5);
 
     pl0 = new Player(6.5, 2.5, 0)
     pl1 = new Player(8.5, 3.5, 180 - 30)
