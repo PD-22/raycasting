@@ -31,9 +31,9 @@ class Player extends Sprite {
         if (!this.alive) {
             txtrSide = 4
         } else if (Math.abs(plrsAng) > 135) {
-            txtrSide = 3
+            txtrSide = 2
         } else if (Math.abs(plrsAng) > 45) {
-            txtrSide = plrsAng > 0 ? 1 : 2
+            txtrSide = plrsAng > 0 ? 1 : 3
         } else {
             txtrSide = 0
         }
