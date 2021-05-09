@@ -43,8 +43,8 @@ function drawTextureCol(its, i, h, w, txtr) {
     let cols = txtr[0].length
     let wcHeight = h / rows
 
+    let x = floor(txtrOff * cols)
     for (let y = 0; y < rows; y++) {
-        let x = floor(txtrOff * cols)
         // debbugger got txtrOff = 1 (length)
         let color = txtr[y][x]
         if (color < 0) continue

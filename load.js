@@ -42,8 +42,8 @@ function matrixFromImage(image) {
   let { data } = cx.getImageData(0, 0, width, height);
 
   for (let i = 0; i < data.length; i += 4) {
-    let [r, g, b] = data.slice(i, i + 3);
-    pixels.push([r, g, b]);
+    let rgba = Array.from(data.slice(i, i + 4));
+    pixels.push(rgba);
   }
 
   let matrix = new Array(height);
@@ -59,7 +59,7 @@ function matrixFromImage(image) {
 function wolfenFilter(txtr) {
   let filt = JSON.stringify([152, 0, 136]);
   return txtr.map(r => r.map(c => {
-    if (JSON.stringify(c) == filt) return -1;
+    if (JSON.stringify(c.slice(0, 3)) == filt) return -1;
     return c
   }))
 }
