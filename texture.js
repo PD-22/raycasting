@@ -1,6 +1,6 @@
 function multClr(color, m = 1) {
     let clr = Array.from(color)
-    for (let i = 0; i < clr.length; i++) {
+    for (let i = 0; i < 3; i++) {
         clr[i] *= m
         clr[i] = Math.floor(clr[i])
     }

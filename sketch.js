@@ -9,7 +9,7 @@ function setup() {
     worldMap = makeMap(myMap);
 
     // worldMap = makeMap(cellularAutomata(makeMatrix(48, 48, 0.45), 8));
-    // loadTxtrs().then(ts => Player.textures = ts.map(t => wolfenFilter(t)));
+    // loadTxtrs().then(ts => Player.textures = ts);
     // loadTxtrs().then(ts => wallTextures[1]=wallTextures[1] = ts[0]);
     // Player.spawnMany(5);
 
