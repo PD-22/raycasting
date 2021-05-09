@@ -27,16 +27,11 @@ class Player extends Sprite {
     }
 
     updateTexture(plrsAng) {
-        let txtrSide
-        if (!this.alive) {
-            txtrSide = 4
-        } else if (Math.abs(plrsAng) > 135) {
-            txtrSide = 2
-        } else if (Math.abs(plrsAng) > 45) {
-            txtrSide = plrsAng > 0 ? 1 : 3
-        } else {
-            txtrSide = 0
-        }
+        fill('red')
+        let length = Player.textures.length - 1;
+        let offAng = 180 / length;
+        let ang = (plrsAng + 360 + offAng) % 360;
+        let txtrSide = this.alive ? Math.floor(ang / 2 / offAng) : length;
         let txtr = Player.textures[txtrSide]
         this.texture = txtr
         return txtr
@@ -54,11 +49,14 @@ class Player extends Sprite {
         new Bullet(x, y, ang, 0.25);
     }
 
-    rotate() {
+    rotate(angD) {
         if (!this.alive) return
-        let angD = -normalAng(movedX * deltaTime / 110)
-        if (this.aim) angD /= 2;
+        if (angD == undefined) {
+            angD = -normalAng(movedX * deltaTime / 110)
+            if (this.aim) angD /= 2;
+        }
         this.ang += angD;
+        this.ang %= 360;
     }
 
     static spawnMany(n) {
