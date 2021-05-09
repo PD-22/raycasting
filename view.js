@@ -37,7 +37,7 @@ function drawTextureCol(its, i, h, w, txtr) {
     let txtrOff = its.txtrOff
         || getTxtrOff(its, its.side, its.dir)
 
-    if (txtrOff >= 1) throw new Error('txtrOff over max')
+    if (txtrOff >= 1) txtrOff %= 1;
 
     let rows = txtr.length
     let cols = txtr[0].length
