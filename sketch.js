@@ -50,7 +50,6 @@ function draw() {
             RIGHT_ARROW
         ]) // for testing
     }
-    Bullet.updateAll();
 
     // debugging...
     fill(0, 127);

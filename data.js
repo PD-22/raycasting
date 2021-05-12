@@ -3,11 +3,6 @@ Player.textures = wg_64;
 let wallTextures = randomTextures(10, 2);
 wallTextures[1] = myWallTexture;
 
-Bullet.texture = makeMatrix(16, 16).map((r, i) =>
-    r.map((c, j) => (i == 8 || i == 7) &&
-        (j == 8 || j == 7) ? [255, 255, 0] : -1));
-
-
 let myMap = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],

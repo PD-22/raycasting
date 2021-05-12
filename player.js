@@ -26,8 +26,7 @@ class Player extends Sprite {
 
     castRaySprt(pl0, rayAng = Player.all[0].ang, maxOff = 0.5) {
         let its = super.castRaySprt(pl0, rayAng, maxOff)
-        if (its != undefined)
-            this.updateTexture(its.plrsAng)
+        if (its != undefined) this.updateTexture(its.plrsAng)
         return its
     }
 
@@ -50,12 +49,12 @@ class Player extends Sprite {
 
     shoot() {
         if (!this.alive) return;
-        let { x, y } = this.pos;
-        let ang = this.ang;
-        let rad = Player.rad;
-        x += rad * Math.cos(radians(ang));
-        y += rad * -Math.sin(radians(ang));
-        new Bullet(x, y, ang, 0.25);
+        let shot = Player.all.filter(p => p != this && p.alive)
+            .map(p => ({ p, its: p.castRaySprt(this, this.ang, 1 / 6) }))
+            .filter(e => e.its != undefined)
+            .sort((a, b) => a.its.dst - b.its.dst)
+            .map(e => e.p);
+        shot.forEach(p => p.alive = false);
     }
 
     rotate(angD) {
