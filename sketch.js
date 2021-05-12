@@ -1,3 +1,7 @@
+/* 
+    fix render pixel height
+*/
+
 let width, height, mRows, mCols, cls, ratio, mapZoomed,
     rayBuf, fov, worldMap, renderMap, renderView, res, mapOff, drawOff, pxl,
     mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1

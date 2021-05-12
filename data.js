@@ -1,12 +1,7 @@
-let soldierTxtrs = [];
-for (i = 1; i <= 50; i++)
-    (i => loadTxtr_src(`./textures/wg_64/${i}.png`)
-        .then(txtr => soldierTxtrs[i - 1] = txtr))(i)
-Player.textures = soldierTxtrs;
+Player.textures = wg_64;
 
 let wallTextures = randomTextures(10, 2);
-loadTxtr_src(`./textures/wall.png`)
-    .then(txtr => wallTextures[1] = txtr)
+wallTextures[1] = myWallTexture;
 
 Bullet.texture = makeMatrix(16, 16).map((r, i) =>
     r.map((c, j) => (i == 8 || i == 7) &&
