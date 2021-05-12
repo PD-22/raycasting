@@ -3,7 +3,7 @@
 */
 
 let width, height, mRows, mCols, cls, ratio, mapZoomed,
-    rayBuf, fov, worldMap, renderMap, renderView, res, mapOff, drawOff, pxl,
+    rayBuf, fov, worldMap, renderMap, renderView, mapOff, drawOff, pxl,
     mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1
 
 function setup() {
@@ -21,7 +21,7 @@ function setup() {
     pl1 = new Player(8.5, 3.5, 180 - 30)
     Player.spawnMany(5);
     fov = 90
-    res = width / 4
+    pxl = 4
     mapZoomed = false
     fitMap()
     mapOff = getMapOff()
@@ -36,7 +36,7 @@ function setup() {
 
 
 function draw() {
-    rayBuf = castRays(pl0.pos, pl0.ang, res)
+    rayBuf = castRays(pl0.pos, pl0.ang)
     if (renderView) drawView(pl0.pos, rayBuf)
     if (renderMap) drawMap(pl0.pos, rayBuf)
     fill(0, 127)
@@ -52,15 +52,15 @@ function draw() {
     }
 
     // debugging...
-    fill(0, 127);
-    rect(width / 5 - 20, height / 2 - 20, 150, 75)
-    fill('white');
-    text(`dir: ${pl1.dir.x} ${pl1.dir.y}`, width / 5, height / 2);
-    text(`txtrIndex: ${pl1.txtrIndex}`, width / 5, height / 2 + 15);
-    text(`txtrIndexOff: ${(pl1.txtrIndexOff).toFixed(2)}`,
-        width / 5, height / 2 + 30);
-    text(`txtrAnimationOff: ${(pl1.animationOff).toFixed(2)}`,
-        width / 5, height / 2 + 45);
+    // fill(0, 127);
+    // rect(width / 5 - 20, height / 2 - 20, 150, 75)
+    // fill('white');
+    // text(`dir: ${pl1.dir.x} ${pl1.dir.y}`, width / 5, height / 2);
+    // text(`txtrIndex: ${pl1.txtrIndex}`, width / 5, height / 2 + 15);
+    // text(`txtrIndexOff: ${(pl1.txtrIndexOff).toFixed(2)}`,
+    //     width / 5, height / 2 + 30);
+    // text(`txtrAnimationOff: ${(pl1.animationOff).toFixed(2)}`,
+    //     width / 5, height / 2 + 45);
 }
 
 function pointerLocked() {

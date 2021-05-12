@@ -25,7 +25,7 @@ class Sprite {
             .sort((a, b) => b.its.dst - a.its.dst)
             .forEach(e => {
                 let hPlr = calcColHeight(e.its)
-                drawTextureCol(e.its, i, hPlr, pxl, e.s.texture)
+                drawTextureCol(e.its, i, hPlr, e.s.texture)
             });
     }
 
