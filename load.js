@@ -1,4 +1,4 @@
-function loadTxtr_src(src) {
+function loadTxtrs_src(src) {
   return new Promise(res => {
     let image = document.createElement('img');
     image.src = src;
@@ -6,7 +6,7 @@ function loadTxtr_src(src) {
   })
 }
 
-function loadTxtr_sel() {
+function loadTxtrs_sel() {
   let input = document.createElement('input');
   document.body.appendChild(input);
   input.setAttribute('type', 'file');
