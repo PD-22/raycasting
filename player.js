@@ -7,7 +7,12 @@ class Player extends Sprite {
         }
         super(x, y, Player.textures[0])
         this.ang = ang
-        this.speed = speed
+        this.speed = speed;
+        this.txtrIndex = 0;
+        this.txtrIndexOff = 0;
+        this.animationOff = 0;
+        this.dir = { x: 0, y: 0 };
+        this.vel = { x: 0, y: 0 };
         this.alive = true
         this.me = Player.all.length == 0
         if (this.me) this.aim = false;
@@ -29,10 +34,14 @@ class Player extends Sprite {
     updateTexture(plrsAng) {
         fill('red')
         let length = Player.textures.length - 1;
-        let offAng = 180 / length;
+        let offAng = 180 / 8;
         let ang = (plrsAng + 360 + offAng) % 360;
-        let txtrSide = this.alive ? Math.floor(ang / 2 / offAng) : length;
-        let txtr = Player.textures[txtrSide]
+        let txtrSide = this.alive ?
+            Math.floor(ang / 2 / offAng) : 46;
+        let txtrIndex = Math.floor(txtrSide + this.txtrIndexOff);
+        if (txtrIndex > length) txtrIndex = length;
+        this.txtrIndex = txtrIndex;
+        let txtr = Player.textures[this.txtrIndex];
         this.texture = txtr
         return txtr
     }
@@ -65,8 +74,21 @@ class Player extends Sprite {
 
     static rad = 1 / 4;
 
-    move(forward, left, back, right) {
-        if (!this.alive) return
+    // affects animation forwardSpeed
+    updateAnimation() {
+        if (this.dir.x || this.dir.y) {
+            let animationOff = Math.floor(this.animationOff) * 8;
+            this.txtrIndexOff = 8 + animationOff;
+            this.animationOff =
+                (this.animationOff + deltaTime / 160) % 4;
+        } else {
+            this.txtrIndexOff = 0;
+        }
+    }
+
+    updateVelocity(keys) {
+        if (!this.alive || !keys) return
+        let [forward, left, back, right] = keys;
         let dir = { x: 0, y: 0 }
         let vel = { x: 0, y: 0 }
 
@@ -74,6 +96,8 @@ class Player extends Sprite {
         if (keyIsDown(left)) dir.x = -1
         if (keyIsDown(back)) dir.y = 1
         if (keyIsDown(right)) dir.x = 1
+
+        this.dir = { x: dir.x, y: - dir.y };
 
         if (dir.y == -1) {
             vel.y += -sin(radians(this.ang))
@@ -114,11 +138,22 @@ class Player extends Sprite {
             vel.y *= 2
         }
 
+        this.vel = vel;
+    }
 
-        this.pos.x += vel.x;
-        this.pos.y += vel.y;
+    updatePosition() {
+        this.pos.x += this.vel.x;
+        this.pos.y += this.vel.y;
+    }
 
-        // collision response (make another function?)
+    update(keys = undefined) {
+        this.updateAnimation();
+        this.updateVelocity(keys);
+        this.respondToCollision();
+        this.updatePosition();
+    }
+
+    respondToCollision() {
         this.getAdjCells().forEach((cell, i) => {
             let cellVal = getCellVal(cell);
             let collision = this.checkCollision(cell);

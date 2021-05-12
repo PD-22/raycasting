@@ -1,4 +1,12 @@
-function loadTxtrs() {
+function loadTxtr_src(src) {
+  return new Promise(res => {
+    let image = document.createElement('img');
+    image.src = src;
+    image.onload = () => res(matrixFromImage(image))
+  })
+}
+
+function loadTxtr_sel() {
   let input = document.createElement('input');
   document.body.appendChild(input);
   input.setAttribute('type', 'file');

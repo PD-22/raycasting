@@ -38,10 +38,26 @@ function draw() {
     fill(0, 127)
     if (!pl0.alive) rect(0, 0, width, height)
     if (pointerLocked()) {
-        pl0.move(87, 65, 83, 68)
-        pl1.move(UP_ARROW, LEFT_ARROW, DOWN_ARROW, RIGHT_ARROW) // for testings
+        pl0.update([87, 65, 83, 68])
+        pl1.update([
+            UP_ARROW,
+            LEFT_ARROW,
+            DOWN_ARROW,
+            RIGHT_ARROW
+        ]) // for testing
     }
     Bullet.updateAll();
+
+    // debugging...
+    fill(0, 127);
+    rect(width / 5 - 20, height / 2 - 20, 150, 75)
+    fill('white');
+    text(`dir: ${pl1.dir.x} ${pl1.dir.y}`, width / 5, height / 2);
+    text(`txtrIndex: ${pl1.txtrIndex}`, width / 5, height / 2 + 15);
+    text(`txtrIndexOff: ${(pl1.txtrIndexOff).toFixed(2)}`,
+        width / 5, height / 2 + 30);
+    text(`txtrAnimationOff: ${(pl1.animationOff).toFixed(2)}`,
+        width / 5, height / 2 + 45);
 }
 
 function pointerLocked() {
