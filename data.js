@@ -2,14 +2,16 @@ let soldierTxtrs = [];
 for (i = 1; i <= 50; i++)
     (i => loadTxtr_src(`./textures/wg_64/${i}.png`)
         .then(txtr => soldierTxtrs[i - 1] = txtr))(i)
+Player.textures = soldierTxtrs;
 
 let wallTextures = randomTextures(10, 2);
+loadTxtr_src(`./textures/wall.png`)
+    .then(txtr => wallTextures[1] = txtr)
 
 Bullet.texture = makeMatrix(16, 16).map((r, i) =>
     r.map((c, j) => (i == 8 || i == 7) &&
         (j == 8 || j == 7) ? [255, 255, 0] : -1));
 
-Player.textures = soldierTxtrs;
 
 let myMap = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],

@@ -74,13 +74,14 @@ class Player extends Sprite {
 
     static rad = 1 / 4;
 
-    // affects animation forwardSpeed
     updateAnimation() {
         if (this.dir.x || this.dir.y) {
             let animationOff = Math.floor(this.animationOff) * 8;
             this.txtrIndexOff = 8 + animationOff;
             this.animationOff =
-                (this.animationOff + deltaTime / 160) % 4;
+                (this.animationOff - deltaTime / 160) % 4;
+            if (this.animationOff < 0)
+                this.animationOff += 4;
         } else {
             this.txtrIndexOff = 0;
         }
@@ -149,8 +150,8 @@ class Player extends Sprite {
     update(keys = undefined) {
         this.updateAnimation();
         this.updateVelocity(keys);
-        this.respondToCollision();
         this.updatePosition();
+        this.respondToCollision();
     }
 
     respondToCollision() {
