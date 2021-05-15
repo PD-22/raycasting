@@ -8,7 +8,7 @@ function drawView(rayBuf) {
     //     push()
     //     // stroke('purple');
     //     let h = calcColHeight(its)
-    //     // drawTextureCol(its, i, h, wallTextures[its.val])
+    //     drawTextureCol(its, i, h, wallTextures[its.val])
     //     // Sprite.castAll(its.dst, i)
     //     pop()
     // })
@@ -16,17 +16,18 @@ function drawView(rayBuf) {
 
 let tempStat = 0;
 
-// function drawBackground() {
-//     updateDisplayBuf((x, y) =>
-//         y < 9 * 5 / 2 ?
-//             ceilClr : floorClr
-//     )
-// }
+function drawBackground() {
+    push();
+    fill(ceilClr);
+    rect(0, 0, width, height / 2);
+    fill(floorClr);
+    rect(0, height / 2, width, height);
+    pop();
+}
 
 function calcColHeight(its) {
-    let p = its.dst * cos(radians(pl0.ang - its.ang))
-    let h = snapGrid(height / p);
-    return h
+    let p = its.dst * cos(radians(pl0.ang - its.ang));
+    return displayHeight / p;
 }
 
 function makeDisplayBuf() {
@@ -38,12 +39,48 @@ function makeDisplayBuf() {
             .map(() => randomColor()));
 }
 
-function updateDisplayBuf() {
+/* function updateDisplayBuf() {
     return displayBuf.map((row, y) => row.map((color, x) =>
         // color
         Math.random() < 1e-3 ?
             randomColor() : color
     ))
+} */
+
+function getTxtrOff(its) {
+    if (side == 'x') {
+        if (dir.x > 0) {
+            return its.y % 1
+        } else {
+            return (mRows - its.y) % 1
+        }
+    } else if (side == 'y') {
+        if (dir.y < 0) {
+            return its.x % 1
+        } else {
+            return (mCols - its.x) % 1
+        }
+    }
+}
+
+function updateDisplayBuf() {
+    let copyDisplayBuf = displayBuf.map(row => [...row]);
+    for (let x = 0; x < displayWidth; x++) {
+        let ray = rayBuf[x];
+        let h = calcColHeight(ray);
+        for (let y = 0; y < displayHeight; y++) {
+            let color;
+            if (y > (displayHeight - h) / 2 &&
+                y < (displayHeight + h) / 2) {
+                color = '#ff0000';
+                if (ray.side == 'y')
+                    color = multColor(color, 0.5);
+            }
+            else color = '#000000';
+            copyDisplayBuf[y][x] = color;
+        }
+    }
+    return copyDisplayBuf;
 }
 
 function drawDisplay() {
@@ -114,5 +151,3 @@ function drawDisplay() {
     }
 
 } */
-
-function snapGrid(x) { return Math.round(x / pxl) * pxl }; // temp?

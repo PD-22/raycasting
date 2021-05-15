@@ -1,11 +1,25 @@
-function multClr(color, m = 1) {
-    let clr = Array.from(color)
-    for (let i = 0; i < 3; i++) {
-        clr[i] *= m
-        clr[i] = Math.floor(clr[i]);
-        clr[i] %= 255;
-    }
-    return clr
+function multColor(hexColor, m) {
+    let rgb = hexToRgb(hexColor);
+    let newRgb = rgb.map(color => {
+        let newColor = Math.round(color * m);
+        if (newColor > 255) newColor = 255;
+        return newColor
+    });
+    return rgbToHex(newRgb);
+}
+
+function hexToRgb(hex) {
+    let color = hex.slice(1);
+    let red = parseInt(color.slice(0, 2), 16);
+    let green = parseInt(color.slice(2, 4), 16);
+    let blue = parseInt(color.slice(4, 6), 16);
+    return [red, green, blue];
+}
+
+function rgbToHex(rgb) {
+    let colorToHex = num => num
+        .toString(16).padStart(2, 0);
+    return `#${rgb.map(colorToHex).join('')}`;
 }
 
 function randomTextures(n, r, c) {

@@ -8,22 +8,6 @@ function castRays(pos, offAng) {
     return rayBuf
 }
 
-function getTxtrOff(its, side, dir) {
-    if (side == 'x') {
-        if (dir.x > 0) {
-            return its.y % 1
-        } else {
-            return (mRows - its.y) % 1
-        }
-    } else if (side == 'y') {
-        if (dir.y < 0) {
-            return its.x % 1
-        } else {
-            return (mCols - its.x) % 1
-        }
-    }
-}
-
 function castRay(pos, ang) {
     let cell = { x: Math.floor(pos.x), y: Math.floor(pos.y) }
     let off = { x: pos.x - cell.x, y: pos.y - cell.y }

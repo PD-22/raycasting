@@ -1,5 +1,6 @@
 /* 
-    fix render pixel height
+    fix pixel border
+    switching to hex color
 */
 
 let width, height, mRows, mCols, cls, ratio, mapZoomed,
