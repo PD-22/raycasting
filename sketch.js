@@ -39,8 +39,10 @@ function draw() {
     rayBuf = castRays(pl0.pos, pl0.ang)
     if (renderView) drawView(pl0.pos, rayBuf)
     if (renderMap) drawMap(pl0.pos, rayBuf)
-    fill(0, 127)
-    if (!pl0.alive) rect(0, 0, width, height)
+    if (!pl0.alive) {
+        fill(0, 127);
+        rect(0, 0, width, height);
+    }
     if (pointerLocked()) {
         pl0.update([87, 65, 83, 68])
         pl1.update([
@@ -51,16 +53,11 @@ function draw() {
         ]) // for testing
     }
 
-    // debugging...
-    // fill(0, 127);
-    // rect(width / 5 - 20, height / 2 - 20, 150, 75)
-    // fill('white');
-    // text(`dir: ${pl1.dir.x} ${pl1.dir.y}`, width / 5, height / 2);
-    // text(`txtrIndex: ${pl1.txtrIndex}`, width / 5, height / 2 + 15);
-    // text(`txtrIndexOff: ${(pl1.txtrIndexOff).toFixed(2)}`,
-    //     width / 5, height / 2 + 30);
-    // text(`txtrAnimationOff: ${(pl1.animationOff).toFixed(2)}`,
-    //     width / 5, height / 2 + 45);
+    // show FPS
+    fill(0, 127);
+    rect(0, 0, 85, 30)
+    fill('white');
+    text(`FPS: ${(1000 / deltaTime).toFixed(2)}`, 10, 20);
 }
 
 function pointerLocked() {
@@ -69,6 +66,15 @@ function pointerLocked() {
 
 
 // other functions
+
+function updateMouse() {
+    mx = mouseX - mapOff.x
+    my = mouseY - mapOff.y
+    if (mapZoomed) {
+        mx += (pl0.pos.x - mCols / 2) * cls
+        my += (pl0.pos.y - mRows / 2) * cls
+    }
+}
 
 function createMyCanvas() {
     ratio = window.screen.height / window.screen.width
@@ -173,16 +179,4 @@ function mouseDragged() {
     mouseMoved();
     if (renderMap)
         placeCell(worldMap, getCell(mx, my), placeTxtrNum)
-}
-
-
-// Update functions
-
-function updateMouse() {
-    mx = mouseX - mapOff.x
-    my = mouseY - mapOff.y
-    if (mapZoomed) {
-        mx += (pl0.pos.x - mCols / 2) * cls
-        my += (pl0.pos.y - mRows / 2) * cls
-    }
 }
