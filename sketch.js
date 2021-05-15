@@ -3,8 +3,9 @@
 */
 
 let width, height, mRows, mCols, cls, ratio, mapZoomed,
-    rayBuf, fov, worldMap, renderMap, renderView, mapOff, drawOff, pxl,
-    mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1
+    rayBuf, fov, worldMap, renderMap, renderView, mapOff, drawOff,
+    mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1,
+    displayBuf, displayWidth, previousDisplayBuf
 
 function setup() {
     createMyCanvas()
@@ -21,18 +22,23 @@ function setup() {
     pl1 = new Player(8.5, 3.5, 180 - 30)
     Player.spawnMany(5);
     fov = 90
-    pxl = 4
+    displayWidth = 160;
+    displayHeight = Math.floor(displayWidth / 16 * 9);
     mapZoomed = false
     fitMap()
     mapOff = getMapOff()
     drawOff = getDrawMapOff()
-    ceilClr = 'lightBlue'
-    floorClr = 'lightGreen'
+    ceilClr = [173, 216, 230];
+    floorClr = [144, 238, 144];
     placeTxtrNum = 0
 
     renderMap = false
     renderView = true
+
+    makeDisplayBuf();
+    tempStatStart = Date.now();
 }
+let tempStatStart;
 
 
 function draw() {
@@ -53,11 +59,14 @@ function draw() {
         ]) // for testing
     }
 
-    // show FPS
-    fill(0, 127);
-    rect(0, 0, 65, 30)
+    // debugging
+    push();
+    fill(0);
+    translate(0, height - 30);
+    rect(0, 0, 80, 30)
     fill('white');
     text(`FPS: ${Math.round(1000 / deltaTime)}`, 10, 20);
+    pop()
 }
 
 function pointerLocked() {

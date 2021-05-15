@@ -1,32 +1,27 @@
 function drawView(rayBuf) {
-    noStroke()
-    push()
-    fill(ceilClr)
-    rect(0, 0, width, height / 2)
-    fill(floorClr)
-    rect(0, height / 2, width, height / 2)
-    pop()
+    // drawBackground();
 
-    rayBuf.forEach((its, i) => {
-        push()
-        // stroke('purple');
-        let h = calcColHeight(its)
-        drawTextureCol(its, i, h, wallTextures[its.val])
-        // Sprite.castAll(its.dst, i)
-        pop()
-    })
+    displayBuf = updateDisplayBuf();
+    drawDisplay(displayBuf);
 
-    // aim dot
-    push()
-    let r = width / 100
-    r -= r / 4 * pl0.aim
-    stroke(0)
-    strokeWeight(r / 4)
-    fill(255)
-    rectMode(CENTER)
-    square(width / 2, height / 2, r)
-    pop()
+    // rayBuf.forEach((its, i) => {
+    //     push()
+    //     // stroke('purple');
+    //     let h = calcColHeight(its)
+    //     // drawTextureCol(its, i, h, wallTextures[its.val])
+    //     // Sprite.castAll(its.dst, i)
+    //     pop()
+    // })
 }
+
+let tempStat = 0;
+
+// function drawBackground() {
+//     updateDisplayBuf((x, y) =>
+//         y < 9 * 5 / 2 ?
+//             ceilClr : floorClr
+//     )
+// }
 
 function calcColHeight(its) {
     let p = its.dst * cos(radians(pl0.ang - its.ang))
@@ -34,7 +29,37 @@ function calcColHeight(its) {
     return h
 }
 
-function drawTextureCol(its, i, h, txtr) {
+function makeDisplayBuf() {
+    // temp resolution
+    let rows = displayWidth / 16 * 9;
+    rows = Math.floor(rows);
+    displayBuf = Array(rows).fill()
+        .map(() => Array(displayWidth).fill()
+            .map(() => randomColor()));
+}
+
+function updateDisplayBuf() {
+    return displayBuf.map((row, y) => row.map((color, x) =>
+        // color
+        Math.random() < 1e-3 ?
+            randomColor() : color
+    ))
+}
+
+function drawDisplay() {
+    push();
+    noStroke();
+    scale(width / displayWidth);
+    displayBuf.forEach((row, y) => row.forEach((color, x) => {
+        if (previousDisplayBuf?.[y][x] == color) return;
+        fill(color);
+        square(x, y, 1);
+    }))
+    pop();
+    previousDisplayBuf = displayBuf.map(row => [...row]);
+}
+
+/* function drawTextureCol(its, i, h, txtr) {
     let txtrOff = its.txtrOff
         || getTxtrOff(its, its.side, its.dir)
 
@@ -57,37 +82,37 @@ function drawTextureCol(its, i, h, txtr) {
             pxl, wcHeight + 0.5
         )
     }
-}
+} */
 
-// function drawTextureCol(its, i, h, txtr) {
-//     let txtrOff = its.txtrOff
-//         || getTxtrOff(its, its.side, its.dir)
-//     txtrOff %= 1;
+/* function drawTextureCol(its, i, h, txtr) {
+    let txtrOff = its.txtrOff
+        || getTxtrOff(its, its.side, its.dir)
+    txtrOff %= 1;
 
-//     let rows = txtr.length
-//     let cols = txtr[0].length
+    let rows = txtr.length
+    let cols = txtr[0].length
 
-//     let x = floor(txtrOff * cols)
+    let x = floor(txtrOff * cols)
 
-//     let yStart = snapGrid((height - h) / 2);
-//     let yEnd = snapGrid((height + h) / 2);
+    let yStart = snapGrid((height - h) / 2);
+    let yEnd = snapGrid((height + h) / 2);
 
-//     for (y = yStart; y < yEnd; y += pxl) {
-//         let color;
-//         let yTxtr = Math.floor((y - yStart) * rows / h);
-//         color = txtr[yTxtr][x];
+    for (y = yStart; y < yEnd; y += pxl) {
+        let color;
+        let yTxtr = Math.floor((y - yStart) * rows / h);
+        color = txtr[yTxtr][x];
 
-//         if (color < 0) continue
-//         if (its.side == 'y')
-//             color = multClr(color, 0.8)
+        if (color < 0) continue
+        if (its.side == 'y')
+            color = multClr(color, 0.8)
 
-//         fill(color)
-//         rect(
-//             i * pxl, y,
-//             pxl, pxl
-//         );
-//     }
+        fill(color)
+        rect(
+            i * pxl, y,
+            pxl, pxl
+        );
+    }
 
-// }
+} */
 
-function snapGrid(x) { return Math.round(x / pxl) * pxl };
+function snapGrid(x) { return Math.round(x / pxl) * pxl }; // temp?

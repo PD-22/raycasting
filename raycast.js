@@ -1,6 +1,6 @@
 function castRays(pos, offAng) {
     rayBuf = []
-    let inc = fov * pxl / width;
+    let inc = fov / displayWidth;
     for (let ang = offAng - fov / 2; ang < offAng + fov / 2; ang += inc) {
         let its = castRay(pos, ang)
         rayBuf.unshift(its)
