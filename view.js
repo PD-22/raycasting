@@ -1,4 +1,4 @@
-function drawView(pos, rayBuf) {
+function drawView(rayBuf) {
     noStroke()
     push()
     fill(ceilClr)
@@ -12,7 +12,7 @@ function drawView(pos, rayBuf) {
         // stroke('purple');
         let h = calcColHeight(its)
         drawTextureCol(its, i, h, wallTextures[its.val])
-        Sprite.castAll(its.dst, i)
+        // Sprite.castAll(its.dst, i)
         pop()
     })
 

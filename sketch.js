@@ -37,8 +37,8 @@ function setup() {
 
 function draw() {
     rayBuf = castRays(pl0.pos, pl0.ang)
-    if (renderView) drawView(pl0.pos, rayBuf)
-    if (renderMap) drawMap(pl0.pos, rayBuf)
+    if (renderView) drawView(rayBuf);
+    if (renderMap) drawMap(rayBuf);
     if (!pl0.alive) {
         fill(0, 127);
         rect(0, 0, width, height);
@@ -55,9 +55,9 @@ function draw() {
 
     // show FPS
     fill(0, 127);
-    rect(0, 0, 85, 30)
+    rect(0, 0, 65, 30)
     fill('white');
-    text(`FPS: ${(1000 / deltaTime).toFixed(2)}`, 10, 20);
+    text(`FPS: ${Math.round(1000 / deltaTime)}`, 10, 20);
 }
 
 function pointerLocked() {

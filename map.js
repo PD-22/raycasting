@@ -17,7 +17,7 @@ function getMapOff() {
     }
 }
 
-function drawMap(pos, rayBuf, num = 5) {
+function drawMap(rayBuf, num = 5) {
     push()
     drawOff = getDrawMapOff()
     translate(drawOff.x, drawOff.y)
@@ -43,6 +43,7 @@ function drawMap(pos, rayBuf, num = 5) {
     // draw view rays
     let inc = (rayBuf.length - 1) / (num - 1)
     for (let i = 0; i < rayBuf.length; i += inc) {
+        let { pos } = Player.me;
         stroke(255, 0, 0, 222)
         strokeWeight(cls / 16)
         let ray = rayBuf[Math.floor(i)]

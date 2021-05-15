@@ -19,6 +19,10 @@ class Player extends Sprite {
         Player.all.push(this)
     }
 
+    static get me() {
+        return Player.all.find(p => p.me);
+    }
+
     delete() {
         super.delete();
         super.delete.call(this, this.constructor);
