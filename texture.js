@@ -1,4 +1,5 @@
 function multColor(hexColor, m) {
+    if (hexColor == -1) return hexColor;
     let rgb = hexToRgb(hexColor);
     let newRgb = rgb.map(color => {
         let newColor = Math.round(color * m);
