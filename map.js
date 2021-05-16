@@ -1,19 +1,19 @@
 function fitMap() { // should depend on resolution
-    cls = height / mRows
+    cls = height / mapHeight;
 }
 
 function getDrawMapOff() {
-    if (cls * mCols > width || cls * mRows > height) {
+    if (cls * mapWidth > width || cls * mapHeight > height) {
         return {
-            x: mapOff.x - (pl0.pos.x - mCols / 2) * cls,
-            y: mapOff.y - (pl0.pos.y - mRows / 2) * cls
+            x: mapOff.x - (pl0.pos.x - mapWidth / 2) * cls,
+            y: mapOff.y - (pl0.pos.y - mapHeight / 2) * cls
         }
     } else return { x: mapOff.x, y: mapOff.y }
 }
 function getMapOff() {
     return {
-        x: (width - mCols * cls) / 2,
-        y: (height - mRows * cls) / 2
+        x: (width - mapWidth * cls) / 2,
+        y: (height - mapHeight * cls) / 2
     }
 }
 
@@ -59,14 +59,14 @@ function drawMatrix(mtrx, t = 1) {
     let xMin = 0
     let xMax = mtrx[0].length
     if (drawOff.x < 0) xMin -= floor(drawOff.x / cls) + 1
-    let rightOff = drawOff.x + cls * mCols - width
+    let rightOff = drawOff.x + cls * mapWidth - width
     xMax -= floor(rightOff / cls)
     if (xMax > mtrx[0].length) xMax = mtrx[0].length
 
     let yMin = 0
     let yMax = mtrx.length
     if (drawOff.y < 0) yMin -= floor(drawOff.y / cls) + 1
-    let bottomOff = drawOff.y + cls * mRows - height
+    let bottomOff = drawOff.y + cls * mapHeight - height
     yMax -= floor(bottomOff / cls)
     if (yMax > mtrx[0].length) yMax = mtrx.length
 

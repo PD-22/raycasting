@@ -17,6 +17,7 @@ function hexToRgb(hex) {
 }
 
 function rgbToHex(rgb) {
+    if (rgb?.[3] == 0) return -1;
     rgb = rgb.slice(0, 3);
     let colorToHex = num => num
         .toString(16).padStart(2, 0);
@@ -54,9 +55,7 @@ function randomTexture(r, c) {
 }
 
 function randomColor() {
-    return [
-        Math.floor(Math.random() * 256),
-        Math.floor(Math.random() * 256),
-        Math.floor(Math.random() * 256),
-    ]
+    let color = Array(3).fill().map(() =>
+        Math.floor(Math.random() * 256));
+    return rgbToHex(color);
 }

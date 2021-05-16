@@ -24,7 +24,7 @@ class Sprite {
             .filter(e => e.its != undefined && e.its.dst < wallDst && e.s.me != true)
             .sort((a, b) => b.its.dst - a.its.dst)
             .forEach(e => {
-                let hPlr = calcColHeight(e.its)
+                let hPlr = calcLineHeight(e.its)
                 drawTextureCol(e.its, i, hPlr, e.s.texture)
             });
     }

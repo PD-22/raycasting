@@ -14,8 +14,8 @@ function makeMap(arr = 0, r, c) {
     if (arr == 0) {
         mtrx = makeMatrix(r, c, 0)
     } else mtrx = arr
-    mRows = mtrx.length
-    mCols = mtrx[0].length
+    mapHeight = mtrx.length
+    mapWidth = mtrx[0].length
     return mtrx
 }
 

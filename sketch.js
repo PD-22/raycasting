@@ -1,29 +1,26 @@
-// typed arrays are faster
-// hex colors are faster
-// fix displayBuffer texel
+// typed arrays are fast
+// add sprite render
 
 let width, height, mapHeight, mapWidth, cls, ratio, mapZoomed,
     rayBuf, fov, worldMap, renderMap, renderView, mapOff, drawOff,
     mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1,
-    displayBuf, displayWidth, previousDisplayBuf
+    displayBuf, previousDisplayBuf, displayWidth, displayHeight, displayScale
 
 function setup() {
+    displayWidth = 160;
+    displayHeight = Math.floor(displayWidth * 9 / 16);
     createMyCanvas()
     background('gray')
 
     worldMap = makeMap(myMap);
 
     // worldMap = makeMap(cellularAutomata(makeMatrix(48, 48, 0.45), 8));
-    // loadTxtrs().then(ts => Player.textures = ts);
-    // loadTxtrs().then(ts => wallTextures[1]=wallTextures[1] = ts[0]);
     // Player.spawnMany(5);
 
-    pl0 = new Player(4.5, 7.5, -180)
+    pl0 = new Player(4.5 - 0.01, 7.5 - 0.01, -180)
     pl1 = new Player(8.5, 3.5, 180 - 30)
     Player.spawnMany(5);
     fov = 90
-    displayWidth = 160;
-    displayHeight = Math.floor(displayWidth / 16 * 9);
     mapZoomed = false
     fitMap()
     mapOff = getMapOff()
@@ -60,11 +57,11 @@ function draw() {
     // debugging
     push();
     fill(0);
-    translate(0, height - 30);
-    rect(0, 0, 80, 30)
+    rect(0, 0, 80, 55);
     fill('white');
     text(`FPS: ${Math.round(1000 / deltaTime)}`, 10, 20);
-    pop()
+    text(`PPF: ${pixelCount}`, 10, 45);
+    pop();
 }
 
 function pointerLocked() {
@@ -84,12 +81,13 @@ function updateMouse() {
 }
 
 function createMyCanvas() {
-    ratio = window.screen.height / window.screen.width
-    width = window.innerWidth
-    height = width * ratio
+    displayScale = Math.floor(window.innerWidth / displayWidth);
+    width = displayWidth * displayScale;
+    height = width / 16 * 9;
     if (height > window.innerHeight) {
-        height = window.innerHeight
-        width = height / ratio
+        displayScale = Math.floor(window.innerHeight / displayHeight);
+        height = displayHeight * displayScale;
+        width = height * 16 / 9;
     }
     createCanvas(width, height)
 }
