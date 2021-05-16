@@ -1,7 +1,8 @@
-Player.textures = wg_64;
+Player.textures = wg_64.map(rgbTxtrToHex);
 
 let wallTextures = randomTextures(10, 2);
 wallTextures[1] = myWallTexture;
+wallTextures = wallTextures.map(rgbTxtrToHex);
 
 let myMap = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],

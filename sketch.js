@@ -1,9 +1,8 @@
-/* 
-    fix pixel border
-    switching to hex color
-*/
+// typed arrays are faster
+// hex colors are faster
+// fix displayBuffer texel
 
-let width, height, mRows, mCols, cls, ratio, mapZoomed,
+let width, height, mapHeight, mapWidth, cls, ratio, mapZoomed,
     rayBuf, fov, worldMap, renderMap, renderView, mapOff, drawOff,
     mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1,
     displayBuf, displayWidth, previousDisplayBuf
@@ -19,7 +18,7 @@ function setup() {
     // loadTxtrs().then(ts => wallTextures[1]=wallTextures[1] = ts[0]);
     // Player.spawnMany(5);
 
-    pl0 = new Player(6.5, 2.5, 0)
+    pl0 = new Player(4.5, 7.5, -180)
     pl1 = new Player(8.5, 3.5, 180 - 30)
     Player.spawnMany(5);
     fov = 90
@@ -37,9 +36,7 @@ function setup() {
     renderView = true
 
     makeDisplayBuf();
-    tempStatStart = Date.now();
 }
-let tempStatStart;
 
 
 function draw() {
@@ -81,8 +78,8 @@ function updateMouse() {
     mx = mouseX - mapOff.x
     my = mouseY - mapOff.y
     if (mapZoomed) {
-        mx += (pl0.pos.x - mCols / 2) * cls
-        my += (pl0.pos.y - mRows / 2) * cls
+        mx += (pl0.pos.x - mapWidth / 2) * cls
+        my += (pl0.pos.y - mapHeight / 2) * cls
     }
 }
 
@@ -100,8 +97,8 @@ function createMyCanvas() {
 function mouseOnMap() {
     return (
         renderMap &&
-        mx > 0 && mx < mCols * cls &&
-        my > 0 && my < mRows * cls
+        mx > 0 && mx < mapWidth * cls &&
+        my > 0 && my < mapHeight * cls
     )
 }
 
@@ -123,7 +120,7 @@ function mouseWheel(event) {
     if (scroll) cls *= 1.1
     else cls /= 1.1
 
-    mapZoomed = cls * mCols > width || cls * mRows > height
+    mapZoomed = cls * mapWidth > width || cls * mapHeight > height
     if (!mapZoomed) fitMap()
 
     mapOff = getMapOff()

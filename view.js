@@ -14,8 +14,6 @@ function drawView(rayBuf) {
     // })
 }
 
-let tempStat = 0;
-
 function drawBackground() {
     push();
     fill(ceilClr);
@@ -31,7 +29,6 @@ function calcColHeight(its) {
 }
 
 function makeDisplayBuf() {
-    // temp resolution
     let rows = displayWidth / 16 * 9;
     rows = Math.floor(rows);
     displayBuf = Array(rows).fill()
@@ -47,39 +44,53 @@ function makeDisplayBuf() {
     ))
 } */
 
-function getTxtrOff(its) {
+function getTxtrOff({ side, dir, x, y }) {
     if (side == 'x') {
         if (dir.x > 0) {
-            return its.y % 1
+            return y % 1;
         } else {
-            return (mRows - its.y) % 1
+            return (mRows - y) % 1;
         }
     } else if (side == 'y') {
         if (dir.y < 0) {
-            return its.x % 1
+            return x % 1;
         } else {
-            return (mCols - its.x) % 1
+            return (mCols - x) % 1;
         }
     }
 }
 
 function updateDisplayBuf() {
     let copyDisplayBuf = displayBuf.map(row => [...row]);
+
     for (let x = 0; x < displayWidth; x++) {
         let ray = rayBuf[x];
-        let h = calcColHeight(ray);
+        let lineHeight = calcColHeight(ray);
+
+        let texture = wallTextures[ray.val];
+        let txtrHeight = texture.length;
+        let txtrWidth = texture[0].length;
+        let txtrOff = getTxtrOff(ray);
+        let txtrX = Math.floor(txtrOff * txtrWidth);
+
+        let lineStart = (displayHeight - lineHeight) / 2;
+        let lineEnd = (displayHeight + lineHeight) / 2;
+
         for (let y = 0; y < displayHeight; y++) {
             let color;
-            if (y > (displayHeight - h) / 2 &&
-                y < (displayHeight + h) / 2) {
-                color = '#ff0000';
+            if (y >= lineStart && y < lineEnd) {
+                let deltaY = y - lineStart;
+                let lineTxtrRatio = txtrHeight / lineHeight;
+                let txtrY = Math.floor(deltaY * lineTxtrRatio);
+                color = texture[txtrY][txtrX];
+                
                 if (ray.side == 'y')
-                    color = multColor(color, 0.5);
-            }
-            else color = '#000000';
+                    color = multColor(color, 0.75);
+            } else color = '#000000';
             copyDisplayBuf[y][x] = color;
         }
     }
+
     return copyDisplayBuf;
 }
 
@@ -121,33 +132,33 @@ function drawDisplay() {
     }
 } */
 
-/* function drawTextureCol(its, i, h, txtr) {
-    let txtrOff = its.txtrOff
-        || getTxtrOff(its, its.side, its.dir)
-    txtrOff %= 1;
+// function drawTextureCol(its, i, h, txtr) {
+//     let txtrOff = its.txtrOff
+//         || getTxtrOff(its, its.side, its.dir)
+//     txtrOff %= 1;
 
-    let rows = txtr.length
-    let cols = txtr[0].length
+//     let rows = txtr.length
+//     let cols = txtr[0].length
 
-    let x = floor(txtrOff * cols)
+//     let x = floor(txtrOff * cols)
 
-    let yStart = snapGrid((height - h) / 2);
-    let yEnd = snapGrid((height + h) / 2);
+//     let yStart = snapGrid((height - h) / 2);
+//     let yEnd = snapGrid((height + h) / 2);
 
-    for (y = yStart; y < yEnd; y += pxl) {
-        let color;
-        let yTxtr = Math.floor((y - yStart) * rows / h);
-        color = txtr[yTxtr][x];
+//     for (y = yStart; y < yEnd; y += pxl) {
+//         let color;
+//         let yTxtr = Math.floor((y - yStart) * rows / h);
+//         color = txtr[yTxtr][x];
 
-        if (color < 0) continue
-        if (its.side == 'y')
-            color = multClr(color, 0.8)
+//         if (color < 0) continue
+//         if (its.side == 'y')
+//             color = multClr(color, 0.8)
 
-        fill(color)
-        rect(
-            i * pxl, y,
-            pxl, pxl
-        );
-    }
+//         fill(color)
+//         rect(
+//             i * pxl, y,
+//             pxl, pxl
+//         );
+//     }
 
-} */
+// }

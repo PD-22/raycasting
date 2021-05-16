@@ -17,9 +17,15 @@ function hexToRgb(hex) {
 }
 
 function rgbToHex(rgb) {
+    rgb = rgb.slice(0, 3);
     let colorToHex = num => num
         .toString(16).padStart(2, 0);
     return `#${rgb.map(colorToHex).join('')}`;
+}
+
+function rgbTxtrToHex(texture) {
+    return texture.map(row => row
+        .map(color => rgbToHex(color)));
 }
 
 function randomTextures(n, r, c) {

@@ -61,14 +61,11 @@ class Player extends Sprite {
         shot.forEach(p => p.alive = false);
     }
 
-    rotate(angD) {
+    rotate(deltaAng = -movedX) {
         if (!this.alive) return
-        if (angD == undefined) {
-            angD = -normalAng(movedX * deltaTime / 110)
-            if (this.aim) angD /= 2;
-        }
-        this.ang += angD;
-        this.ang %= 360;
+        // if (this.aim) angD /= 2;
+        let smoothAng = deltaAng * deltaTime / 110;
+        this.ang += smoothAng % 360;
     }
 
     static spawnMany(n) {
