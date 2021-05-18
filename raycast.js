@@ -24,7 +24,7 @@ function castRay(pos, ang) {
     while (true) {
         while (abs(pos.x - xsi.x) <= abs(pos.x - ysi.x)) {
             cell.x += dir.x
-            if (worldMap[cell.y] == undefined
+            if (worldMap[cell.y] === undefined
                 || worldMap[cell.y][cell.x] != 0) {
                 return {
                     dst: Math.hypot(pos.x - xsi.x, pos.y - xsi.y),
@@ -40,7 +40,7 @@ function castRay(pos, ang) {
         }
         while (abs(pos.y - ysi.y) <= abs(pos.y - xsi.y)) {
             cell.y += dir.y
-            if (worldMap[cell.y] == undefined
+            if (worldMap[cell.y] === undefined
                 || worldMap[cell.y][cell.x] != 0) {
                 return {
                     dst: Math.hypot(pos.x - ysi.x, pos.y - ysi.y),

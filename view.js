@@ -70,7 +70,7 @@ function renderSprites() {
         let renderRays = [];
         sprites.forEach(sprite => {
             let ray = sprite.castRaySprt(pl0, ang);
-            if (ray == undefined || ray.dst > wallDst) return;
+            if (ray === undefined || ray.dst > wallDst) return;
             let { texture } = sprite;
             renderRays.push({ ...ray, texture });
         });

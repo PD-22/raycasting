@@ -5,7 +5,7 @@ function getCell(x1, y1, px = true) {
 }
 
 function getCellVal(cell) {
-    if (worldMap[cell.y] == undefined) return undefined
+    if (worldMap[cell.y] === undefined) return undefined
     return worldMap[cell.y][cell.x]
 }
 
@@ -21,7 +21,7 @@ function makeMap(arr = 0, r, c) {
 
 function makeMatrix(r, c, p = 0) {
     let mtrx = []
-    if (c == undefined) c = r;
+    if (c === undefined) c = r;
     for (let i = 0; i < r; i++) {
         mtrx.push(new Array(c))
         for (let j = 0; j < c; j++) {

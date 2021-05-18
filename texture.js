@@ -39,7 +39,7 @@ function randomTextures(n, r, c) {
 
 function randomTexture(r, c) {
     let mtrx = makeMatrix(r, c)
-    if (c == undefined) {
+    if (c === undefined) {
         let clr = []
         for (let i = 0; i < r; i++) {
             clr.push(randomColor())

@@ -35,7 +35,7 @@ class Sprite {
         let dy = this.pos.y - pl0.pos.y
         let strghtDst = Math.hypot(dx, dy)
 
-        rayAng = rayAng == undefined ? pl0.ang : normalAng(rayAng)
+        rayAng = rayAng === undefined ? pl0.ang : normalAng(rayAng)
 
         let strghtAng = degrees(atan2(-dy, dx))
         strghtAng = normalAng(strghtAng)

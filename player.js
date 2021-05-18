@@ -1,6 +1,6 @@
 class Player extends Sprite {
     constructor(x, y, ang = Math.floor(Math.random() * 360), speed = 1) {
-        if (x == undefined || y == undefined) {
+        if (x === undefined || y === undefined) {
             let spawned = Player.randPos()
             x = spawned.x
             y = spawned.y
