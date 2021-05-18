@@ -61,31 +61,44 @@ function renderWalls() {
 function renderSprites() {
     let copyDisplayBuf = displayBuf.map(row => [...row]);
 
+    let sprites = Sprite.all.filter(p => !p.me && p.visible);
+
     for (let x = 0; x < displayWidth; x++) {
-        let ray = pl1.castRaySprt(pl0, rayBuf[x].ang);
-        if (ray == undefined) continue;
-        let lineHeight = calcLineHeight(ray);
+        let ang = rayBuf[x].ang;
+        let wallDst = rayBuf[x].dst;
 
-        let texture = pl1.texture;
-        let txtrHeight = texture.length;
-        let txtrWidth = texture[0].length;
-        let txtrOff = ray.txtrOff;
-        let txtrX = Math.floor(txtrOff * txtrWidth);
+        let renderRays = [];
+        sprites.forEach(sprite => {
+            let ray = sprite.castRaySprt(pl0, ang);
+            if (ray == undefined || ray.dst > wallDst) return;
+            let { texture } = sprite;
+            renderRays.push({ ...ray, texture });
+        });
 
-        let lineStart = (displayHeight - lineHeight) / 2;
-        let lineEnd = (displayHeight + lineHeight) / 2;
+        renderRays.sort((a, b) => b.dst - a.dst).forEach(ray => {
+            let { texture } = ray;
+            let txtrHeight = texture.length;
+            let txtrWidth = texture[0].length;
 
-        for (let y = 0; y < displayHeight; y++) {
-            let color;
-            if (y < lineStart || y >= lineEnd) continue;
-            let deltaY = y - lineStart;
-            let lineTxtrRatio = txtrHeight / lineHeight;
-            let txtrY = deltaY * lineTxtrRatio;
-            txtrY = Math.floor(floatFix(txtrY));
-            color = texture[txtrY][txtrX];
-            if (color == -1) continue;
-            copyDisplayBuf[y][x] = color;
-        }
+            let { txtrOff } = ray;
+            let txtrX = Math.floor(txtrOff * txtrWidth);
+
+            let lineHeight = calcLineHeight(ray);
+            let lineStart = (displayHeight - lineHeight) / 2;
+            let lineEnd = (displayHeight + lineHeight) / 2;
+
+            for (let y = 0; y < displayHeight; y++) {
+                let color;
+                if (y < lineStart || y >= lineEnd) continue;
+                let deltaY = y - lineStart;
+                let lineTxtrRatio = txtrHeight / lineHeight;
+                let txtrY = deltaY * lineTxtrRatio;
+                txtrY = Math.floor(floatFix(txtrY));
+                color = texture[txtrY][txtrX];
+                if (color == -1) continue;
+                copyDisplayBuf[y][x] = color;
+            }
+        });
     }
 
     return copyDisplayBuf;

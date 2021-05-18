@@ -1,9 +1,6 @@
 /*
-typed arrays are fast
-finish sprite render
-    merge wall/sprite
-    check all sprites
-    check walls
+consider typed arrays
+merge wall/sprite rederes
 */
 
 
