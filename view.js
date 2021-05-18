@@ -1,5 +1,8 @@
 function drawView() {
-    displayBuf = updateDisplayBuf();
+    if (stopRender) {
+        displayBuf = renderWalls();
+        displayBuf = renderSprites();
+    }
     drawDisplay(displayBuf);
     // oldDrawView();
 }
@@ -18,12 +21,9 @@ function oldDrawView() {
     })
 }
 
-function updateDisplayBuf() {
+// wall
+function renderWalls() {
     let copyDisplayBuf = displayBuf.map(row => [...row]);
-
-    let floatFix = float =>
-        1 - (float % 1) < 1e-15 ?
-            Math.ceil(float) : float;
 
     for (let x = 0; x < displayWidth; x++) {
         let ray = rayBuf[x];
@@ -55,6 +55,47 @@ function updateDisplayBuf() {
     }
 
     return copyDisplayBuf;
+}
+
+// sprite
+function renderSprites() {
+    let copyDisplayBuf = displayBuf.map(row => [...row]);
+
+    for (let x = 0; x < displayWidth; x++) {
+        let ray = pl1.castRaySprt(pl0, rayBuf[x].ang);
+        if (ray == undefined) continue;
+        let lineHeight = calcLineHeight(ray);
+
+        let texture = pl1.texture;
+        let txtrHeight = texture.length;
+        let txtrWidth = texture[0].length;
+        let txtrOff = ray.txtrOff;
+        let txtrX = Math.floor(txtrOff * txtrWidth);
+
+        let lineStart = (displayHeight - lineHeight) / 2;
+        let lineEnd = (displayHeight + lineHeight) / 2;
+
+        for (let y = 0; y < displayHeight; y++) {
+            let color;
+            if (y < lineStart || y >= lineEnd) continue;
+            let deltaY = y - lineStart;
+            let lineTxtrRatio = txtrHeight / lineHeight;
+            let txtrY = deltaY * lineTxtrRatio;
+            txtrY = Math.floor(floatFix(txtrY));
+            color = texture[txtrY][txtrX];
+            if (color == -1) continue;
+            copyDisplayBuf[y][x] = color;
+        }
+    }
+
+    return copyDisplayBuf;
+}
+
+// fixes 0.(9)
+function floatFix(float) {
+    if (1 - (float % 1) < 1e-9)
+        return Math.ceil(float);
+    return float
 }
 
 function drawDisplay() {

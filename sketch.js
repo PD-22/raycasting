@@ -1,10 +1,17 @@
-// typed arrays are fast
-// add sprite render
+/*
+typed arrays are fast
+finish sprite render
+    merge wall/sprite
+    check all sprites
+    check walls
+*/
+
 
 let width, height, mapHeight, mapWidth, cls, ratio, mapZoomed,
     rayBuf, fov, worldMap, renderMap, renderView, mapOff, drawOff,
     mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1,
-    displayBuf, previousDisplayBuf, displayWidth, displayHeight, displayScale
+    displayBuf, previousDisplayBuf, displayWidth, displayHeight, displayScale,
+    stopRender = true // temp
 
 function setup() {
     displayWidth = 160;
@@ -17,7 +24,7 @@ function setup() {
     // worldMap = makeMap(cellularAutomata(makeMatrix(48, 48, 0.45), 8));
     // Player.spawnMany(5);
 
-    pl0 = new Player(4.5 - 0.01, 7.5 - 0.01, -180)
+    pl0 = new Player(7 - 0.01, 3.5 - 0.01, 0)
     pl1 = new Player(8.5, 3.5, 180 - 30)
     Player.spawnMany(5);
     fov = 90
@@ -25,8 +32,8 @@ function setup() {
     fitMap()
     mapOff = getMapOff()
     drawOff = getDrawMapOff()
-    ceilClr = [173, 216, 230];
-    floorClr = [144, 238, 144];
+    ceilClr = rgbToHex([173, 216, 230]);
+    floorClr = rgbToHex([144, 238, 144]);
     placeTxtrNum = 0
 
     renderMap = false
@@ -44,15 +51,13 @@ function draw() {
         fill(0, 127);
         rect(0, 0, width, height);
     }
-    if (pointerLocked()) {
-        pl0.update([87, 65, 83, 68])
-        pl1.update([
-            UP_ARROW,
-            LEFT_ARROW,
-            DOWN_ARROW,
-            RIGHT_ARROW
-        ]) // for testing
-    }
+    pl0.update([87, 65, 83, 68])
+    pl1.update([
+        UP_ARROW,
+        LEFT_ARROW,
+        DOWN_ARROW,
+        RIGHT_ARROW
+    ]) // for testing
 
     // debugging
     push();

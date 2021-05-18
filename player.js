@@ -28,17 +28,17 @@ class Player extends Sprite {
         super.delete.call(this, this.constructor);
     }
 
-    castRaySprt(pl0, rayAng = Player.all[0].ang, maxOff = 0.5) {
+    castRaySprt(pl0 = Player.me, rayAng = Player.me.ang, maxOff = 0.5) {
         let its = super.castRaySprt(pl0, rayAng, maxOff)
-        if (its != undefined) this.updateTexture(its.plrsAng)
+        if (its != undefined) this.updateTexture(its)
         return its
     }
 
-    updateTexture(plrsAng) {
+    updateTexture({ txtrAng }) {
         fill('red')
         let length = Player.textures.length - 1;
         let offAng = 180 / 8;
-        let ang = (plrsAng + 360 + offAng) % 360;
+        let ang = (txtrAng + 360 + offAng) % 360;
         let txtrSide = this.alive ?
             Math.floor(ang / 2 / offAng) : 46;
         let txtrIndex = Math.floor(txtrSide + this.txtrIndexOff);

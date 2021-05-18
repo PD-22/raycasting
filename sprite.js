@@ -18,7 +18,7 @@ class Sprite {
 
     static all = []
 
-    static castAll(wallDst, i) {
+    static castAll(wallDst, i) { // temp?
         Sprite.all.filter(s => s.visible)
             .map(s => ({ s, its: s.castRaySprt(pl0, rayBuf[i].ang) }))
             .filter(e => e.its != undefined && e.its.dst < wallDst && e.s.me != true)
@@ -29,7 +29,8 @@ class Sprite {
             });
     }
 
-    castRaySprt(pl0, rayAng = Player.all[0].ang, maxOff = 0.5) {
+    castRaySprt(pl0 = Player.me, rayAng = Player.me.ang, maxOff = 0.5) {
+        // debugger
         let dx = this.pos.x - pl0.pos.x
         let dy = this.pos.y - pl0.pos.y
         let strghtDst = Math.hypot(dx, dy)
@@ -39,8 +40,8 @@ class Sprite {
         let strghtAng = degrees(atan2(-dy, dx))
         strghtAng = normalAng(strghtAng)
 
-        let plrsAng = 180 - this.ang + strghtAng
-        plrsAng = normalAng(plrsAng)
+        let txtrAng = 180 - this.ang + strghtAng
+        txtrAng = normalAng(txtrAng)
 
         let rayStrghtAng = rayAng - strghtAng
         rayStrghtAng = normalAng(rayStrghtAng)
@@ -63,9 +64,9 @@ class Sprite {
         let y = pl0.pos.y - rayDst * Math.sin(radians(rayAng))
 
         return {
-            x, y, ang: rayAng, type: 'sprite',
+            x, y, ang: rayAng,
             txtrOff: (0.5 - sOff),
-            dst: rayDst, plrsAng,
+            dst: rayDst, txtrAng,
             dir: angToDir(rayAng)
         }
     }
