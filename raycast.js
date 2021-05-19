@@ -1,3 +1,17 @@
+function calcLineHeight(its) {
+    let p = its.dst * cos(radians(pl0.ang - its.ang));
+    return displayHeight / p;
+}
+
+function getTxtrOff({ side, dir, x, y }) {
+    if (side == 'x') {
+        if (dir.x > 0) return y % 1;
+        else return (displayHeight - y) % 1;
+    } else if (side == 'y')
+        if (dir.y < 0) return x % 1;
+        else return (displayWidth - x) % 1;
+}
+
 function castRays(pos, offAng) {
     rayBuf = []
     let inc = fov / displayWidth;
@@ -26,14 +40,19 @@ function castRay(pos, ang) {
             cell.x += dir.x
             if (worldMap[cell.y] === undefined
                 || worldMap[cell.y][cell.x] != 0) {
-                return {
+                let ray = {
                     dst: Math.hypot(pos.x - xsi.x, pos.y - xsi.y),
                     x: xsi.x, y: xsi.y,
                     side: 'x', ang, dir,
                     val: worldMap[cell.y] != undefined
                         && worldMap[cell.y][cell.x] != undefined
                         ? worldMap[cell.y][cell.x] : 0
-                }
+                };
+                return {
+                    ...ray, txtrOff: getTxtrOff(ray),
+                    texture: wallTextures[ray.val],
+                    lineHeight: calcLineHeight(ray)
+                };
             }
             xsi.x += dir.x
             xsi.y += dy
@@ -42,7 +61,7 @@ function castRay(pos, ang) {
             cell.y += dir.y
             if (worldMap[cell.y] === undefined
                 || worldMap[cell.y][cell.x] != 0) {
-                return {
+                let result = {
                     dst: Math.hypot(pos.x - ysi.x, pos.y - ysi.y),
                     x: ysi.x, y: ysi.y,
                     side: 'y', ang, dir,
@@ -50,6 +69,11 @@ function castRay(pos, ang) {
                         && worldMap[cell.y][cell.x] != undefined
                         ? worldMap[cell.y][cell.x] : 0
                 }
+                return {
+                    ...result, txtrOff: getTxtrOff(result),
+                    texture: wallTextures[result.val],
+                    lineHeight: calcLineHeight(result)
+                };
             }
             ysi.x += dx
             ysi.y += dir.y

@@ -27,15 +27,14 @@ function renderWalls() {
 
     for (let x = 0; x < displayWidth; x++) {
         let ray = rayBuf[x];
-        let lineHeight = calcLineHeight(ray);
 
-        let texture = wallTextures[ray.val];
+        let { lineHeight, texture, txtrOff } = ray;
+
         let txtrHeight = texture.length;
         let txtrWidth = texture[0].length;
-        
+
         let lineTxtrRatio = txtrHeight / lineHeight;
 
-        let txtrOff = getTxtrOff(ray);
         let txtrX = Math.floor(txtrOff * txtrWidth);
 
         let lineStart = (displayHeight - lineHeight) / 2;
@@ -78,16 +77,15 @@ function renderSprites() {
         });
 
         renderRays.sort((a, b) => b.dst - a.dst).forEach(ray => {
-            let { texture } = ray;
+            let { lineHeight, texture, txtrOff } = ray;
+
             let txtrHeight = texture.length;
             let txtrWidth = texture[0].length;
 
-            let { txtrOff } = ray;
+            let lineTxtrRatio = txtrHeight / lineHeight;
+
             let txtrX = Math.floor(txtrOff * txtrWidth);
 
-            let lineHeight = calcLineHeight(ray);
-            let lineTxtrRatio = txtrHeight / lineHeight;
-            
             let lineStart = (displayHeight - lineHeight) / 2;
             let lineEnd = (displayHeight + lineHeight) / 2;
 
@@ -130,26 +128,12 @@ function drawDisplay() {
     previousDisplayBuf = displayBuf.map(row => [...row]);
 }
 
-function calcLineHeight(its) {
-    let p = its.dst * cos(radians(pl0.ang - its.ang));
-    return displayHeight / p;
-}
-
 function makeDisplayBuf() {
     let rows = displayWidth / 16 * 9;
     rows = Math.floor(rows);
     displayBuf = Array(rows).fill()
         .map(() => Array(displayWidth).fill()
             .map(() => randomColor()));
-}
-
-function getTxtrOff({ side, dir, x, y }) {
-    if (side == 'x') {
-        if (dir.x > 0) return y % 1;
-        else return (displayHeight - y) % 1;
-    } else if (side == 'y')
-        if (dir.y < 0) return x % 1;
-        else return (displayWidth - x) % 1;
 }
 
 

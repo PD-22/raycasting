@@ -63,11 +63,13 @@ class Sprite {
         let x = pl0.pos.x + rayDst * Math.cos(radians(rayAng))
         let y = pl0.pos.y - rayDst * Math.sin(radians(rayAng))
 
-        return {
+        let ray = {
             x, y, ang: rayAng,
             txtrOff: (0.5 - sOff),
             dst: rayDst, txtrAng,
             dir: angToDir(rayAng)
         }
+
+        return { ...ray, lineHeight: calcLineHeight(ray) };
     }
 }
