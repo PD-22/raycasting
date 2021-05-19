@@ -32,6 +32,9 @@ function renderWalls() {
         let texture = wallTextures[ray.val];
         let txtrHeight = texture.length;
         let txtrWidth = texture[0].length;
+        
+        let lineTxtrRatio = txtrHeight / lineHeight;
+
         let txtrOff = getTxtrOff(ray);
         let txtrX = Math.floor(txtrOff * txtrWidth);
 
@@ -42,7 +45,6 @@ function renderWalls() {
             let color;
             if (y >= lineStart && y < lineEnd) {
                 let deltaY = y - lineStart;
-                let lineTxtrRatio = txtrHeight / lineHeight;
                 let txtrY = deltaY * lineTxtrRatio;
                 txtrY = Math.floor(floatFix(txtrY));
                 color = texture[txtrY][txtrX];
@@ -84,6 +86,8 @@ function renderSprites() {
             let txtrX = Math.floor(txtrOff * txtrWidth);
 
             let lineHeight = calcLineHeight(ray);
+            let lineTxtrRatio = txtrHeight / lineHeight;
+            
             let lineStart = (displayHeight - lineHeight) / 2;
             let lineEnd = (displayHeight + lineHeight) / 2;
 
@@ -91,7 +95,6 @@ function renderSprites() {
                 let color;
                 if (y < lineStart || y >= lineEnd) continue;
                 let deltaY = y - lineStart;
-                let lineTxtrRatio = txtrHeight / lineHeight;
                 let txtrY = deltaY * lineTxtrRatio;
                 txtrY = Math.floor(floatFix(txtrY));
                 color = texture[txtrY][txtrX];
