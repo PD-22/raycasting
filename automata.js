@@ -1,3 +1,9 @@
+function cellularMap(width, height, percentage, cycles) {
+    let matrix = makeMatrix(width, height, percentage);
+    let map = cellularAutomata(matrix, cycles);
+    return makeMap(map);
+}
+
 function cellularAutomata(arr, times = 1) {
     let check = copyMatrix(arr)
     let out = copyMatrix(arr)

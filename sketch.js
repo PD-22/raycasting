@@ -1,6 +1,4 @@
-/*
-typed arrays
-*/
+// typed arrays
 
 
 let width, height, mapHeight, mapWidth, cls, ratio, mapZoomed,
@@ -17,7 +15,7 @@ function setup() {
 
     worldMap = makeMap(myMap);
 
-    // worldMap = makeMap(cellularAutomata(makeMatrix(48, 48, 0.45), 8));
+    // worldMap = cellularMap(48, 48, 0.45, 8);
     // Player.spawnMany(5);
 
     pl0 = new Player(7 - 0.01, 3.5 - 0.01, 0)
