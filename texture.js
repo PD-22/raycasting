@@ -1,12 +1,8 @@
-function multColor(hexColor, m) {
+function multColor(hexColor, mult) {
     if (hexColor == -1) return hexColor;
-    let rgb = hexToRgb(hexColor);
-    let newRgb = rgb.map(color => {
-        let newColor = Math.round(color * m);
-        if (newColor > 255) newColor = 255;
-        return newColor
-    });
-    return rgbToHex(newRgb);
+    let rgb = hexToRgb(hexColor)
+        .map(color => color * mult);
+    return rgbToHex(rgb);
 }
 
 function hexToRgb(hex) {
@@ -14,15 +10,14 @@ function hexToRgb(hex) {
     let red = parseInt(color.slice(0, 2), 16);
     let green = parseInt(color.slice(2, 4), 16);
     let blue = parseInt(color.slice(4, 6), 16);
-    return [red, green, blue];
+    return new Uint8ClampedArray([red, green, blue]);
 }
 
 function rgbToHex(rgb) {
     if (rgb?.[3] == 0) return -1;
-    rgb = rgb.slice(0, 3);
-    let colorToHex = num => num
-        .toString(16).padStart(2, 0);
-    return `#${rgb.map(colorToHex).join('')}`;
+    if (rgb.length > 3) rgb = rgb.slice(0, 3);
+    return rgb.reduce((acc, cur) => acc + cur
+        .toString(16).padStart(2, 0), '#')
 }
 
 function rgbTxtrToHex(texture) {
@@ -56,7 +51,7 @@ function randomTexture(r, c) {
 }
 
 function randomColor() {
-    let color = Array(3).fill().map(() =>
+    let rgb = Array(3).fill().map(() =>
         Math.floor(Math.random() * 256));
-    return rgbToHex(color);
+    return rgbToHex(rgb);
 }

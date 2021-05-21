@@ -1,4 +1,4 @@
-// typed arrays
+// implementing typed arrays
 
 
 let width, height, mapHeight, mapWidth, cls, ratio, mapZoomed,
