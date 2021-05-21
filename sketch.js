@@ -1,6 +1,5 @@
 /*
-consider typed arrays
-merge wall/sprite rederes
+typed arrays
 */
 
 

@@ -42,15 +42,17 @@ function renderWalls() {
 
         for (let y = 0; y < displayHeight; y++) {
             let color;
-            if (y >= lineStart && y < lineEnd) {
+            if (y < lineStart || y >= lineEnd) {
+                color = y < displayHeight / 2 ?
+                    ceilClr : floorClr;
+            } else {
                 let deltaY = y - lineStart;
                 let txtrY = deltaY * lineTxtrRatio;
                 txtrY = Math.floor(floatFix(txtrY));
                 color = texture[txtrY][txtrX];
                 if (ray.side == 'y')
                     color = multColor(color, 0.75);
-            } else color = y < displayHeight / 2 ?
-                ceilClr : floorClr;
+            }
             copyDisplayBuf[y][x] = color;
         }
     }
