@@ -1,3 +1,5 @@
+// imitate old render
+
 let width, height, mapHeight, mapWidth, cls, ratio, mapZoomed,
     rayBuf, fov, worldMap, renderMap, renderView, mapOff, drawOff,
     mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1,
@@ -6,10 +8,8 @@ let width, height, mapHeight, mapWidth, cls, ratio, mapZoomed,
 
 function setup() {
     displayWidth = 160;
-    displayHeight = Math.floor(displayWidth * 9 / 16);
-    displayBuf = new Uint8ClampedArray(
-        displayWidth * displayHeight * 3
-    );
+    displayHeight = 90;
+    makeDisplayBuf();
 
     createMyCanvas()
     background('gray')

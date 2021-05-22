@@ -1,10 +1,10 @@
 function drawView() {
-    if (!stopRender) {
-        displayBuf = renderWalls();
-        displayBuf = renderSprites();
-    }
-    drawDisplay(displayBuf);
-    // oldDrawView();
+    // if (!stopRender) {
+    //     displayBuf = renderWalls();
+    //     displayBuf = renderSprites();
+    // }
+    // drawDisplay(displayBuf);
+    oldDrawView();
 }
 
 function oldDrawView() {
@@ -23,7 +23,7 @@ function oldDrawView() {
 
 // wall
 function renderWalls() {
-    let copyDisplayBuf = [...displayBuf];
+    let copyDisplayBuf = displayBuf.map(row => [...row]);
 
     for (let x = 0; x < displayWidth; x++) {
         let ray = rayBuf[x];
@@ -53,18 +53,16 @@ function renderWalls() {
                 if (ray.side == 'y')
                     color = multColor(color, 0.75);
             }
-            color = hexToRgb(color);
-            let i = (y * displayWidth + x) * 3;
-            color.forEach((color, j) => copyDisplayBuf[i + j] = color);
+            copyDisplayBuf[y][x] = color;
         }
     }
 
-    return new Uint8ClampedArray(copyDisplayBuf);
+    return copyDisplayBuf;
 }
 
 // sprite
 function renderSprites() {
-    let copyDisplayBuf = [...displayBuf];
+    let copyDisplayBuf = displayBuf.map(row => [...row]);
 
     let sprites = Sprite.all.filter(p => !p.me && p.visible);
 
@@ -100,16 +98,13 @@ function renderSprites() {
                 let txtrY = deltaY * lineTxtrRatio;
                 txtrY = Math.floor(floatFix(txtrY));
                 color = texture[txtrY][txtrX];
-                // if (color == -1) continue;
-                if (color == -1) color = [255, 0, 127];
-                color = hexToRgb(color);
-                let i = (y * displayWidth + x) * 3;
-                color.forEach((color, j) => copyDisplayBuf[i + j] = color);
+                if (color == -1) continue;
+                copyDisplayBuf[y][x] = color;
             }
         });
     }
 
-    return new Uint8ClampedArray(copyDisplayBuf);
+    return copyDisplayBuf;
 }
 
 // fixes 0.(9)
@@ -125,27 +120,23 @@ function drawDisplay() {
     noStroke();
     // stroke('purple'); strokeWeight(0.1);
     scale(Math.floor(displayScale));
-    for (let i = 0; i < displayBuf.length - 3; i += 3) {
-        let color = displayBuf.slice(i, i + 3);
-        let pColor = prevDisplayBuf?.slice(i, i + 3);
-        if (pColor?.every((val, i) => val == color[i])) continue;
+    displayBuf.forEach((row, y) => row.forEach((color, x) => {
+        if (prevDisplayBuf?.[y][x] == color) return;
         pixelCount++;
-        fill([...color]);
-        let y = Math.floor(i / displayWidth / 3);
-        let x = Math.floor(i / 3) % displayWidth;
+        fill(color);
         square(x, y, 1);
-    }
+    }))
     pop();
-    prevDisplayBuf = [...displayBuf];
+    prevDisplayBuf = displayBuf.map(row => [...row]);
 }
 
-// function makeDisplayBuf() {
-//     let rows = displayWidth / 16 * 9;
-//     rows = Math.floor(rows);
-//     displayBuf = Array(rows).fill()
-//         .map(() => Array(displayWidth).fill()
-//             .map(() => randomColor()));
-// }
+function makeDisplayBuf() {
+    let rows = displayWidth / 16 * 9;
+    rows = Math.floor(rows);
+    displayBuf = Array(rows).fill()
+        .map(() => Array(displayWidth).fill()
+            .map(() => randomColor()));
+}
 
 
 // old way methods
@@ -179,10 +170,12 @@ function drawTextureCol(its, i, h, txtr) {
         if (its.side != undefined && its.side == 'y')
             color = multColor(color, 0.8)
         fill(color)
+        let drawY = (height - h) / 2 + wcHeight * y;
+        if (drawY < -wcHeight || drawY > height) continue
         rect(
             Math.round(i * pxl),
-            (height - h) / 2 + wcHeight * y,
-            pxl, wcHeight + 0.5
+            drawY,
+            pxl, wcHeight
         )
     }
 }
