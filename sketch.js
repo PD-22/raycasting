@@ -1,15 +1,16 @@
-// implementing typed arrays
-
-
 let width, height, mapHeight, mapWidth, cls, ratio, mapZoomed,
     rayBuf, fov, worldMap, renderMap, renderView, mapOff, drawOff,
     mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1,
-    displayBuf, previousDisplayBuf, displayWidth, displayHeight, displayScale,
-    stopRender = true // temp
+    displayBuf, prevDisplayBuf, displayWidth, displayHeight, displayScale,
+    stopRender = false // temp
 
 function setup() {
     displayWidth = 160;
     displayHeight = Math.floor(displayWidth * 9 / 16);
+    displayBuf = new Uint8ClampedArray(
+        displayWidth * displayHeight * 3
+    );
+
     createMyCanvas()
     background('gray')
 
@@ -32,8 +33,6 @@ function setup() {
 
     renderMap = false
     renderView = true
-
-    makeDisplayBuf();
 }
 
 

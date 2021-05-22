@@ -1,5 +1,5 @@
 function drawView() {
-    if (stopRender) {
+    if (!stopRender) {
         displayBuf = renderWalls();
         displayBuf = renderSprites();
     }
@@ -23,7 +23,7 @@ function oldDrawView() {
 
 // wall
 function renderWalls() {
-    let copyDisplayBuf = displayBuf.map(row => [...row]);
+    let copyDisplayBuf = [...displayBuf];
 
     for (let x = 0; x < displayWidth; x++) {
         let ray = rayBuf[x];
@@ -53,16 +53,18 @@ function renderWalls() {
                 if (ray.side == 'y')
                     color = multColor(color, 0.75);
             }
-            copyDisplayBuf[y][x] = color;
+            color = hexToRgb(color);
+            let i = (y * displayWidth + x) * 3;
+            color.forEach((color, j) => copyDisplayBuf[i + j] = color);
         }
     }
 
-    return copyDisplayBuf;
+    return new Uint8ClampedArray(copyDisplayBuf);
 }
 
 // sprite
 function renderSprites() {
-    let copyDisplayBuf = displayBuf.map(row => [...row]);
+    let copyDisplayBuf = [...displayBuf];
 
     let sprites = Sprite.all.filter(p => !p.me && p.visible);
 
@@ -98,13 +100,16 @@ function renderSprites() {
                 let txtrY = deltaY * lineTxtrRatio;
                 txtrY = Math.floor(floatFix(txtrY));
                 color = texture[txtrY][txtrX];
-                if (color == -1) continue;
-                copyDisplayBuf[y][x] = color;
+                // if (color == -1) continue;
+                if (color == -1) color = [255, 0, 127];
+                color = hexToRgb(color);
+                let i = (y * displayWidth + x) * 3;
+                color.forEach((color, j) => copyDisplayBuf[i + j] = color);
             }
         });
     }
 
-    return copyDisplayBuf;
+    return new Uint8ClampedArray(copyDisplayBuf);
 }
 
 // fixes 0.(9)
@@ -120,23 +125,27 @@ function drawDisplay() {
     noStroke();
     // stroke('purple'); strokeWeight(0.1);
     scale(Math.floor(displayScale));
-    displayBuf.forEach((row, y) => row.forEach((color, x) => {
-        if (previousDisplayBuf?.[y][x] == color) return;
+    for (let i = 0; i < displayBuf.length - 3; i += 3) {
+        let color = displayBuf.slice(i, i + 3);
+        let pColor = prevDisplayBuf?.slice(i, i + 3);
+        if (pColor?.every((val, i) => val == color[i])) continue;
         pixelCount++;
-        fill(color);
+        fill([...color]);
+        let y = Math.floor(i / displayWidth / 3);
+        let x = Math.floor(i / 3) % displayWidth;
         square(x, y, 1);
-    }))
+    }
     pop();
-    previousDisplayBuf = displayBuf.map(row => [...row]);
+    prevDisplayBuf = [...displayBuf];
 }
 
-function makeDisplayBuf() {
-    let rows = displayWidth / 16 * 9;
-    rows = Math.floor(rows);
-    displayBuf = Array(rows).fill()
-        .map(() => Array(displayWidth).fill()
-            .map(() => randomColor()));
-}
+// function makeDisplayBuf() {
+//     let rows = displayWidth / 16 * 9;
+//     rows = Math.floor(rows);
+//     displayBuf = Array(rows).fill()
+//         .map(() => Array(displayWidth).fill()
+//             .map(() => randomColor()));
+// }
 
 
 // old way methods
