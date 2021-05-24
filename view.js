@@ -1,10 +1,7 @@
 function drawView() {
-    // if (!stopRender) {
-    //     displayBuf = renderWalls();
-    //     displayBuf = renderSprites();
-    // }
-    // drawDisplay(displayBuf);
-    oldDrawView();
+    if (!stopRender) renderDisplay();
+    drawDisplay(displayBuf);
+    // oldDrawView();
 }
 
 function oldDrawView() {
@@ -21,13 +18,33 @@ function oldDrawView() {
     })
 }
 
-// wall
-function renderWalls() {
-    let copyDisplayBuf = displayBuf.map(row => [...row]);
+function renderDisplay() {
+    let sprites = Sprite.all.filter(p => !p.me && p.visible);
 
     for (let x = 0; x < displayWidth; x++) {
-        let ray = rayBuf[x];
+        rays = [rayBuf[x]];
+        rays.push(...getSpriteRays(sprites, x));
+        renderRays(rays, x);
+    }
+}
 
+function getSpriteRays(sprites, x) {
+    let ang = rayBuf[x].ang;
+    let wallDst = rayBuf[x].dst;
+
+    let rayArr = [];
+    sprites.forEach(sprite => {
+        let ray = sprite.castRaySprt(pl0, ang);
+        if (ray === undefined || ray.dst > wallDst) return;
+        let { texture } = sprite;
+        rayArr.push({ ...ray, texture });
+    });
+
+    return rayArr.sort((a, b) => b.dst - a.dst);
+}
+
+function renderRays(rayArr, x) {
+    rayArr.forEach((ray, i) => {
         let { lineHeight, texture, txtrOff } = ray;
 
         let txtrHeight = texture.length;
@@ -43,68 +60,22 @@ function renderWalls() {
         for (let y = 0; y < displayHeight; y++) {
             let color;
             if (y < lineStart || y >= lineEnd) {
-                color = y < displayHeight / 2 ?
-                    ceilClr : floorClr;
+                if (i == 0) color =
+                    y < displayHeight / 2 ?
+                        ceilClr : floorClr;
+                else continue;
             } else {
                 let deltaY = y - lineStart;
                 let txtrY = deltaY * lineTxtrRatio;
                 txtrY = Math.floor(floatFix(txtrY));
                 color = texture[txtrY][txtrX];
-                if (ray.side == 'y')
+                if (color == -1) continue;
+                if (ray?.side == 'y')
                     color = multColor(color, 0.75);
             }
-            copyDisplayBuf[y][x] = color;
+            displayBuf[y][x] = color;
         }
-    }
-
-    return copyDisplayBuf;
-}
-
-// sprite
-function renderSprites() {
-    let copyDisplayBuf = displayBuf.map(row => [...row]);
-
-    let sprites = Sprite.all.filter(p => !p.me && p.visible);
-
-    for (let x = 0; x < displayWidth; x++) {
-        let ang = rayBuf[x].ang;
-        let wallDst = rayBuf[x].dst;
-
-        let renderRays = [];
-        sprites.forEach(sprite => {
-            let ray = sprite.castRaySprt(pl0, ang);
-            if (ray === undefined || ray.dst > wallDst) return;
-            let { texture } = sprite;
-            renderRays.push({ ...ray, texture });
-        });
-
-        renderRays.sort((a, b) => b.dst - a.dst).forEach(ray => {
-            let { lineHeight, texture, txtrOff } = ray;
-
-            let txtrHeight = texture.length;
-            let txtrWidth = texture[0].length;
-
-            let lineTxtrRatio = txtrHeight / lineHeight;
-
-            let txtrX = Math.floor(txtrOff * txtrWidth);
-
-            let lineStart = (displayHeight - lineHeight) / 2;
-            let lineEnd = (displayHeight + lineHeight) / 2;
-
-            for (let y = 0; y < displayHeight; y++) {
-                let color;
-                if (y < lineStart || y >= lineEnd) continue;
-                let deltaY = y - lineStart;
-                let txtrY = deltaY * lineTxtrRatio;
-                txtrY = Math.floor(floatFix(txtrY));
-                color = texture[txtrY][txtrX];
-                if (color == -1) continue;
-                copyDisplayBuf[y][x] = color;
-            }
-        });
-    }
-
-    return copyDisplayBuf;
+    });
 }
 
 // fixes 0.(9)
@@ -143,6 +114,7 @@ function makeDisplayBuf() {
 
 function drawBackground() {
     push();
+    noStroke();
     fill(ceilClr);
     rect(0, 0, width, height / 2);
     fill(floorClr);
@@ -150,32 +122,28 @@ function drawBackground() {
     pop();
 }
 
-function drawTextureCol(its, i, h, txtr) {
-    let pxl = width / displayWidth
-    h *= pxl;
+function drawTextureCol(its, drawX, lineHeight, texture) {
     let txtrOff = its.txtrOff
         || getTxtrOff(its, its.side, its.dir)
 
     if (txtrOff >= 1) txtrOff %= 1;
 
-    let rows = txtr.length
-    let cols = txtr[0].length
-    let wcHeight = (h / rows)
-
-    let x = floor(txtrOff * cols)
-    for (let y = 0; y < rows; y++) {
-        let color = txtr[y][x]
+    let txtrHeight = texture.length;
+    let txtrWidth = texture[0].length;
+    let wcHeight = (lineHeight / txtrHeight)
+    push();
+    scale(Math.floor(displayScale));
+    let txtrX = floor(txtrOff * txtrWidth)
+    for (let txtrY = 0; txtrY < txtrHeight; txtrY++) {
+        let color = texture[txtrY][txtrX]
         if (color < 0) continue
         pixelCount++;
         if (its.side != undefined && its.side == 'y')
             color = multColor(color, 0.8)
         fill(color)
-        let drawY = (height - h) / 2 + wcHeight * y;
+        let drawY = (displayHeight - lineHeight) / 2 + wcHeight * txtrY;
         if (drawY < -wcHeight || drawY > height) continue
-        rect(
-            Math.round(i * pxl),
-            drawY,
-            pxl, wcHeight
-        )
+        rect(drawX, drawY, 1, wcHeight);
     }
+    pop();
 }

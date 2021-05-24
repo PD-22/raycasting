@@ -6,6 +6,8 @@ let width, height, mapHeight, mapWidth, cls, ratio, mapZoomed,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, displayScale,
     stopRender = false // temp
 
+let timersLog = {};
+
 function setup() {
     displayWidth = 160;
     displayHeight = 90;
