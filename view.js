@@ -1,21 +1,6 @@
 function drawView() {
     if (!stopRender) renderDisplay();
     drawDisplay(displayBuf);
-    // oldDrawView();
-}
-
-function oldDrawView() {
-    pixelCount = 0;
-    drawBackground();
-    rayBuf.forEach((its, i) => {
-        push()
-        noStroke();
-        // stroke('purple');
-        let h = calcLineHeight(its)
-        drawTextureCol(its, i, h, wallTextures[its.val])
-        Sprite.castAll(its.dst, i)
-        pop()
-    })
 }
 
 function renderDisplay() {
@@ -107,43 +92,4 @@ function makeDisplayBuf() {
     displayBuf = Array(rows).fill()
         .map(() => Array(displayWidth).fill()
             .map(() => randomColor()));
-}
-
-
-// old way methods
-
-function drawBackground() {
-    push();
-    noStroke();
-    fill(ceilClr);
-    rect(0, 0, width, height / 2);
-    fill(floorClr);
-    rect(0, height / 2, width, height);
-    pop();
-}
-
-function drawTextureCol(its, drawX, lineHeight, texture) {
-    let txtrOff = its.txtrOff
-        || getTxtrOff(its, its.side, its.dir)
-
-    if (txtrOff >= 1) txtrOff %= 1;
-
-    let txtrHeight = texture.length;
-    let txtrWidth = texture[0].length;
-    let wcHeight = (lineHeight / txtrHeight)
-    push();
-    scale(Math.floor(displayScale));
-    let txtrX = floor(txtrOff * txtrWidth)
-    for (let txtrY = 0; txtrY < txtrHeight; txtrY++) {
-        let color = texture[txtrY][txtrX]
-        if (color < 0) continue
-        pixelCount++;
-        if (its.side != undefined && its.side == 'y')
-            color = multColor(color, 0.8)
-        fill(color)
-        let drawY = (displayHeight - lineHeight) / 2 + wcHeight * txtrY;
-        if (drawY < -wcHeight || drawY > height) continue
-        rect(drawX, drawY, 1, wcHeight);
-    }
-    pop();
 }

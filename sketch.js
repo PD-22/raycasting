@@ -21,7 +21,7 @@ function setup() {
     // worldMap = cellularMap(48, 48, 0.45, 8);
     // Player.spawnMany(5);
 
-    pl0 = new Player(7 - 0.01, 3.5 - 0.01, 0)
+    pl0 = new Player(7 - 0.01, 3.5 - 0.01, 0, 0.75)
     pl1 = new Player(8.5, 3.5, 180 - 30)
     Player.spawnMany(5);
     fov = 90
