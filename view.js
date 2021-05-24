@@ -7,8 +7,7 @@ function renderDisplay() {
     let sprites = Sprite.all.filter(p => !p.me && p.visible);
 
     for (let x = 0; x < displayWidth; x++) {
-        rays = [rayBuf[x]];
-        rays.push(...getSpriteRays(sprites, x));
+        rays = [rayBuf[x], ...getSpriteRays(sprites, x)];
         renderRays(rays, x);
     }
 }
@@ -45,10 +44,9 @@ function renderRays(rayArr, x) {
         for (let y = 0; y < displayHeight; y++) {
             let color;
             if (y < lineStart || y >= lineEnd) {
-                if (i == 0) color =
-                    y < displayHeight / 2 ?
-                        ceilClr : floorClr;
-                else continue;
+                if (i != 0) continue;
+                color = y < displayHeight / 2 ?
+                    ceilClr : floorClr;
             } else {
                 let deltaY = y - lineStart;
                 let txtrY = deltaY * lineTxtrRatio;
@@ -76,12 +74,16 @@ function drawDisplay() {
     noStroke();
     // stroke('purple'); strokeWeight(0.1);
     scale(Math.floor(displayScale));
-    displayBuf.forEach((row, y) => row.forEach((color, x) => {
-        if (prevDisplayBuf?.[y][x] == color) return;
-        pixelCount++;
-        fill(color);
-        square(x, y, 1);
-    }))
+    for (let y = 0; y < displayHeight; y++) {
+        for (let x = 0; x < displayWidth; x++) {
+            let color = displayBuf[y][x];
+            temp = color;
+            if (prevDisplayBuf?.[y][x] == color) continue;
+            pixelCount++;
+            fill(color);
+            square(x, y, 1);
+        }
+    }
     pop();
     prevDisplayBuf = displayBuf.map(row => [...row]);
 }
