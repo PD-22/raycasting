@@ -2,11 +2,11 @@
 
 let width, height, mapHeight, mapWidth, cls, ratio, mapZoomed,
     rayBuf, fov, worldMap, renderMap, renderView, mapOff, drawOff,
-    mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1,
+    mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1, pixelCount,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, displayScale,
     stopRender = false // temp
 
-let timersLog = {};
+let timerLogs = {};
 
 function setup() {
     displayWidth = 160;
@@ -56,12 +56,27 @@ function draw() {
 
     // debugging
     push();
+    noStroke();
+    let logs = Object.entries(timerLogs);
     fill(0);
-    rect(0, 0, 80, 55);
+    rect(0, 0, 90, 50 + logs.length * 25);
     fill('white');
     text(`FPS: ${Math.round(1000 / deltaTime)}`, 10, 20);
     text(`PPF: ${pixelCount}`, 10, 45);
+    logs.forEach(([key, val], i) => {
+        fill('white');
+        text(`${key}: ${val}`, 10, 65 + i * 20);
+        fill(0, 127, 255, 200);
+        rect(0, 50 + i * 20, val, 20);
+    });
     pop();
+}
+
+function time(name, callback) {
+    let start = Date.now();
+    callback();
+    let end = Date.now() - start;
+    timerLogs[name] = end;
 }
 
 function createMyCanvas() {

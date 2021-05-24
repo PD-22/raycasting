@@ -1,6 +1,6 @@
 function drawView() {
-    if (!stopRender) renderDisplay();
-    drawDisplay(displayBuf);
+    time('rndr', () => renderDisplay());
+    time('draw', () => drawDisplay(displayBuf));
 }
 
 function renderDisplay() {
@@ -28,7 +28,9 @@ function getSpriteRays(sprites, x) {
 }
 
 function renderRays(rayArr, x) {
-    rayArr.forEach((ray, i) => {
+    for (let i = 0; i < rayArr.length; i++) {
+        let ray = rayArr[i];
+
         let { lineHeight, texture, txtrOff } = ray;
 
         let txtrHeight = texture.length;
@@ -58,7 +60,7 @@ function renderRays(rayArr, x) {
             }
             displayBuf[y][x] = color;
         }
-    });
+    }
 }
 
 // fixes 0.(9)
@@ -77,11 +79,10 @@ function drawDisplay() {
     for (let y = 0; y < displayHeight; y++) {
         for (let x = 0; x < displayWidth; x++) {
             let color = displayBuf[y][x];
-            temp = color;
             if (prevDisplayBuf?.[y][x] == color) continue;
             pixelCount++;
             fill(color);
-            square(x, y, 1);
+            square(x, y, 1)
         }
     }
     pop();
