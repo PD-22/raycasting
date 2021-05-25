@@ -7,7 +7,7 @@ function renderDisplay() {
     let sprites = Sprite.all.filter(p => !p.me && p.visible);
 
     for (let x = 0; x < displayWidth; x++) {
-        rays = [rayBuf[x], ...getSpriteRays(sprites, x)];
+        let rays = [rayBuf[x], ...getSpriteRays(sprites, x)];
         renderRays(rays, x);
     }
 }

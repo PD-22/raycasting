@@ -9,8 +9,8 @@ let width, height, mapHeight, mapWidth, cls, ratio, mapZoomed,
 let timerLogs = {};
 
 function setup() {
-    displayWidth = 160;
-    displayHeight = 90;
+    displayWidth = 160 / 2;
+    displayHeight = 90 / 2;
     makeDisplayBuf();
 
     createMyCanvas()
@@ -54,20 +54,30 @@ function draw() {
         RIGHT_ARROW
     ]) // for testing
 
-    // debugging
+    logStats();
+}
+
+function logStats() {
     push();
     noStroke();
-    let logs = Object.entries(timerLogs);
     fill(0);
-    rect(0, 0, 90, 50 + logs.length * 25);
-    fill('white');
-    text(`FPS: ${Math.round(1000 / deltaTime)}`, 10, 20);
-    text(`PPF: ${pixelCount}`, 10, 45);
+    timerLogs['FPS'] = Math.round(1000 / deltaTime);
+    timerLogs['PPF'] = pixelCount;
+    let logs = Object.entries(timerLogs).reverse();
+    let logWidth = 90;
+    rect(0, 0, logWidth, logs.length * 20 + 10);
     logs.forEach(([key, val], i) => {
         fill('white');
-        text(`${key}: ${val}`, 10, 65 + i * 20);
-        fill(0, 127, 255, 200);
-        rect(0, 50 + i * 20, val, 20);
+        text(`${key}: ${val}`, 10, (i + 1) * 20);
+        if (['FPS', 'PPF'].some(e => e == key)) return;
+
+        if (val < 1000 / 60)
+            fill(0, 255, 0, 200);
+        else if (val < 2 * 1000 / 60)
+            fill(255, 255, 0, 200);
+        else
+            fill(255, 0, 0, 200);
+        rect(0, i * 20, val % logWidth, 20);
     });
     pop();
 }

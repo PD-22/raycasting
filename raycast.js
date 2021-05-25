@@ -1,6 +1,6 @@
 function calcLineHeight(its) {
     let p = its.dst * cos(radians(pl0.ang - its.ang));
-    return displayHeight / p;
+    return 90 / fov * displayHeight / p;
 }
 
 function getTxtrOff({ side, dir, x, y }) {
