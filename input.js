@@ -1,31 +1,33 @@
 function pointerLocked() {
     return document.pointerLockElement !== null;
-}
+}   
 
 function renderMode(opt = 1) {
     if (opt == 1) {
-        renderMap = false
+        mapVisible = false
         requestPointerLock()
     } else if (opt == 2) {
-        renderMap = true
+        mapVisible = true
         exitPointerLock()
     }
 }
 
-function updateMouse() {
-    mx = mouseX - mapOff.x
-    my = mouseY - mapOff.y
+function getMapMouse() {
+    let x = mouseX - mapOff.x
+    let y = mouseY - mapOff.y
     if (mapZoomed) {
-        mx += (pl0.pos.x - mapWidth / 2) * cls
-        my += (pl0.pos.y - mapHeight / 2) * cls
+        x += (pl0.pos.x - mapWidth / 2) * cls
+        y += (pl0.pos.y - mapHeight / 2) * cls
     }
+    return { x, y };
 }
 
 function mouseOnMap() {
+    let { x, y } = getMapMouse();
     return (
-        renderMap &&
-        mx > 0 && mx < mapWidth * cls &&
-        my > 0 && my < mapHeight * cls
+        mapVisible &&
+        x > 0 && x < mapWidth * cls &&
+        y > 0 && y < mapHeight * cls
     )
 }
 
@@ -44,36 +46,32 @@ function mouseWheel(event) {
 
 function setKeyNum(kc) {
     let kn = kc - 48
-    if (kn < 0 || kn > wallTextures.length) {
+    if (kn < 0 || kn > wallTextures.length)
         placeTxtrNum = 0
-    } else {
+    else
         placeTxtrNum = kn
-    }
 }
 
-function keyPressed(e) {
-    setKeyNum(keyCode)
+function keyPressed() {
+    setKeyNum(keyCode);
 
     if (keyCode == 70) {
-        if (renderMap) {
-            renderMode(1)
-        } else {
-            renderMode(2)
-        }
+        if (mapVisible) renderMode(1);
+        else renderMode(2);
     }
 }
 
 function mousePressed() {
     pl0.aim = (mouseButton == RIGHT);
-    if (renderMap) {
+    if (mapVisible) {
         if (mouseOnMap()) {
-            updateMouse()
-            let cell = getCell(mx, my)
+            let { x, y } = getMapMouse();
+            let cell = getCell(x, y);
             placeCell(worldMap, cell, placeTxtrNum)
         } else {
             renderMode(1)
         }
-    } else if (renderView) {
+    } else if (viewVisible) {
         if (pointerLocked()) pl0.shoot()
         renderMode(1)
     }
@@ -84,10 +82,9 @@ document.oncontextmenu = () => false;
 function mouseReleased() { pl0.aim = false; }
 
 function mouseMoved() {
-    updateMouse()
     if (pointerLocked()) pl0.rotate()
     // for testing
-    if (renderMap) {
+    if (mapVisible) {
         pl1.ang = 180 - degrees(atan2(
             pl1.pos.y * cls + drawOff.y - mouseY,
             pl1.pos.x * cls + drawOff.x - mouseX
@@ -98,6 +95,7 @@ function mouseMoved() {
 
 function mouseDragged() {
     mouseMoved();
-    if (renderMap)
-        placeCell(worldMap, getCell(mx, my), placeTxtrNum)
+    if (!mapVisible) return;
+    let { x, y } = getMapMouse();
+    placeCell(worldMap, getCell(x, y), placeTxtrNum)
 }

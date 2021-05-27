@@ -1,10 +1,10 @@
 // imitate old render
 
-let width, height, mapHeight, mapWidth, cls, ratio, mapZoomed,
-    rayBuf, fov, worldMap, renderMap, renderView, mapOff, drawOff,
-    mx, my, ceilClr, floorClr, placeTxtrNum, pl0, pl1, pixelCount,
+var width, height, mapHeight, mapWidth, cls, mapZoomed,
+    rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
+    ceilClr, floorClr, placeTxtrNum, pl0, pl1,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, displayScale,
-    stopRender = false // temp
+    pixelCount, stopRender = false // debug
 
 let timerLogs = {};
 
@@ -33,15 +33,15 @@ function setup() {
     floorClr = rgbToHex([144, 238, 144]);
     placeTxtrNum = 0
 
-    renderMap = false
-    renderView = true
+    mapVisible = false
+    viewVisible = true
 }
 
 
 function draw() {
     rayBuf = castRays(pl0.pos, pl0.ang)
-    if (renderView) drawView(rayBuf);
-    if (renderMap) drawMap(rayBuf);
+    if (viewVisible) drawView(rayBuf);
+    if (mapVisible) drawMap(rayBuf);
     if (!pl0.alive) {
         fill(0, 127);
         rect(0, 0, width, height);
