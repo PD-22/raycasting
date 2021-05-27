@@ -9,8 +9,8 @@ var width, height, mapHeight, mapWidth, cls, mapZoomed,
 let debugLogs = {};
 
 function setup() {
-    displayWidth = 160 / 2;
-    displayHeight = 90 / 2;
+    displayWidth = 160 * 4 / 5;
+    displayHeight = 90 * 4 / 5;
     makeDisplayBuf();
 
     createMyCanvas()
