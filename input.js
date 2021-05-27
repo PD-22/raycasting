@@ -41,6 +41,8 @@ function mouseWheel(event) {
 
     mapOff = getMapOff()
     drawOff = getDrawMapOff()
+
+    redraw = true;
     return false;
 }
 
