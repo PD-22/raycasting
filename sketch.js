@@ -9,8 +9,8 @@ var width, height, mapHeight, mapWidth, cls, mapZoomed,
 let timerLogs = {};
 
 function setup() {
-    displayWidth = 160 / 2;
-    displayHeight = 90 / 2;
+    displayWidth = 160 * 3 / 5;
+    displayHeight = 90 * 3 / 5;
     makeDisplayBuf();
 
     createMyCanvas()
@@ -21,8 +21,8 @@ function setup() {
     // worldMap = cellularMap(48, 48, 0.45, 8);
     // Player.spawnMany(5);
 
-    pl0 = new Player(7 - 0.01, 3.5 - 0.01, 0, 0.75)
-    pl1 = new Player(8.5, 3.5, 180 - 30)
+    pl0 = new Player(2 - 0.01, 4.5 - 0.01, 0, 0.75)
+    pl1 = new Player(3.5, 4.5, 180 - 30)
     Player.spawnMany(5);
     fov = 90
     mapZoomed = false
@@ -35,7 +35,7 @@ function setup() {
 
     redraw = stopRender = false;
 
-    mapVisible = false
+    mapVisible = false;
     logVisible = false
     viewVisible = true
 }
