@@ -55,11 +55,14 @@ function setKeyNum(kc) {
 function keyPressed() {
     setKeyNum(keyCode);
 
+    if (keyCode == 32) pl0.shoot();
+
     if (keyCode == 70) {
         redraw = mapVisible;
         if (mapVisible) renderMode(1);
         else renderMode(2);
     }
+
     if (keyCode == 71) {
         redraw = logVisible;
         logVisible = !logVisible;
@@ -87,7 +90,7 @@ document.oncontextmenu = () => false;
 function mouseReleased() { pl0.aim = false; }
 
 function mouseMoved() {
-    if (pointerLocked()) pl0.rotate()
+    if (pointerLocked()) pl0.rotate(movedX)
     // for testing
     if (mapVisible) {
         pl1.ang = 180 - degrees(atan2(

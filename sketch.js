@@ -43,15 +43,12 @@ function setup() {
 
 function draw() {
     rayBuf = castRays(pl0.pos, pl0.ang)
+
     if (viewVisible) drawView(rayBuf);
     if (mapVisible) drawMap(rayBuf);
     if (logVisible) logStats();
-    if (!pl0.alive) {
-        fill(0, 127);
-        rect(0, 0, width, height);
-    }
+
     pl0.update([87, 65, 83, 68, 81, 69])
-    if (keyIsDown(32)) pl0.shoot();
 
     // for testing
     pl1.update([

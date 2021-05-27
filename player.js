@@ -148,10 +148,12 @@ class Player extends Sprite {
     }
 
     update(keys = undefined) {
+        let moveKeys = keys.slice(0, 4);
+        let rotateKeys = keys.slice(4);
         this.updateAnimation();
-        this.updateVelocity(keys.slice(0, 4));
+        this.updateVelocity(moveKeys);
         this.updatePosition();
-        this.updateRotate(keys.slice(-2));
+        this.updateRotate(rotateKeys);
         this.respondToCollision();
     }
 
