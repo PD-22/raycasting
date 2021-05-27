@@ -35,7 +35,6 @@ class Player extends Sprite {
     }
 
     updateTexture({ txtrAng }) {
-        fill('red')
         let length = Player.textures.length - 1;
         let offAng = 180 / 8;
         let ang = (txtrAng + 360 + offAng) % 360;
