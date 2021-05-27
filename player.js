@@ -10,7 +10,9 @@ class Player extends Sprite {
         this.speed = speed;
         this.txtrIndex = 0;
         this.txtrIndexOff = 0;
-        this.animationOff = 0;
+        this.moveAnimIndex = 0;
+        this.gunAnimIndex = 0;
+        this.shooting = false;
         this.dir = { x: 0, y: 0 };
         this.vel = { x: 0, y: 0 };
         this.alive = true
@@ -51,13 +53,14 @@ class Player extends Sprite {
     static all = []
 
     shoot() {
-        if (!this.alive) return;
+        if (!this.alive || this.shooting) return;
         let shot = Player.all.filter(p => p != this && p.alive)
             .map(p => ({ p, its: p.castRaySprt(this, this.ang, 1 / 6) }))
             .filter(e => e.its != undefined)
             .sort((a, b) => a.its.dst - b.its.dst)
             .map(e => e.p);
         shot.forEach(p => p.alive = false);
+        this.shooting = true;
     }
 
     rotate(deltaAng = 0) {
@@ -77,20 +80,20 @@ class Player extends Sprite {
     updateAnimation() {
         if (this.alive) {
             if (this.dir.x || this.dir.y) {
-                let animationOff = Math.floor(this.animationOff) * 8;
+                let animationOff = Math.floor(this.moveAnimIndex) * 8;
                 this.txtrIndexOff = 8 + animationOff;
-                this.animationOff =
-                    (this.animationOff - deltaTime / 160) % 4;
-                if (this.animationOff < 0)
-                    this.animationOff += 4;
+                this.moveAnimIndex =
+                    (this.moveAnimIndex - deltaTime / 160) % 4;
+                if (this.moveAnimIndex < 0)
+                    this.moveAnimIndex += 4;
             } else {
                 this.txtrIndexOff = 0;
-                this.animationOff = 0;
+                this.moveAnimIndex = 0;
             };
         } else {
             if (this.txtrIndex < Player.textures.length - 1) {
-                this.animationOff = (this.animationOff - deltaTime / 160);
-                this.txtrIndexOff = -Math.floor(this.animationOff)
+                this.moveAnimIndex = (this.moveAnimIndex - deltaTime / 160);
+                this.txtrIndexOff = -Math.floor(this.moveAnimIndex)
             }
         }
     }

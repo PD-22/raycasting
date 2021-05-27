@@ -6,7 +6,7 @@ var width, height, mapHeight, mapWidth, cls, mapZoomed,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, displayScale,
     pixelCount, redraw, stopRender
 
-let timerLogs = {};
+let debugLogs = {};
 
 function setup() {
     displayWidth = 160 / 2;
@@ -23,7 +23,7 @@ function setup() {
 
     pl0 = new Player(2 - 0.01, 4.5 - 0.01, 0, 0.75)
     pl1 = new Player(3.5, 4.5, 180 - 0)
-    Player.spawnMany(5);
+    Player.spawnMany(8);
     fov = 90
     mapZoomed = false
     fitMap()
@@ -36,7 +36,7 @@ function setup() {
     redraw = stopRender = false;
 
     mapVisible = false;
-    logVisible = true;
+    logVisible = false;
     viewVisible = true;
 }
 
@@ -64,14 +64,16 @@ function logStats() {
     push();
     noStroke();
     fill(0);
-    timerLogs['FPS'] = Math.round(1000 / deltaTime);
-    timerLogs['PPF'] = pixelCount;
-    let logs = Object.entries(timerLogs).reverse();
+    debugLogs['FPS'] = Math.round(1000 / deltaTime);
+    debugLogs['PPF'] = pixelCount;
+    let logs = Object.entries(debugLogs).reverse();
     let logWidth = 90;
     rect(0, 0, logWidth, logs.length * 20 + 10);
     logs.forEach(([key, val], i) => {
+        if (typeof val == 'number')
+            val = Math.round(val.toFixed(2));
         fill('white');
-        text(`${key}: ${Math.round(val.toFixed(3))}`, 10, (i + 1) * 20);
+        text(`${key}: ${val}`, 10, (i + 1) * 20);
         if (['FPS', 'PPF'].some(e => e == key)) return;
 
         if (val < 1000 / 60)
@@ -89,7 +91,7 @@ function time(name, callback) {
     let start = Date.now();
     callback();
     let end = Date.now() - start;
-    timerLogs[name] = end;
+    debugLogs[name] = end;
 }
 
 function createMyCanvas() {

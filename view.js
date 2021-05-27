@@ -16,8 +16,14 @@ function renderDisplay() {
 }
 
 function renderGun() {
-    if (gunTexInd > 2) gunTexInd = 0;
-    let gunTex = gunTexs[gunTexInd];
+    if (pl0.shooting) {
+        pl0.gunAnimIndex += deltaTime / 120;
+        if (pl0.gunAnimIndex > 3) {
+            pl0.gunAnimIndex = 0;
+            pl0.shooting = false;
+        }
+    }
+    let gunTex = gunTexs[Math.floor(pl0.gunAnimIndex)];
 
     let texRows = gunTex.length;
     let texCols = gunTex[0].length;
