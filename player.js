@@ -60,7 +60,7 @@ class Player extends Sprite {
         shot.forEach(p => p.alive = false);
     }
 
-    rotate(deltaAng = movedX) {
+    rotate(deltaAng = 0) {
         if (!this.alive) return
         // if (this.aim) angD /= 2;
         let smoothAng = deltaAng * deltaTime / 110;
@@ -152,13 +152,7 @@ class Player extends Sprite {
         this.updateVelocity(keys.slice(0, 4));
         this.updatePosition();
         this.updateRotate(keys.slice(-2));
-        this.updateShoot();
         this.respondToCollision();
-    }
-
-    updateShoot() {
-        if (!keyIsDown(32)) return;
-        pl0.shoot();
     }
 
     updateRotate([left, right]) {

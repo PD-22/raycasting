@@ -51,12 +51,15 @@ function draw() {
         rect(0, 0, width, height);
     }
     pl0.update([87, 65, 83, 68, 81, 69])
+    if (keyIsDown(32)) pl0.shoot();
+
+    // for testing
     pl1.update([
         UP_ARROW,
         LEFT_ARROW,
         DOWN_ARROW,
         RIGHT_ARROW
-    ]) // for testing
+    ])
 }
 
 function logStats() {
