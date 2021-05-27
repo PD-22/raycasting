@@ -1,5 +1,6 @@
 function drawView() {
-    time('rndr', () => renderDisplay());
+    if (!stopRender)
+        time('rndr', () => renderDisplay());
     time('draw', () => drawDisplay(displayBuf));
 }
 
@@ -9,6 +10,28 @@ function renderDisplay() {
     for (let x = 0; x < displayWidth; x++) {
         let rays = [rayBuf[x], ...getSpriteRays(sprites, x)];
         renderRays(rays, x);
+    }
+
+    renderGun();
+}
+
+function renderGun() {
+    if (gunTexInd > 2) gunTexInd = 0;
+    let gunTex = gunTexs[gunTexInd];
+
+    let texRows = gunTex.length;
+    let texCols = gunTex[0].length;
+
+    let xOff = (displayWidth - texCols) / 2;
+    xOff = Math.floor(xOff);
+    let yOff = displayHeight - texRows;
+
+    for (let y = 0; y < texRows; y++) {
+        for (let x = 0; x < texCols; x++) {
+            let clr = gunTex[y][x];
+            if (clr == -1) continue;
+            displayBuf[y + yOff][x + xOff] = clr;
+        }
     }
 }
 

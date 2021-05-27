@@ -1,6 +1,15 @@
 wg_64 = wg_64.map(rgbTxtrToHex);
 myWallTexture = rgbTxtrToHex(myWallTexture);
 
+let gunTexs = [];
+(function loadGunTexs() {
+    for (let i = 0; i < 3; i++) {
+        loadTxtr_src(`/textures/gun/${i + 1}.png`)
+            .then(t => gunTexs[i] = rgbTxtrToHex(t));
+    }
+})();
+let gunTexInd = 0;
+
 Player.textures = wg_64;
 
 let wallTextures = randomTextures(10, 2);

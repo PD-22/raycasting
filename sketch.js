@@ -58,10 +58,6 @@ function draw() {
         DOWN_ARROW,
         RIGHT_ARROW
     ])
-
-    timerLogs['A'] = pl1.animationOff;
-    timerLogs['O'] = pl1.txtrIndexOff;
-    timerLogs['I'] = pl1.txtrIndex;
 }
 
 function logStats() {

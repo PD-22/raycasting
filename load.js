@@ -1,4 +1,4 @@
-function loadTxtrs_src(src) {
+function loadTxtr_src(src) {
   return new Promise(res => {
     let image = document.createElement('img');
     image.src = src;
