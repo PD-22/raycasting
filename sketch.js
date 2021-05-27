@@ -46,7 +46,7 @@ function draw() {
         fill(0, 127);
         rect(0, 0, width, height);
     }
-    pl0.update([87, 65, 83, 68])
+    pl0.update([87, 65, 83, 68, 81, 69])
     pl1.update([
         UP_ARROW,
         LEFT_ARROW,

@@ -61,11 +61,11 @@ class Player extends Sprite {
         shot.forEach(p => p.alive = false);
     }
 
-    rotate(deltaAng = -movedX) {
+    rotate(deltaAng = movedX) {
         if (!this.alive) return
         // if (this.aim) angD /= 2;
         let smoothAng = deltaAng * deltaTime / 110;
-        this.ang += smoothAng % 360;
+        this.ang -= smoothAng % 360;
     }
 
     static spawnMany(n) {
@@ -149,9 +149,23 @@ class Player extends Sprite {
 
     update(keys = undefined) {
         this.updateAnimation();
-        this.updateVelocity(keys);
+        this.updateVelocity(keys.slice(0, 4));
         this.updatePosition();
+        this.updateRotate(keys.slice(-2));
+        this.updateShoot();
         this.respondToCollision();
+    }
+
+    updateShoot() {
+        if (!keyIsDown(32)) return;
+        pl0.shoot();
+    }
+
+    updateRotate([left, right]) {
+        let dir = 0;
+        if (keyIsDown(left)) dir--;
+        if (keyIsDown(right)) dir++;
+        this.rotate(dir * 10);
     }
 
     respondToCollision() {
