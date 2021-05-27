@@ -9,8 +9,8 @@ var width, height, mapHeight, mapWidth, cls, mapZoomed,
 let timerLogs = {};
 
 function setup() {
-    displayWidth = 160 * 3 / 5;
-    displayHeight = 90 * 3 / 5;
+    displayWidth = 160 / 2;
+    displayHeight = 90 / 2;
     makeDisplayBuf();
 
     createMyCanvas()
@@ -22,7 +22,7 @@ function setup() {
     // Player.spawnMany(5);
 
     pl0 = new Player(2 - 0.01, 4.5 - 0.01, 0, 0.75)
-    pl1 = new Player(3.5, 4.5, 180 - 30)
+    pl1 = new Player(3.5, 4.5, 180 - 0)
     Player.spawnMany(5);
     fov = 90
     mapZoomed = false
@@ -36,8 +36,8 @@ function setup() {
     redraw = stopRender = false;
 
     mapVisible = false;
-    logVisible = false
-    viewVisible = true
+    logVisible = true;
+    viewVisible = true;
 }
 
 
@@ -49,6 +49,7 @@ function draw() {
     if (logVisible) logStats();
 
     pl0.update([87, 65, 83, 68, 81, 69])
+    Player.animateAll();
 
     // for testing
     pl1.update([
@@ -57,6 +58,10 @@ function draw() {
         DOWN_ARROW,
         RIGHT_ARROW
     ])
+
+    timerLogs['A'] = pl1.animationOff;
+    timerLogs['O'] = pl1.txtrIndexOff;
+    timerLogs['I'] = pl1.txtrIndex;
 }
 
 function logStats() {
@@ -70,7 +75,7 @@ function logStats() {
     rect(0, 0, logWidth, logs.length * 20 + 10);
     logs.forEach(([key, val], i) => {
         fill('white');
-        text(`${key}: ${val}`, 10, (i + 1) * 20);
+        text(`${key}: ${Math.round(val.toFixed(3))}`, 10, (i + 1) * 20);
         if (['FPS', 'PPF'].some(e => e == key)) return;
 
         if (val < 1000 / 60)

@@ -39,7 +39,7 @@ class Player extends Sprite {
         let offAng = 180 / 8;
         let ang = (txtrAng + 360 + offAng) % 360;
         let txtrSide = this.alive ?
-            Math.floor(ang / 2 / offAng) : 46;
+            Math.floor(ang / 2 / offAng) : 45;
         let txtrIndex = Math.floor(txtrSide + this.txtrIndexOff);
         if (txtrIndex > length) txtrIndex = length;
         this.txtrIndex = txtrIndex;
@@ -75,15 +75,23 @@ class Player extends Sprite {
     static rad = 1 / 4;
 
     updateAnimation() {
-        if (this.dir.x || this.dir.y) {
-            let animationOff = Math.floor(this.animationOff) * 8;
-            this.txtrIndexOff = 8 + animationOff;
-            this.animationOff =
-                (this.animationOff - deltaTime / 160) % 4;
-            if (this.animationOff < 0)
-                this.animationOff += 4;
+        if (this.alive) {
+            if (this.dir.x || this.dir.y) {
+                let animationOff = Math.floor(this.animationOff) * 8;
+                this.txtrIndexOff = 8 + animationOff;
+                this.animationOff =
+                    (this.animationOff - deltaTime / 160) % 4;
+                if (this.animationOff < 0)
+                    this.animationOff += 4;
+            } else {
+                this.txtrIndexOff = 0;
+                this.animationOff = 0;
+            };
         } else {
-            this.txtrIndexOff = 0;
+            if (this.txtrIndex < Player.textures.length - 1) {
+                this.animationOff = (this.animationOff - deltaTime / 160);
+                this.txtrIndexOff = -Math.floor(this.animationOff)
+            }
         }
     }
 
@@ -147,10 +155,13 @@ class Player extends Sprite {
         this.pos.y += this.vel.y;
     }
 
+    static animateAll() {
+        Player.all.forEach(p => p.updateAnimation());
+    }
+
     update(keys = undefined) {
         let moveKeys = keys.slice(0, 4);
         let rotateKeys = keys.slice(4);
-        this.updateAnimation();
         this.updateVelocity(moveKeys);
         this.updatePosition();
         this.updateRotate(rotateKeys);
