@@ -169,28 +169,28 @@ class Player extends Sprite {
     }
 
     respondToCollision() {
-        this.getAdjCells().forEach((cell, i) => {
+        let respond = cell => {
             let cellVal = getCellVal(cell);
             let collision = this.checkCollision(cell);
-            if (cellVal != 0 && collision != null) {
-                if (collision.type == 'side') {
-                    let axis = collision.value;
-                    let center = cell[axis] + 0.5
-                    let sign = Math.sign(this.pos[axis] - center);
-                    this.pos[axis] = center + sign * (0.5 + Player.rad);
-                } else if (collision.type == 'corner') {
-                    let delta = {
-                        x: this.pos.x - collision.value.x,
-                        y: this.pos.y - collision.value.y
-                    }
-                    let axis = Math.abs(delta.x) < Math.abs(delta.y) ? 'y' : 'x';
-                    let axis2 = axis == 'y' ? 'x' : 'y';
-                    this.pos[axis] =
-                        collision.value[axis] + Math.sign(delta[axis]) *
-                        Math.sqrt(Player.rad ** 2 - delta[axis2] ** 2);
+            if (cellVal == 0 || collision == null) return;
+            if (collision.type == 'side') {
+                let axis = collision.value;
+                let center = cell[axis] + 0.5
+                let sign = Math.sign(this.pos[axis] - center);
+                this.pos[axis] = center + sign * (0.5 + Player.rad);
+            } else if (collision.type == 'corner') {
+                let delta = {
+                    x: this.pos.x - collision.value.x,
+                    y: this.pos.y - collision.value.y
                 }
+                let axis = Math.abs(delta.x) < Math.abs(delta.y) ? 'y' : 'x';
+                let axis2 = axis == 'y' ? 'x' : 'y';
+                this.pos[axis] =
+                    collision.value[axis] + Math.sign(delta[axis]) *
+                    Math.sqrt(Player.rad ** 2 - delta[axis2] ** 2);
             }
-        })
+        }
+        this.getAdjCells().forEach(respond);
     }
 
     checkCollision(cell) {
