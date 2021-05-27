@@ -54,7 +54,9 @@ function renderRays(rayArr, x) {
                 let txtrY = deltaY * lineTxtrRatio;
                 txtrY = Math.floor(floatFix(txtrY));
                 color = texture[txtrY][txtrX];
-                if (color == -1) continue;
+                let hasAlpha = Array.isArray(color)
+                    && color[3] != 255;
+                if (color == -1 || hasAlpha) continue;
                 if (ray?.side == 'y')
                     color = multColor(color, 0.75);
             }

@@ -66,6 +66,7 @@ class Player extends Sprite {
         // if (this.aim) angD /= 2;
         let smoothAng = deltaAng * deltaTime / 110;
         this.ang -= smoothAng % 360;
+        this.ang = normalAng(this.ang);
     }
 
     static spawnMany(n) {

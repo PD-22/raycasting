@@ -1,8 +1,8 @@
 function normalAng(ang) {
     if (ang > 180)
-        return ang - 360
+        return ang % 360 - 360
     if (ang < -180)
-        return ang + 360
+        return ang % 360 + 360
     return ang
 }
 
