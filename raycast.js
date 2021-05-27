@@ -16,13 +16,13 @@ function castRays(pos, offAng) {
     rayBuf = []
     let inc = fov / displayWidth;
     for (let ang = offAng - fov / 2; ang < offAng + fov / 2; ang += inc) {
-        let its = castRay(pos, ang)
+        let its = castWallRay(pos, ang)
         rayBuf.unshift(its)
     }
     return rayBuf
 }
 
-function castRay(pos, ang) {
+function castWallRay(pos, ang) {
     let cell = { x: Math.floor(pos.x), y: Math.floor(pos.y) }
     let off = { x: pos.x - cell.x, y: pos.y - cell.y }
     let dir = angToDir(ang)
