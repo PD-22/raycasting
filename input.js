@@ -1,6 +1,6 @@
 function pointerLocked() {
     return document.pointerLockElement !== null;
-}   
+}
 
 function renderMode(opt = 1) {
     if (opt == 1) {
@@ -56,8 +56,13 @@ function keyPressed() {
     setKeyNum(keyCode);
 
     if (keyCode == 70) {
+        redraw = mapVisible;
         if (mapVisible) renderMode(1);
         else renderMode(2);
+    }
+    if (keyCode == 71) {
+        redraw = logVisible;
+        logVisible = !logVisible;
     }
 }
 

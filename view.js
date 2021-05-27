@@ -81,12 +81,14 @@ function drawDisplay() {
     for (let y = 0; y < displayHeight; y++) {
         for (let x = 0; x < displayWidth; x++) {
             let color = displayBuf[y][x];
-            if (prevDisplayBuf?.[y][x] == color) continue;
+            if (!redraw && prevDisplayBuf
+                ?.[y][x] == color) continue;
             pixelCount++;
             fill(color);
             square(x, y, 1)
         }
     }
+    redraw = false
     pop();
     prevDisplayBuf = displayBuf.map(row => [...row]);
 }

@@ -2,9 +2,9 @@
 
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
-    ceilClr, floorClr, placeTxtrNum, pl0, pl1,
+    ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, displayScale,
-    pixelCount, stopRender = false // debug
+    pixelCount, redraw, stopRender
 
 let timerLogs = {};
 
@@ -33,7 +33,10 @@ function setup() {
     floorClr = rgbToHex([144, 238, 144]);
     placeTxtrNum = 0
 
+    redraw = stopRender = false;
+
     mapVisible = false
+    logVisible = false
     viewVisible = true
 }
 
@@ -42,6 +45,7 @@ function draw() {
     rayBuf = castRays(pl0.pos, pl0.ang)
     if (viewVisible) drawView(rayBuf);
     if (mapVisible) drawMap(rayBuf);
+    if (logVisible) logStats();
     if (!pl0.alive) {
         fill(0, 127);
         rect(0, 0, width, height);
@@ -53,8 +57,6 @@ function draw() {
         DOWN_ARROW,
         RIGHT_ARROW
     ]) // for testing
-
-    logStats();
 }
 
 function logStats() {
