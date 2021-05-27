@@ -81,8 +81,11 @@ function drawDisplay() {
     for (let y = 0; y < displayHeight; y++) {
         for (let x = 0; x < displayWidth; x++) {
             let color = displayBuf[y][x];
+            if (!pl0.alive) color
+                = multColor(color, 1 / 4);
             if (!redraw && prevDisplayBuf
                 ?.[y][x] == color) continue;
+            prevDisplayBuf[y][x] = color;
             pixelCount++;
             fill(color);
             square(x, y, 1)
@@ -90,13 +93,13 @@ function drawDisplay() {
     }
     redraw = false
     pop();
-    prevDisplayBuf = displayBuf.map(row => [...row]);
 }
 
-function makeDisplayBuf() {
+function makeDisplayBuf(callback = () => -1) {
     let rows = displayWidth / 16 * 9;
     rows = Math.floor(rows);
     displayBuf = Array(rows).fill()
-        .map(() => Array(displayWidth).fill()
-            .map(() => randomColor()));
+        .map((_, y) => Array(displayWidth).fill()
+            .map((_, x) => callback(x, y)));
+    prevDisplayBuf = displayBuf.map(row => [...row]);
 }
