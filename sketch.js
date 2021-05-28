@@ -14,7 +14,6 @@ function setup() {
     makeDisplayBuf();
 
     createMyCanvas()
-    background('gray')
 
     worldMap = makeMap(myMap);
 
