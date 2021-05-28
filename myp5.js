@@ -41,6 +41,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function createCanvas(width, height) {
     canvas = document.createElement('canvas');
+    canvas.className = 'wolf3d';
     canvas.width = width;
     canvas.height = height;
     document.body.append(canvas);
