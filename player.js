@@ -140,15 +140,15 @@ class Player extends Sprite {
             vel.y /= mag
         }
 
-        vel.x *= this.speed / 20
+        vel.x *= this.speed / 30
         vel.x *= deltaTime / 14
-        vel.y *= this.speed / 20
+        vel.y *= this.speed / 30
         vel.y *= deltaTime / 14
 
 
         if (this.me && keyIsDown(SHIFT)) {
-            vel.x *= 2
-            vel.y *= 2
+            vel.x *= 1.75
+            vel.y *= 1.75
         }
 
         this.vel = vel;

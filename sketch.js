@@ -14,15 +14,13 @@ function setup() {
     makeDisplayBuf();
 
     createMyCanvas()
-
     worldMap = makeMap(myMap);
 
     // worldMap = cellularMap(48, 48, 0.45, 8);
-    // Player.spawnMany(5);
 
-    pl0 = new Player(2 - 0.01, 4.5 - 0.01, 0, 0.75)
-    pl1 = new Player(3.5, 4.5, 180 - 0)
-    Player.spawnMany(8);
+    pl0 = new Player(18.01, 3.01, 180)
+    pl1 = new Player(16.02, 3.02, 0)
+    Player.spawnMany(16);
     fov = 90
     mapZoomed = false
     fitMap()
