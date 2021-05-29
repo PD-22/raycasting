@@ -17,7 +17,6 @@ class Player extends Sprite {
         this.vel = { x: 0, y: 0 };
         this.alive = true
         this.me = Player.all.length == 0
-        if (this.me) this.aim = false;
         Player.all.push(this)
     }
 
@@ -66,7 +65,6 @@ class Player extends Sprite {
 
     rotate(deltaAng = 0) {
         if (!this.alive) return
-        // if (this.aim) angD /= 2;
         let smoothAng = deltaAng * deltaTime / 110;
         this.ang -= smoothAng % 360;
         this.ang = normalAng(this.ang);

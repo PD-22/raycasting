@@ -1,5 +1,9 @@
-function fitMap() { // should depend on resolution
-    cls = height / mapHeight;
+function fitMap() { // fix...
+    if (height < width) {
+        cls = height / mapHeight;
+    } else {
+        cls = width / mapWidth;
+    }
 }
 
 function getDrawMapOff() {

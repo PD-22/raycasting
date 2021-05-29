@@ -32,8 +32,8 @@ function mouseOnMap() {
 }
 
 function mouseWheel(event) {
-    let scroll = event.delta < 0
-    if (scroll) cls *= 1.1
+    let zoomDir = event.deltaY < 0
+    if (zoomDir) cls *= 1.1
     else cls /= 1.1
 
     mapZoomed = cls * mapWidth > width || cls * mapHeight > height
@@ -72,7 +72,6 @@ function keyPressed() {
 }
 
 function mousePressed() {
-    pl0.aim = (mouseButton == RIGHT);
     if (mapVisible) {
         if (mouseOnMap()) {
             let { x, y } = getMapMouse();
@@ -88,8 +87,6 @@ function mousePressed() {
 }
 
 document.oncontextmenu = () => false;
-
-function mouseReleased() { pl0.aim = false; }
 
 function mouseMoved() {
     if (pointerLocked()) pl0.rotate(movedX)
