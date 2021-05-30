@@ -99,13 +99,13 @@ var noStroke = () => ctx.noStroke = true;
 var stroke = (...color) => {
     ctx.noStroke = false;
     if (color != undefined) {
-        if (color[0][0] != '#') {
+        if (typeof color[0] != 'string') {
             if (color.length == 1 || color.length == 2) {
                 result = Array(3).fill(color[0]);
                 if (color.length == 2) result[3] = color[1];
                 color = result;
             }
-            color[3] ??= 0;
+            color[3] ??= 255;
             color[3] = (color[3] / 255).toFixed(3);
             color = 'rgba(' + color.join(',') + ')';
         } else color = color[0];
@@ -115,13 +115,13 @@ var stroke = (...color) => {
 var strokeWeight = x => { ctx.lineWidth = x };
 var scale = (x, y = x) => ctx.scale(x, y);
 var fill = (...color) => {
-    if (color[0][0] != '#') {
+    if (typeof color[0] != 'string') {
         if (color.length == 1 || color.length == 2) {
             result = Array(3).fill(color[0]);
             if (color.length == 2) result[3] = color[1];
             color = result;
         }
-        color[3] ??= 0;
+        color[3] ??= 255;
         color[3] = (color[3] / 255).toFixed(3);
         color = 'rgba(' + color.join(',') + ')';
     } else color = color[0];
@@ -148,6 +148,10 @@ var line = (x1, y1, x2, y2) => {
     ctx.lineTo(x2, y2);
     ctx.fill();
     if (!ctx.noStroke) ctx.stroke();
+}
+var text = (text, x, y) => {
+    ctx.fillText(text, x, y);
+    if (!ctx.noStroke) ctx.strokeText(text, x, y);
 }
 
 const PI = Math.PI
