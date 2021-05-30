@@ -31,7 +31,7 @@ function setup() {
     redraw = stopRender = false;
 
     mapVisible = false;
-    logVisible = true;
+    logVisible = false;
     viewVisible = true;
 }
 

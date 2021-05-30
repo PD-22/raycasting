@@ -1,5 +1,5 @@
 wg_64 = wg_64.map(rgbTxtrToHex);
-myWallTexture = rgbTxtrToHex(myWallTexture);
+wall_64 = rgbTxtrToHex(wall_64);
 
 let gunTexs = gun_16.map(rgbTxtrToHex);
 let gunTexInd = 0;
@@ -7,7 +7,7 @@ let gunTexInd = 0;
 Player.textures = wg_64;
 
 let wallTextures = randomTextures(10, 2);
-wallTextures[1] = myWallTexture;
+wallTextures[1] = wall_64;
 
 let myMap = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
