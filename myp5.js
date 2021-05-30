@@ -97,6 +97,8 @@ var pop = () => ctx.restore();
 var translate = (x, y) => ctx.translate(x, y);
 var noStroke = () => ctx.noStroke = true;
 var stroke = (...color) => {
+    if (Array.isArray(color[0]))
+        color = [...color[0]];
     ctx.noStroke = false;
     if (color != undefined) {
         if (typeof color[0] != 'string') {
@@ -115,6 +117,8 @@ var stroke = (...color) => {
 var strokeWeight = x => { ctx.lineWidth = x };
 var scale = (x, y = x) => ctx.scale(x, y);
 var fill = (...color) => {
+    if (Array.isArray(color[0]))
+        color = [...color[0]];
     if (typeof color[0] != 'string') {
         if (color.length == 1 || color.length == 2) {
             result = Array(3).fill(color[0]);
