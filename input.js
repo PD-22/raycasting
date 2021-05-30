@@ -81,7 +81,9 @@ function mousePressed() {
             renderMode(1)
         }
     } else if (viewVisible) {
-        if (pointerLocked()) pl0.shoot()
+        if (pointerLocked()) {
+            if (mouseButton == LEFT) pl0.shoot();
+        }
         renderMode(1)
     }
 }

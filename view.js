@@ -81,7 +81,7 @@ function renderRays(rayArr, x) {
             } else {
                 let deltaY = y - lineStart;
                 let txtrY = deltaY * lineTxtrRatio;
-                txtrY = Math.floor(floatFix(txtrY));
+                txtrY = Math.floor(floatFix(txtrY)) || 0; // fix me
                 color = texture[txtrY][txtrX];
                 let hasAlpha = Array.isArray(color)
                     && color[3] != 255;

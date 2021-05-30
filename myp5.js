@@ -5,6 +5,7 @@ var canvas, ctx, deltaTime,
     exitPointerLock,
     movedX, movedY,
     mouseX, mouseY,
+    mouseButton,
     keyCode;
 
 var draw, setup, keyPressed,
@@ -26,6 +27,9 @@ const UP_ARROW = 38;
 const LEFT_ARROW = 37;
 const DOWN_ARROW = 40;
 const RIGHT_ARROW = 39;
+const LEFT = 0;
+const MIDDLE = 1;
+const RIGHT = 2;
 
 window.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('keydown', evt => {
@@ -40,10 +44,12 @@ window.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('mousewheel', evt => mouseWheel?.(evt));
     document.body.addEventListener('mousedown', evt => {
         inputLogger.mouseDown = true;
+        mouseButton = evt.button;
         mousePressed?.(evt);
     });
     document.body.addEventListener('mouseup', evt => {
         inputLogger.mouseDown = false;
+        mouseButton = evt.button;
         mouseReleased?.(evt);
     });
     document.body.addEventListener('mousemove', evt => {
