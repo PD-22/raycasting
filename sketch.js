@@ -20,7 +20,7 @@ function setup() {
 
     pl0 = new Player(18.501, 3.501, 180)
     pl1 = new Player(16.502, 3.502, 0)
-    Player.spawnMany(180);
+    Player.spawnMany(16);
     fov = 90
     mapZoomed = false
     fitMap()
