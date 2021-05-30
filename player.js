@@ -245,9 +245,9 @@ class Player extends Sprite {
     static randPos() {
         let spaces = copyMatrix(worldMap)
         for (let i = 0; i < spaces.length; i++) {
-            for (let j = 0; j < worldMap[0].length; j++) {
+            for (let j = 0; j < spaces[0].length; j++) {
                 let ri = Math.floor(Math.random() * spaces.length)
-                let rj = Math.floor(Math.random() * spaces.length)
+                let rj = Math.floor(Math.random() * spaces[0].length)
                 spaces[i][j] = { i: ri, j: rj }
                 spaces[ri][rj] = { i: i, j: j }
             }
@@ -256,14 +256,27 @@ class Player extends Sprite {
         for (let i = 0; i < spaces.length; i++) {
             for (let j = 0; j < spaces[0].length; j++) {
                 const c = spaces[i][j]
-                if (worldMap[c.i][c.j] == 0) {
+
+                let taken = false;
+                Player.all.forEach(p => {
+                    let { pos } = p;
+                    if (Math.floor(pos.y) == c.i &&
+                        Math.floor(pos.x) == c.j) {
+                        taken = true;
+                        return;
+                    }
+                });
+
+                if (worldMap[c.i][c.j] == 0 && !taken) {
                     return { y: 0.5 + c.i, x: 0.5 + c.j }
                 }
             }
         }
+
+        console.error('bad spawn');
         return {
-            x: 0.5 + worldMap.length / 2 + 0.5,
-            y: 0.5 + worldMap[0].length / 2
+            y: floor(random() * worldMap.length) + 0.5,
+            x: floor(random() * worldMap[0].length) + 0.5,
         }
     }
 }
