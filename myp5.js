@@ -16,6 +16,8 @@ var draw, setup, keyPressed,
 
 var inputLogger = {};
 
+window.addEventListener('blur', e => inputLogger = {});
+
 const SHIFT = 16;
 const CONTROL = 17;
 const ALT = 18;
