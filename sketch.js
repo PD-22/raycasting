@@ -3,14 +3,14 @@
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,
-    displayBuf, prevDisplayBuf, displayWidth, displayHeight, displayScale,
+    displayBuf, prevDisplayBuf, displayWidth, displayHeight, dScale,
     pixelCount, redraw, stopRender
 
 let debugLogs = {};
 
 function setup() {
-    displayWidth = 160 * 4 / 5;
-    displayHeight = 90 * 4 / 5;
+    displayWidth = 160;
+    displayHeight = 90;
     makeDisplayBuf();
 
     createMyCanvas()
@@ -33,7 +33,7 @@ function setup() {
     redraw = stopRender = false;
 
     mapVisible = false;
-    logVisible = false;
+    logVisible = true;
     viewVisible = true;
 }
 
@@ -60,7 +60,7 @@ function draw() {
 function logStats() {
     push();
     noStroke();
-    fill(0);
+    fill(0, 200);
     debugLogs['FPS'] = Math.round(1000 / deltaTime);
     debugLogs['PPF'] = pixelCount;
     let logs = Object.entries(debugLogs).reverse();
@@ -76,9 +76,9 @@ function logStats() {
         if (val < 1000 / 60)
             fill(0, 255, 0, 200);
         else if (val < 2 * 1000 / 60)
-            fill(255, 255, 0, 200);
-        else
             fill(255, 0, 0, 200);
+        else
+            fill(255, 255, 0, 200);
         rect(0, i * 20, val % logWidth, 20);
     });
     pop();
@@ -92,12 +92,12 @@ function time(name, callback) {
 }
 
 function createMyCanvas() {
-    displayScale = Math.floor(window.innerWidth / displayWidth);
-    width = displayWidth * displayScale;
+    dScale = Math.floor(window.innerWidth / displayWidth);
+    width = displayWidth * dScale;
     height = width / 16 * 9;
     if (height > window.innerHeight) {
-        displayScale = Math.floor(window.innerHeight / displayHeight);
-        height = displayHeight * displayScale;
+        dScale = Math.floor(window.innerHeight / displayHeight);
+        height = displayHeight * dScale;
         width = height * 16 / 9;
     }
     createCanvas(width, height)

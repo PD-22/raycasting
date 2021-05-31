@@ -103,25 +103,32 @@ function floatFix(float) {
 
 function drawDisplay() {
     pixelCount = 0;
-    push();
-    noStroke();
-    // stroke('purple'); strokeWeight(0.1);
-    scale(Math.floor(displayScale));
+    let imageData = ctx.createImageData(
+        displayWidth * dScale,
+        displayHeight * dScale
+    );
     for (let y = 0; y < displayHeight; y++) {
         for (let x = 0; x < displayWidth; x++) {
             let color = displayBuf[y][x];
-            if (!pl0.alive) color
-                = multColor(color, 1 / 4);
-            if (!redraw && prevDisplayBuf
-                ?.[y][x] == color) continue;
+            if (!pl0.alive) color = multColor(color, 1 / 4);
+            if (color[0] == '#') color = hexToRgb(color);
+            color[3] ??= 255;
+            // if (!redraw && prevDisplayBuf?.[y][x] == color) color[3] = 0;
             prevDisplayBuf[y][x] = color;
-            pixelCount++;
-            fill(color);
-            square(x, y, 1)
+            for (let j = 0; j < dScale; j++) {
+                for (let k = 0; k < dScale; k++) {
+                    let i = 4 * ((y * dScale + j) * displayWidth * dScale + x * dScale + k);
+                    imageData.data[i] = color[0];
+                    imageData.data[i + 1] = color[1];
+                    imageData.data[i + 2] = color[2];
+                    imageData.data[i + 3] = color[3];
+                    pixelCount++;
+                }
+            }
         }
     }
+    ctx.putImageData(imageData, 0, 0);
     redraw = false
-    pop();
 }
 
 function makeDisplayBuf(callback = () => -1) {

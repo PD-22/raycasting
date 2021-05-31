@@ -1,8 +1,8 @@
-function multColor(hexColor, mult) {
-    if (hexColor == -1) return hexColor;
-    let rgb = hexToRgb(hexColor)
-        .map(color => color * mult);
-    return rgbToHex(rgb);
+function multColor(color, mult) {
+    if (color == -1) return color;
+    if (color[0] = '#') color = hexToRgb(color)
+    color = color.map((color, i) => i < 3 ? color * mult : color);
+    return color;
 }
 
 function hexToRgb(hex) {
@@ -10,7 +10,7 @@ function hexToRgb(hex) {
     let red = parseInt(color.slice(0, 2), 16);
     let green = parseInt(color.slice(2, 4), 16);
     let blue = parseInt(color.slice(4, 6), 16);
-    return new Uint8ClampedArray([red, green, blue]);
+    return [red, green, blue];
 }
 
 function rgbToHex(rgb) {
