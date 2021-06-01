@@ -17,8 +17,8 @@ function renderDisplay() {
 
 function renderGun() {
     if (pl0.shooting) {
-        pl0.gunAnimIndex += deltaTime / 120;
-        if (pl0.gunAnimIndex > 3) {
+        pl0.gunAnimIndex += deltaTime / 100;
+        if (pl0.gunAnimIndex > 5) {
             pl0.gunAnimIndex = 0;
             pl0.shooting = false;
         }

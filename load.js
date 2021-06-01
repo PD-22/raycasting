@@ -1,3 +1,11 @@
+const WOLFCOLOR = JSON.stringify([152, 0, 136, 255]);
+
+function wolfenFilter(texture) {
+  return texture.map(row => row.map(color =>
+    JSON.stringify(color) == WOLFCOLORGB ? -1 : color
+  ));
+}
+
 function loadTxtr_src(src) {
   return new Promise(res => {
     let image = document.createElement('img');
