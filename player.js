@@ -1,11 +1,13 @@
 class Player extends Sprite {
-    constructor(x, y, ang = Math.floor(Math.random() * 360), speed = 1) {
+    constructor(x, y, ang = Math.floor(Math.random() * 360),
+        rad = Player.rad, speed = 1) {
         if (x === undefined || y === undefined) {
             let spawned = Player.randPos()
             x = spawned.x
             y = spawned.y
         }
         super(x, y, Player.textures[0])
+        this.textures = Player.textures
         this.ang = ang
         this.speed = speed;
         this.txtrIndex = 0;
@@ -16,6 +18,7 @@ class Player extends Sprite {
         this.dir = { x: 0, y: 0 };
         this.vel = { x: 0, y: 0 };
         this.alive = true
+        this.rad = rad
         this.me = Player.all.length == 0
         Player.all.push(this)
     }
@@ -36,7 +39,7 @@ class Player extends Sprite {
     }
 
     updateTexture({ txtrAng }) {
-        let length = Player.textures.length - 1;
+        let length = this.textures.length - 1;
         let offAng = 180 / 8;
         let ang = (txtrAng + 360 + offAng) % 360;
         let txtrSide = this.alive ?
@@ -44,7 +47,7 @@ class Player extends Sprite {
         let txtrIndex = Math.floor(txtrSide + this.txtrIndexOff);
         if (txtrIndex > length) txtrIndex = length;
         this.txtrIndex = txtrIndex;
-        let txtr = Player.textures[this.txtrIndex];
+        let txtr = this.textures[this.txtrIndex];
         this.texture = txtr
         return txtr
     }
@@ -62,7 +65,7 @@ class Player extends Sprite {
             .filter(e => e.its != undefined && e.its.dst < wallDst)
             .sort((a, b) => a.its.dst - b.its.dst)
             .map(e => e.p);
-        shot.forEach(p => p.alive = false);
+        shot.forEach(p => p.alive = p.blocking = false);
     }
 
     rotate(deltaAng = 0) {
@@ -102,7 +105,7 @@ class Player extends Sprite {
                 this.moveAnimIndex = 0;
             };
         } else {
-            if (this.txtrIndex < Player.textures.length - 1) {
+            if (this.txtrIndex < this.textures.length - 1) {
                 this.moveAnimIndex = (this.moveAnimIndex - deltaTime / 160);
                 this.txtrIndexOff = -Math.floor(this.moveAnimIndex)
             }
@@ -190,40 +193,42 @@ class Player extends Sprite {
     }
 
     respondToCollision() {
-        let respond = cell => {
-            let cellVal = getCellVal(cell);
-            let collision = this.checkCollision(cell);
-            if (cellVal == 0 || collision == null) return;
-            if (collision.type == 'side') {
-                let axis = collision.value;
-                let center = cell[axis] + 0.5
-                let sign = Math.sign(this.pos[axis] - center);
-                this.pos[axis] = center + sign * (0.5 + Player.rad);
-            } else if (collision.type == 'corner') {
-                let delta = {
-                    x: this.pos.x - collision.value.x,
-                    y: this.pos.y - collision.value.y
-                }
-                let axis = Math.abs(delta.x) < Math.abs(delta.y) ? 'y' : 'x';
-                let axis2 = axis == 'y' ? 'x' : 'y';
-                this.pos[axis] =
-                    collision.value[axis] + Math.sign(delta[axis]) *
-                    Math.sqrt(Player.rad ** 2 - delta[axis2] ** 2);
-            }
-        }
-        this.getAdjCells().forEach(respond);
+        this.getAdjCells().forEach(
+            cell => this.wallCollide(cell));
+        this.spriteCollision()
     }
 
-    checkCollision(cell) {
-        let rad = Player.rad;
+    wallCollide(cell) {
+        let cellVal = getCellVal(cell);
+        let collision = this.wallCollision(cell);
+        if (cellVal == 0 || collision == null) return;
+        if (collision.type == 'side') {
+            let axis = collision.value;
+            let center = cell[axis] + 0.5
+            let sign = Math.sign(this.pos[axis] - center);
+            this.pos[axis] = center + sign * (0.5 + this.rad);
+        } else if (collision.type == 'corner') {
+            let delta = {
+                x: this.pos.x - collision.value.x,
+                y: this.pos.y - collision.value.y
+            }
+            let axis = Math.abs(delta.x) < Math.abs(delta.y) ? 'y' : 'x';
+            let axis2 = axis == 'y' ? 'x' : 'y';
+            this.pos[axis] =
+                collision.value[axis] + Math.sign(delta[axis]) *
+                Math.sqrt(this.rad ** 2 - delta[axis2] ** 2);
+        }
+    }
+
+    wallCollision(cell) {
         let cellCenter = { x: cell.x + 0.5, y: cell.y + 0.5 };
         let crclDst = {
             x: Math.abs(this.pos.x - cellCenter.x),
             y: Math.abs(this.pos.y - cellCenter.y),
         };
 
-        if (crclDst.x >= (0.5 + rad)) return null;
-        if (crclDst.y >= (0.5 + rad)) return null;
+        if (crclDst.x >= (0.5 + this.rad)) return null;
+        if (crclDst.y >= (0.5 + this.rad)) return null;
 
         if (crclDst.x <= 0.5) return { type: 'side', value: 'y' };
         if (crclDst.y <= 0.5) return { type: 'side', value: 'x' };
@@ -235,7 +240,7 @@ class Player extends Sprite {
                     Math.abs(this.pos.x - corner.x),
                     Math.abs(this.pos.y - corner.y),
                 );
-                if (dst <= rad) return { type: 'corner', value: corner };
+                if (dst <= this.rad) return { type: 'corner', value: corner };
             }
         }
 

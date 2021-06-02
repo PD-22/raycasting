@@ -36,7 +36,7 @@ function drawMap(rayBuf, num = 5) {
         fill(127, 127)
         circle(pos.x * cls, pos.y * cls, cls)
         fill(0, 222)
-        circle(pos.x * cls, pos.y * cls, cls * 2 * Player.rad)
+        circle(pos.x * cls, pos.y * cls, cls * 2 * p.rad)
         stroke(127, 0, 127, 200)
         let l = cls / 2
         line(pos.x * cls, pos.y * cls,
@@ -73,7 +73,7 @@ function drawMatrix(mtrx, t = 1) {
     if (drawOff.y < 0) yMin -= floor(drawOff.y / cls) + 1
     let bottomOff = drawOff.y + cls * mapHeight - height
     yMax -= floor(bottomOff / cls)
-    if (yMax > mtrx[0].length) yMax = mtrx.length
+    if (yMax > mtrx.length) yMax = mtrx.length
 
     for (let i = yMin; i < yMax; i++) {
         for (let j = xMin; j < xMax; j++) {

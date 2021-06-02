@@ -1,6 +1,8 @@
 // fix 0 angle render
 // close wall render slow
-// add player collision
+// mult color slow
+// sort buffer at render
+// add collision velocity
 
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
@@ -35,7 +37,7 @@ function setup() {
     redraw = stopRender = false;
 
     mapVisible = false;
-    logVisible = true;
+    logVisible = false;
     viewVisible = true;
 }
 

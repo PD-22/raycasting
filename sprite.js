@@ -1,7 +1,8 @@
 class Sprite {
-    constructor(x, y, texture) {
+    constructor(x, y, texture, blocking = true) {
         this.pos = { x, y };
         this.visible = true;
+        this.blocking = blocking;
         this.texture = texture;
         this.id = Sprite.idCount;
         Sprite.all.push(this);
@@ -29,8 +30,35 @@ class Sprite {
             });
     }
 
+    spriteCollision() {
+        let { pos } = this;
+        let { x, y } = pos;
+        x -= 0.5; y -= 0.5;
+        let min = { x: floor(x), y: floor(y) };
+        let max = { x: ceil(x) + 1, y: ceil(y) + 1 };
+
+        let pos0 = pos;
+        Sprite.all.filter(s => s != this && s.blocking).forEach(sprite => {
+            let { pos } = sprite;
+            let { x, y } = pos;
+            if (x >= min.x && y >= min.y &&
+                x < max.x && y < max.y) {
+                let dx = pos0.x - x;
+                let dy = pos0.y - y;
+                let dst = Math.hypot(dx, dy);
+                let rad = sprite.rad * 2;
+                if (dst < rad) {
+                    sprite.traki = true;
+                    let ang = atan2(dy, dx);
+                    let dif = rad - dst;
+                    this.pos.x += cos(ang) * dif;
+                    this.pos.y += sin(ang) * dif;
+                };
+            }
+        })
+    }
+
     castRaySprt(pl0 = Player.me, rayAng = Player.me.ang, maxOff = 0.5) {
-        // debugger
         let dx = this.pos.x - pl0.pos.x
         let dy = this.pos.y - pl0.pos.y
         let strghtDst = Math.hypot(dx, dy)
