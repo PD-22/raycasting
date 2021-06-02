@@ -50,7 +50,8 @@ function drawMap(rayBuf, num = 5) {
         let { pos } = Player.me;
         stroke(255, 0, 0, 222)
         strokeWeight(cls / 16)
-        let ray = rayBuf[Math.floor(i)]
+        let ray = rayBuf[Math.floor(i)];
+        ray = ray[ray.length - 1];
         line(pos.x * cls, pos.y * cls, ray.x * cls, ray.y * cls)
         noStroke()
         fill(255, 255, 0, 222)
