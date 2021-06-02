@@ -12,10 +12,11 @@ function getTxtrOff({ side, dir, x, y }) {
         else return (displayWidth - x) % 1;
 }
 
-function castRays(pos, offAng) {
+function castWallRays(pos, offAng) {
     rayBuf = []
-    let inc = fov / displayWidth;
-    for (let ang = offAng - fov / 2; ang < offAng + fov / 2; ang += inc) {
+    let startAng = offAng - fov / 2;
+    let ratio = fov / displayWidth;
+    for (let ang = startAng; ang < startAng + fov; ang += ratio) {
         let its = castWallRay(pos, ang)
         rayBuf.unshift(its)
     }
@@ -79,4 +80,38 @@ function castWallRay(pos, ang) {
             ysi.y += dir.y
         }
     }
+}
+
+function castSpriteRays(sprites, ang) {
+    let rayArr = [];
+
+    sprites.forEach(sprite => {
+        let ray = sprite.castRaySprt(pl0, ang);
+        if (ray === undefined) return;
+        let { texture } = sprite;
+        rayArr.push({ ...ray, texture });
+    });
+
+    return rayArr;
+}
+
+function castRays(pos, offAng) {
+    rayBuf = [];
+
+    let startAng = offAng - fov / 2;
+    let ratio = fov / displayWidth;
+
+    let sprites = Sprite.all.filter(p => !p.me && p.visible);
+
+    for (let ang = startAng; ang < startAng + fov; ang += ratio) {
+        let wallRay = castWallRay(pos, ang);
+        let spriteRays = castSpriteRays(sprites, ang);
+
+        let colRays = [wallRay, ...spriteRays];
+        colRays.sort((a, b) => b.dst - a.dst);
+
+        rayBuf.unshift(colRays);
+    }
+
+    return rayBuf;
 }

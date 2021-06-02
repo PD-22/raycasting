@@ -5,13 +5,10 @@ function drawView() {
 }
 
 function renderDisplay() {
-    let sprites = Sprite.all.filter(p => !p.me && p.visible);
-
     for (let x = 0; x < displayWidth; x++) {
-        let rays = [rayBuf[x], ...getSpriteRays(sprites, x)];
+        let rays = rayBuf[x];
         renderRays(rays, x);
     }
-
     renderGun();
 }
 
@@ -39,21 +36,6 @@ function renderGun() {
             displayBuf[y + yOff][x + xOff] = clr;
         }
     }
-}
-
-function getSpriteRays(sprites, x) {
-    let ang = rayBuf[x].ang;
-    let wallDst = rayBuf[x].dst;
-
-    let rayArr = [];
-    sprites.forEach(sprite => {
-        let ray = sprite.castRaySprt(pl0, ang);
-        if (ray === undefined || ray.dst > wallDst) return;
-        let { texture } = sprite;
-        rayArr.push({ ...ray, texture });
-    });
-
-    return rayArr.sort((a, b) => b.dst - a.dst);
 }
 
 function renderRays(rayArr, x) {

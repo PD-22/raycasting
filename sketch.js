@@ -1,4 +1,5 @@
 // fix 0 angle render
+// close wall render slow
 
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
@@ -36,7 +37,6 @@ function setup() {
     logVisible = true;
     viewVisible = true;
 }
-
 
 function draw() {
     rayBuf = castRays(pl0.pos, pl0.ang)
