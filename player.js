@@ -51,16 +51,18 @@ class Player extends Sprite {
 
     static all = []
 
-    shoot() {
+    shoot() { this.shooting = true }
+
+    fire() {
+        if (!this.alive || this.firing) return;
+        this.firing = true;
         let wallDst = castWallRay(this.pos, this.ang).dst;
-        if (!this.alive || this.shooting) return;
         let shot = Player.all.filter(p => p != this && p.alive)
             .map(p => ({ p, its: p.castRaySprt(this, this.ang, 1 / 6) }))
             .filter(e => e.its != undefined && e.its.dst < wallDst)
             .sort((a, b) => a.its.dst - b.its.dst)
             .map(e => e.p);
         shot.forEach(p => p.alive = false);
-        this.shooting = true;
     }
 
     rotate(deltaAng = 0) {
@@ -77,6 +79,16 @@ class Player extends Sprite {
     static rad = 1 / 4;
 
     updateAnimation() {
+        if (this.shooting) {
+            this.gunAnimIndex += deltaTime / 32;
+            let animIndex = Math.floor(this.gunAnimIndex);
+            if (animIndex >= 2 && !this.firing) this.fire();
+            if (this.gunAnimIndex >= 5) {
+                this.gunAnimIndex = 0;
+                this.shooting = false;
+                this.firing = false;
+            }
+        }
         if (this.alive) {
             if (this.dir.x || this.dir.y) {
                 let animationOff = Math.floor(this.moveAnimIndex) * 8;

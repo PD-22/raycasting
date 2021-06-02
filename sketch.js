@@ -1,5 +1,6 @@
 // fix 0 angle render
 // close wall render slow
+// add player collision
 
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
