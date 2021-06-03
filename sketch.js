@@ -1,8 +1,3 @@
-// fix 0 angle render
-// close wall render slow
-// sort buffer at render
-// add collision velocity
-
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,

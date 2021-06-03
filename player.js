@@ -47,6 +47,12 @@ class Player extends Sprite {
         let txtrIndex = Math.floor(txtrSide + this.txtrIndexOff);
         if (txtrIndex > length) txtrIndex = length;
         this.txtrIndex = txtrIndex;
+        if (this.shooting && txtrSide == 0) {
+            let animArr = [43, 44, 43];
+            let animIndex = Math.floor(this.gunAnimIndex);
+            let i = floor(animArr.length * animIndex / 5);
+            this.txtrIndex = animArr[i];
+        };
         let txtr = this.textures[this.txtrIndex];
         this.texture = txtr
         return txtr
@@ -83,6 +89,7 @@ class Player extends Sprite {
 
     updateAnimation() {
         if (this.shooting) {
+            // this.gunAnimIndex += deltaTime / 32;
             this.gunAnimIndex += deltaTime / 32;
             let animIndex = Math.floor(this.gunAnimIndex);
             if (animIndex >= 2 && !this.firing) this.fire();
