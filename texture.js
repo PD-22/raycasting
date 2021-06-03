@@ -1,6 +1,6 @@
 function multColor(color, mult) {
     if (color == -1) return color;
-    if (color[0] = '#') color = hexToRgb(color)
+    if (color[0] == '#') color = hexToRgb(color)
     color = color.map((color, i) => i < 3 ? color * mult : color);
     return color;
 }

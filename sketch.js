@@ -1,6 +1,5 @@
 // fix 0 angle render
 // close wall render slow
-// mult color slow
 // sort buffer at render
 // add collision velocity
 
