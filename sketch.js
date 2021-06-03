@@ -2,7 +2,7 @@ var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, dScale,
-    pixelCount, redraw, stopRender
+    pixelCount, redraw, stopRender, mapRayNum
 
 let debugLogs = {};
 
@@ -27,6 +27,7 @@ function setup() {
     ceilClr = [173, 216, 230];
     floorClr = [144, 238, 144];
     placeTxtrNum = 0
+    mapRayNum = 5;
 
     redraw = stopRender = false;
 
