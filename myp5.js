@@ -168,6 +168,7 @@ const PI = Math.PI
 var { abs, tan, cos,
     sin, atan2, sqrt,
     floor, round, ceil,
-    random } = Math;
+    random, hypot,
+    min, max } = Math;
 var radians = angle => angle * PI / 180;
 var degrees = angle => angle * 180 / PI;

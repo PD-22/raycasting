@@ -14,6 +14,7 @@ class Player extends Sprite {
         this.txtrIndexOff = 0;
         this.moveAnimIndex = 0;
         this.gunAnimIndex = 0;
+        this.txtrSide = 0;
         this.shooting = false;
         this.dir = { x: 0, y: 0 };
         this.vel = { x: 0, y: 0 };
@@ -34,20 +35,23 @@ class Player extends Sprite {
 
     castRaySprt(pl0 = Player.me, rayAng = Player.me.ang, maxOff = 0.5) {
         let its = super.castRaySprt(pl0, rayAng, maxOff)
-        if (its != undefined) this.updateTexture(its)
+        if (its != undefined) this.updateTexSide(its)
         return its
     }
 
-    updateTexture({ txtrAng }) {
-        let length = this.textures.length - 1;
+    updateTexSide({ txtrAng }) {
         let offAng = 180 / 8;
         let ang = (txtrAng + 360 + offAng) % 360;
-        let txtrSide = this.alive ?
+        this.txtrSide = this.alive ?
             Math.floor(ang / 2 / offAng) : 45;
-        let txtrIndex = Math.floor(txtrSide + this.txtrIndexOff);
+    }
+
+    updateTexture() {
+        let length = this.textures.length - 1;
+        let txtrIndex = Math.floor(this.txtrSide + this.txtrIndexOff);
         if (txtrIndex > length) txtrIndex = length;
         this.txtrIndex = txtrIndex;
-        if (this.shooting && txtrSide == 0) {
+        if (this.shooting && this.txtrSide == 0) {
             let animArr = [43, 44, 43];
             let animIndex = Math.floor(this.gunAnimIndex);
             let i = floor(animArr.length * animIndex / 5);
@@ -64,6 +68,9 @@ class Player extends Sprite {
 
     fire() {
         if (!this.alive || this.firing) return;
+
+        playAudio(pistol_wav, this.pos);
+
         this.firing = true;
         let wallDst = castWallRay(this.pos, this.ang).dst;
         let shot = Player.all.filter(p => p != this && p.alive)
@@ -71,8 +78,10 @@ class Player extends Sprite {
             .filter(e => e.its != undefined && e.its.dst < wallDst)
             .sort((a, b) => a.its.dst - b.its.dst)
             .map(e => e.p);
-        shot.forEach(p => p.alive = p.blocking = false);
+        shot.forEach(p => p.die());
     }
+
+    die() { this.alive = this.blocking = false; }
 
     rotate(deltaAng = 0) {
         if (!this.alive) return
@@ -88,8 +97,8 @@ class Player extends Sprite {
     static rad = 1 / 4;
 
     updateAnimation() {
+        this.updateTexture();
         if (this.shooting) {
-            // this.gunAnimIndex += deltaTime / 32;
             this.gunAnimIndex += deltaTime / 32;
             let animIndex = Math.floor(this.gunAnimIndex);
             if (animIndex >= 2 && !this.firing) this.fire();
@@ -115,6 +124,9 @@ class Player extends Sprite {
             if (this.txtrIndex < this.textures.length - 1) {
                 this.moveAnimIndex = (this.moveAnimIndex - deltaTime / 160);
                 this.txtrIndexOff = -Math.floor(this.moveAnimIndex)
+            } else if (!this.fallen) {
+                playAudio(thud_wav, this.pos);
+                this.fallen = true;
             }
         }
     }

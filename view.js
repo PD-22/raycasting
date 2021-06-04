@@ -13,6 +13,7 @@ function renderDisplay() {
 }
 
 function renderGun() {
+    if (!pl0.alive) return;
     let gunTex = gunTexs[Math.floor(pl0.gunAnimIndex)];
 
     let texRows = gunTex.length;
