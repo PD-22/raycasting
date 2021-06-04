@@ -29,6 +29,22 @@ function loadTxtrs_sel() {
   return promise;
 }
 
+function loadTxtr_sel() {
+  return new Promise(resolve => {
+    loadTxtrs_sel().then(t => resolve(t[0]));
+  })
+}
+
+function pickTexTile_64(x, y, w, h) {
+  return new Promise(resolve => {
+    loadTxtr_sel().then(t => {
+      let result = t.slice(h * y, h * (y + 1))
+        .map(e => e.slice(w * x, w * (x + 1)))
+      resolve(result);
+    })
+  })
+}
+
 function finishLoad(files) {
   files = Array.from(files)
   let promises = [];

@@ -24,8 +24,8 @@ function setup() {
     fitMap()
     mapOff = getMapOff()
     drawOff = getDrawMapOff()
-    ceilClr = [173, 216, 230];
-    floorClr = [144, 238, 144];
+    ceilClr = '#383838';
+    floorClr = '#717171';
     placeTxtrNum = 0
     mapRayNum = 5;
 
