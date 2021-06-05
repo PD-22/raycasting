@@ -85,7 +85,7 @@ class Player extends Sprite {
 
     rotate(deltaAng = 0) {
         if (!this.alive) return
-        let smoothAng = deltaAng * deltaTime / 110;
+        let smoothAng = deltaAng * deltaTime / 150;
         this.ang -= smoothAng % 360;
         this.ang = normalAng(this.ang);
     }
@@ -132,10 +132,12 @@ class Player extends Sprite {
     }
 
     updateVelocity(keys) {
+        let vel = { x: 0, y: 0 }
+        this.vel = vel;
+
         if (!this.alive || !keys) return
         let [forward, left, back, right] = keys;
         let dir = { x: 0, y: 0 }
-        let vel = { x: 0, y: 0 }
 
         if (keyIsDown(forward)) dir.y = -1
         if (keyIsDown(left)) dir.x = -1

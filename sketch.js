@@ -1,8 +1,10 @@
+// fix audio server dependance
+
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, dScale,
-    pixelCount, redraw, stopRender, mapRayNum
+    pixelCount, redraw, stopRender, stopDraw, mapRayNum
 
 let debugLogs = {};
 
@@ -29,7 +31,7 @@ function setup() {
     placeTxtrNum = 0
     mapRayNum = 5;
 
-    redraw = stopRender = false;
+    redraw = stopRender = stopDraw = false;
 
     mapVisible = false;
     logVisible = false;

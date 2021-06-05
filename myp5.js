@@ -15,6 +15,8 @@ var draw, setup, keyPressed,
     mouseDragged,
     mouseWheel;
 
+var audioContext;
+
 var inputLogger = {};
 
 window.addEventListener('blur', e => inputLogger = {});
@@ -43,6 +45,9 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     document.body.addEventListener('mousewheel', evt => mouseWheel?.(evt));
     document.body.addEventListener('mousedown', evt => {
+        if (audioContext == undefined)
+            audioContext = new AudioContext();
+
         inputLogger.mouseDown = true;
         mouseButton = evt.button;
         mousePressed?.(evt);
