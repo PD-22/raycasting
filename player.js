@@ -85,7 +85,7 @@ class Player extends Sprite {
 
     rotate(deltaAng = 0) {
         if (!this.alive) return
-        let smoothAng = deltaAng * deltaTime / 150;
+        let smoothAng = deltaAng * deltaTime / 200;
         this.ang -= smoothAng % 360;
         this.ang = normalAng(this.ang);
     }
