@@ -10,9 +10,8 @@ function playAudio(srcAudio, srcPos) {
         .connect(panerNode)
         .connect(audioContext.destination);
 
-    gainNode.gain.value *= getVolume(srcPos);
+    gainNode.gain.value *= getVolume(srcPos) * volume;
     panerNode.pan.value = getPan(srcPos);
-    // console.log(panerNode.pan.value);
 
     audioContext.resume();
     audioElement.play();

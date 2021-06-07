@@ -5,7 +5,7 @@ var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, dScale,
-    pixelCount, redraw, stopRender, stopDraw, mapRayNum
+    pixelCount, redraw, stopRender, stopDraw, mapRayNum, volume;
 
 let debugLogs = {};
 
@@ -31,6 +31,7 @@ function setup() {
     floorClr = '#717171';
     placeTxtrNum = 0
     mapRayNum = 5;
+    volume = 10;
 
     redraw = stopRender = stopDraw = false;
 
