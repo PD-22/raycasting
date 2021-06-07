@@ -31,7 +31,7 @@ function setup() {
     floorClr = '#717171';
     placeTxtrNum = 0
     mapRayNum = 5;
-    volume = 10;
+    volume = 5;
 
     redraw = stopRender = stopDraw = false;
 
