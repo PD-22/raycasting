@@ -56,6 +56,10 @@ function setKeyNum(kc) {
 
 function keyPressed() {
     setKeyNum(keyCode);
+    if (keyCode == 189)
+        volume = max(0, volume - 1);
+    if (keyCode == 187)
+        volume = min(10, volume + 1);
 
     if (keyCode == 32) pl0.shoot();
 

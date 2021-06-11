@@ -19,7 +19,11 @@ var audioContext;
 
 var inputLogger = {};
 
-window.addEventListener('blur', e => inputLogger = {});
+window.addEventListener('blur', e => {
+    for (let key in inputLogger) {
+        inputLogger[key] = false;
+    }
+});
 
 const SHIFT = 16;
 const CONTROL = 17;

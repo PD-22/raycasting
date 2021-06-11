@@ -5,7 +5,7 @@ var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, dScale,
-    pixelCount, redraw, stopRender, stopDraw, mapRayNum
+    pixelCount, redraw, stopRender, stopDraw, mapRayNum, volume;
 
 let debugLogs = {};
 
@@ -31,6 +31,7 @@ function setup() {
     floorClr = '#717171';
     placeTxtrNum = 0
     mapRayNum = 5;
+    volume = 5;
 
     redraw = stopRender = stopDraw = false;
 
@@ -72,7 +73,15 @@ function logStats() {
             val = Math.round(val.toFixed(2));
         fill('white');
         text(`${key}: ${val}`, 10, (i + 1) * 20);
-        if (['FPS', 'PPF'].some(e => e == key)) return;
+
+        if (key == 'PPF') return;
+        if (key == 'FPS') {
+            if (val <= 30) {
+                fill(255, 0, 0, 200);
+                rect(0, i * 20, logWidth, 20);
+            }
+            return;
+        }
 
         if (val < 1000 / 60)
             fill(0, 255, 0, 200);
