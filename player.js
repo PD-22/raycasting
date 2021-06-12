@@ -69,7 +69,7 @@ class Player extends Sprite {
     fire() {
         if (!this.alive || this.firing) return;
 
-        playAudio(pistol_wav, this.pos);
+        playAudio(pistol_buf, this.pos);
 
         this.firing = true;
         let wallDst = castWallRay(this.pos, this.ang).dst;
@@ -125,7 +125,7 @@ class Player extends Sprite {
                 this.moveAnimIndex = (this.moveAnimIndex - deltaTime / 160);
                 this.txtrIndexOff = -Math.floor(this.moveAnimIndex)
             } else if (!this.fallen) {
-                playAudio(thud_wav, this.pos);
+                playAudio(thud_buf, this.pos);
                 this.fallen = true;
             }
         }

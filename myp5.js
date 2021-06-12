@@ -16,6 +16,7 @@ var draw, setup, keyPressed,
     mouseWheel;
 
 var audioContext;
+// var audioContext = new AudioContext();
 
 var inputLogger = {};
 

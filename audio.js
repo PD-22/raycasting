@@ -1,11 +1,12 @@
-function playAudio(srcAudio, srcPos) {
-    let audioElement = srcAudio.cloneNode();
-    let track = audioContext.createMediaElementSource(audioElement);
+function playAudio(buffArr, srcPos) {
+    let buffer = bufferFromArray(buffArr);
+    let source = audioContext.createBufferSource();
+    source.buffer = buffer;
 
     var gainNode = audioContext.createGain();
     var panerNode = audioContext.createStereoPanner();
 
-    track
+    source
         .connect(gainNode)
         .connect(panerNode)
         .connect(audioContext.destination);
@@ -15,7 +16,7 @@ function playAudio(srcAudio, srcPos) {
     panerNode.pan.value = getPan(srcPos);
 
     audioContext.resume();
-    audioElement.play();
+    source.start();
 }
 
 function getPan(srcPos) {

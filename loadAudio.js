@@ -42,7 +42,7 @@ function AudioBufferToJSON(buffer) {
     return json;
 }
 
-function arrayToAudioBuffer(array) {
+function bufferFromArray(array) {
     let buffer = audioContext.createBuffer(
         1, array.length, audioContext.sampleRate);
     buffer.copyToChannel(Float32Array.from(array), 0);
@@ -53,5 +53,5 @@ function downMixAudioBuffer(buffer) {
     let left = buffer.getChannelData(0);
     let right = buffer.getChannelData(1);
     let mix = left.map((l, i) => (l + right[i]) / 2);
-    return arrayToAudioBuffer(mix);
+    return bufferFromArray(mix);
 }
