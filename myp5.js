@@ -40,6 +40,8 @@ const RIGHT = 2;
 
 window.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('keydown', evt => {
+        if (audioContext == undefined)
+            audioContext = new AudioContext();
         keyCode = evt.keyCode;
         keyPressed?.(keyCode);
         inputLogger[keyCode] = true;
