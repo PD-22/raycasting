@@ -86,7 +86,7 @@ function mousePressed() {
         }
     } else if (viewVisible) {
         if (pointerLocked()) {
-            if (mouseButton == LEFT) pl0.shoot();
+            if (buttonIsDown(LEFT)) pl0.shoot();
         }
         renderMode(1)
     }
@@ -95,7 +95,13 @@ function mousePressed() {
 document.oncontextmenu = () => false;
 
 function mouseMoved() {
-    if (pointerLocked()) pl0.rotate(movedX)
+    if (pointerLocked()) {
+        let amount = movedX;
+        if (inputLogger.mouseDown && buttonIsDown(RIGHT)) {
+            amount /= 4;
+        }
+        pl0.rotate(amount);
+    }
     // for testing
     if (mapVisible) {
         pl1.ang = 180 - degrees(atan2(

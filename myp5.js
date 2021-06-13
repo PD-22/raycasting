@@ -52,16 +52,32 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     document.body.addEventListener('mousewheel', evt => mouseWheel?.(evt));
     document.body.addEventListener('mousedown', evt => {
+        mouseButton = evt.button;
+
         if (audioContext == undefined)
             audioContext = new AudioContext();
 
-        inputLogger.mouseDown = true;
-        mouseButton = evt.button;
+        if (inputLogger.mouseDown == undefined)
+            inputLogger.mouseDown = 0;
+        inputLogger.mouseDown++;
+
+        if (inputLogger.buttons == undefined)
+            inputLogger.buttons = [];
+        inputLogger.buttons[mouseButton] = true;
+
         mousePressed?.(evt);
     });
     document.body.addEventListener('mouseup', evt => {
-        inputLogger.mouseDown = false;
         mouseButton = evt.button;
+
+        if (inputLogger.mouseDown == undefined)
+            inputLogger.mouseDown = 0;
+        inputLogger.mouseDown--;
+
+        if (inputLogger.buttons == undefined)
+            inputLogger.buttons = [];
+        inputLogger.buttons[mouseButton] = false;
+
         mouseReleased?.(evt);
     });
     document.body.addEventListener('mousemove', evt => {
@@ -108,6 +124,7 @@ function createCanvas(width, height) {
     exitPointerLock = () => document.exitPointerLock;
 }
 
+var buttonIsDown = button => inputLogger?.buttons[button] || false;
 var keyIsDown = keyCode => inputLogger?.[keyCode] || false;
 
 var push = () => ctx.save();
