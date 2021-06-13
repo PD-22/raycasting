@@ -6,7 +6,7 @@ var canvas, ctx, deltaTime,
     movedX, movedY,
     mouseX, mouseY,
     mouseButton,
-    keyCode;
+    keyCode, keyName;
 
 var draw, setup, keyPressed,
     mousePressed,
@@ -63,6 +63,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (audioContext == undefined)
             audioContext = new AudioContext();
         keyCode = evt.keyCode;
+        keyName = evt.key;
         keyPressed?.(keyCode);
         inputLogger[keyCode] = true;
     });
@@ -221,3 +222,7 @@ var { abs, tan, cos,
     min, max } = Math;
 var radians = angle => angle * PI / 180;
 var degrees = angle => angle * 180 / PI;
+
+function lockPointer() { if (!pointerLocked()) requestPointerLock() }
+function unlockPointer() { if (pointerLocked()) exitPointerLock() }
+var pointerLocked = () => document.pointerLockElement !== null;

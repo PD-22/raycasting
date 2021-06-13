@@ -1,17 +1,3 @@
-function pointerLocked() {
-    return document.pointerLockElement !== null;
-}
-
-function renderMode(opt = 1) {
-    if (opt == 1) {
-        mapVisible = false
-        requestPointerLock()
-    } else if (opt == 2) {
-        mapVisible = true
-        exitPointerLock()
-    }
-}
-
 function getMapMouse() {
     let x = mouseX - mapOff.x
     let y = mouseY - mapOff.y
@@ -65,8 +51,7 @@ function keyPressed() {
 
     if (keyCode == 70) {
         redraw = mapVisible;
-        if (mapVisible) renderMode(1);
-        else renderMode(2);
+        mapVisible = !mapVisible;
     }
 
     if (keyCode == 71) {
@@ -82,13 +67,14 @@ function mousePressed() {
             let cell = getCell(x, y);
             placeCell(worldMap, cell, placeTxtrNum)
         } else {
-            renderMode(1)
+            mapVisible = false
+            lockPointer();
         }
     } else if (viewVisible) {
         if (pointerLocked()) {
             if (buttonIsDown(LEFT)) pl0.shoot();
         }
-        renderMode(1)
+        lockPointer();
     }
 }
 
