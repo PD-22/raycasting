@@ -18,11 +18,31 @@ var draw, setup, keyPressed,
 var audioContext;
 // var audioContext = new AudioContext();
 
+function createMyCanvas() {
+    dScale = Math.floor(window.innerWidth / displayWidth);
+    width = displayWidth * dScale;
+    height = width / 16 * 9;
+    if (height > window.innerHeight) {
+        dScale = Math.floor(window.innerHeight / displayHeight);
+        height = displayHeight * dScale;
+        width = height * 16 / 9;
+    }
+    createCanvas(width, height)
+}
+
 var inputLogger = {};
 
 window.addEventListener('blur', e => {
     for (let key in inputLogger) {
-        inputLogger[key] = false;
+        let value = inputLogger[key]
+        if (typeof value == 'boolean' && value == true) {
+            inputLogger[key] = false;
+        }
+        if (typeof value == 'object') {
+            for (let key in value) {
+                value[key] = false;
+            }
+        }
     }
 });
 
