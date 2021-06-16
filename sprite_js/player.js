@@ -1,15 +1,16 @@
 class Player extends Sprite {
-    constructor(x, y, ang = Math.floor(Math.random() * 360),
-        rad = Player.rad, speed = 1) {
+    constructor(x, y, ang, ammoNum = 0) {
+        ang ??= Math.floor(Math.random() * 360);
         if (x === undefined || y === undefined) {
             let spawned = Player.randPos()
             x = spawned.x
             y = spawned.y
         }
         super(x, y, Player.textures[0])
+        this.ammoNum = ammoNum;
         this.textures = Player.textures
         this.ang = ang
-        this.speed = speed;
+        this.speed = 1;
         this.txtrIndex = 0;
         this.txtrIndexOff = 0;
         this.moveAnimIndex = 0;
@@ -19,7 +20,7 @@ class Player extends Sprite {
         this.dir = { x: 0, y: 0 };
         this.vel = { x: 0, y: 0 };
         this.alive = true
-        this.rad = rad
+        this.rad = Player.rad
         this.me = Player.all.length == 0
         Player.all.push(this)
     }
@@ -64,12 +65,16 @@ class Player extends Sprite {
 
     static all = []
 
-    shoot() { this.shooting = true }
+    shoot() {
+        if (this.shooting || this.ammoNum < 1) return;
+        this.ammoNum--;
+        this.shooting = true;
+    }
 
     fire() {
         if (!this.alive || this.firing) return;
 
-        playAudio(pistol_buf, this.pos);
+        playAudio(pistol_aud, this.pos);
 
         this.firing = true;
         let wallDst = castWallRay(this.pos, this.ang).dst;
@@ -125,7 +130,7 @@ class Player extends Sprite {
                 this.moveAnimIndex = (this.moveAnimIndex - deltaTime / 160);
                 this.txtrIndexOff = -Math.floor(this.moveAnimIndex)
             } else if (!this.fallen) {
-                playAudio(thud_buf, this.pos);
+                playAudio(thud_aud, this.pos);
                 this.fallen = true;
             }
         }
@@ -278,43 +283,5 @@ class Player extends Sprite {
             }
         }
         return cells;
-    }
-
-    static randPos() {
-        let spaces = copyMatrix(worldMap)
-        for (let i = 0; i < spaces.length; i++) {
-            for (let j = 0; j < spaces[0].length; j++) {
-                let ri = Math.floor(Math.random() * spaces.length)
-                let rj = Math.floor(Math.random() * spaces[0].length)
-                spaces[i][j] = { i: ri, j: rj }
-                spaces[ri][rj] = { i: i, j: j }
-            }
-        }
-
-        for (let i = 0; i < spaces.length; i++) {
-            for (let j = 0; j < spaces[0].length; j++) {
-                const c = spaces[i][j]
-
-                let taken = false;
-                Player.all.forEach(p => {
-                    let { pos } = p;
-                    if (Math.floor(pos.y) == c.i &&
-                        Math.floor(pos.x) == c.j) {
-                        taken = true;
-                        return;
-                    }
-                });
-
-                if (worldMap[c.i][c.j] == 0 && !taken) {
-                    return { y: 0.5 + c.i, x: 0.5 + c.j }
-                }
-            }
-        }
-
-        console.error('bad spawn');
-        return {
-            y: floor(random() * worldMap.length) + 0.5,
-            x: floor(random() * worldMap[0].length) + 0.5,
-        }
     }
 }
