@@ -35,7 +35,7 @@ function loadTxtr_sel() {
   })
 }
 
-function pickTexTile_64(x, y, w, h) {
+function pickTexTile(x, y, w, h) {
   return new Promise(resolve => {
     loadTxtr_sel().then(t => {
       let result = t.slice(h * y, h * (y + 1))
