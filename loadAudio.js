@@ -3,7 +3,9 @@ function logAudioJSON_sel() {
 }
 
 function getStoredVolume() {
-    return parseInt(sessionStorage.getItem('volume'));
+    let volume = sessionStorage.getItem('volume');
+    if (volume == undefined) return;
+    return parseInt(volume);
 }
 
 function loadAudio_sel() {

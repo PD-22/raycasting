@@ -37,6 +37,12 @@ function myLog(name, value) {
     debugLogs[name] = value;
 }
 
+function myLogMany(logs) {
+    let entries = Object.entries(logs)
+    for (let [key, val] of entries)
+        myLog(key, val);
+}
+
 function time(name, callback) {
     let start = Date.now();
     callback();

@@ -57,4 +57,10 @@ function draw() {
         DOWN_ARROW,
         RIGHT_ARROW
     ])
+
+    // log
+    myLogMany({
+        volume,
+        ammoNum: pl0.ammoNum,
+    })
 }
