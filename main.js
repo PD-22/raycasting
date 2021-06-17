@@ -17,8 +17,8 @@ function setup() {
     // worldMap = cellularMap(48, 48, 0.45, 8);
 
     pl0 = new Player(18.501, 3.501, 180, 4)
-    pl1 = new Player(16.502, 3.502, 0)
-    Player.spawnMany(15);
+    pl1 = new Player(16.502, 3.502, 0, 8)
+    Player.spawnMany(15, null, null, null, 8);
     ammo1 = new Item(pl1.pos.x, pl1.pos.y - 1, ammo_64, 'ammo');
     Item.spawnMany(4, ammo_64, 'ammo')
 

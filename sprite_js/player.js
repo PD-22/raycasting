@@ -95,8 +95,9 @@ class Player extends Sprite {
         this.ang = normalAng(this.ang);
     }
 
-    static spawnMany(n) {
-        for (let i = 0; i < n; i++) new Player()
+    static spawnMany(n, ...args) {
+        for (let i = 0; i < n; i++)
+            new Player(...args);
     }
 
     static rad = 1 / 4;
