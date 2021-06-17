@@ -33,7 +33,14 @@ function logStats() {
     pop();
 }
 
-function myLog(name, value) {
+function myLog(name, cb_value) {
+    let value = cb_value;
+    if (cb_value instanceof Function) {
+        let start = Date.now();
+        cb_value();
+        let end = Date.now() - start;
+        value = end;
+    }
     debugLogs[name] = value;
 }
 
@@ -41,11 +48,4 @@ function myLogMany(logs) {
     let entries = Object.entries(logs)
     for (let [key, val] of entries)
         myLog(key, val);
-}
-
-function time(name, callback) {
-    let start = Date.now();
-    callback();
-    let end = Date.now() - start;
-    debugLogs[name] = end;
 }

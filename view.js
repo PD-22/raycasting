@@ -1,6 +1,6 @@
 function drawView() {
-    if (!stopRender) time('rndr', () => renderDisplay());
-    if (!stopDraw) time('draw', () => drawDisplay(displayBuf));
+    if (!stopRender) myLog('rndr', () => renderDisplay());
+    if (!stopDraw) myLog('draw', () => drawDisplay(displayBuf));
 }
 
 function renderDisplay() {
