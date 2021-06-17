@@ -2,6 +2,10 @@ function logAudioJSON_sel() {
     getAudioBufferJSON_sel().then(console.log);
 }
 
+function getStoredVolume() {
+    return parseInt(sessionStorage.getItem('volume'));
+}
+
 function loadAudio_sel() {
     let input = document.createElement('input');
     document.body.appendChild(input);

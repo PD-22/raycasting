@@ -32,7 +32,7 @@ function setup() {
     floorClr = '#717171';
     placeTxtrNum = 0
     mapRayNum = 5;
-    volume = sessionStorage.getItem('volume') ?? 5;
+    volume = getStoredVolume() ?? 5;
 
     redraw = stopRender = stopDraw = false;
     mapVisible = false;
@@ -51,10 +51,10 @@ function draw() {
     Player.animateAll();
 
     // for testing
-    // pl1.update([
-    //     UP_ARROW,
-    //     LEFT_ARROW,
-    //     DOWN_ARROW,
-    //     RIGHT_ARROW
-    // ])
+    pl1.update([
+        UP_ARROW,
+        LEFT_ARROW,
+        DOWN_ARROW,
+        RIGHT_ARROW
+    ])
 }
