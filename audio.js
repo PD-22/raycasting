@@ -1,4 +1,7 @@
 function playAudio(buffArr, srcPos) {
+    if (audioContext == undefined)
+        audioContext = new AudioContext();
+        
     let buffer = bufferFromArray(buffArr);
     let source = audioContext.createBufferSource();
     source.buffer = buffer;

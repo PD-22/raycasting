@@ -87,9 +87,7 @@ document.oncontextmenu = () => false;
 function mouseMoved() {
     if (pointerLocked()) {
         let amount = movedX;
-        if (inputLogger.mouseDown && buttonIsDown(RIGHT)) {
-            amount /= 4;
-        }
+        if (buttonIsDown(RIGHT)) amount /= 4;
         pl0.rotate(amount);
     }
     // for testing

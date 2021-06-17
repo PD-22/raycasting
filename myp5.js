@@ -16,7 +16,6 @@ var draw, setup, keyPressed,
     mouseWheel;
 
 var audioContext;
-// var audioContext = new AudioContext();
 
 function createMyCanvas() {
     dScale = Math.floor(window.innerWidth / displayWidth);
@@ -60,8 +59,6 @@ const RIGHT = 2;
 
 window.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('keydown', evt => {
-        if (audioContext == undefined)
-            audioContext = new AudioContext();
         keyCode = evt.keyCode;
         keyName = evt.key;
         keyPressed?.(keyCode);
@@ -74,9 +71,6 @@ window.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('mousewheel', evt => mouseWheel?.(evt));
     document.body.addEventListener('mousedown', evt => {
         mouseButton = evt.button;
-
-        if (audioContext == undefined)
-            audioContext = new AudioContext();
 
         if (inputLogger.mouseDown == undefined)
             inputLogger.mouseDown = 0;

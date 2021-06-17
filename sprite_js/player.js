@@ -215,6 +215,7 @@ class Player extends Sprite {
         let dir = 0;
         if (keyIsDown(left)) dir--;
         if (keyIsDown(right)) dir++;
+        if (keyIsDown(SHIFT)) dir *= 2;
         this.rotate(dir * 10);
     }
 
