@@ -12,7 +12,7 @@ function playAudio(buffArr, srcPos) {
         .connect(audioContext.destination);
 
     gainNode.gain.value *= getVolume(srcPos)
-        * volume / 10;
+        * volume / 10 / 2;
     panerNode.pan.value = getPan(srcPos);
 
     audioContext.resume();

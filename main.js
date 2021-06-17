@@ -32,7 +32,7 @@ function setup() {
     floorClr = '#717171';
     placeTxtrNum = 0
     mapRayNum = 5;
-    volume = 5;
+    volume = sessionStorage.getItem('volume') ?? 5;
 
     redraw = stopRender = stopDraw = false;
     mapVisible = false;

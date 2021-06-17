@@ -42,10 +42,14 @@ function setKeyNum(kc) {
 
 function keyPressed() {
     setKeyNum(keyCode);
-    if (keyCode == 189)
+    if (keyCode == 189) {
         volume = max(0, volume - 1);
-    if (keyCode == 187)
+        sessionStorage.setItem('volume', volume);
+    }
+    if (keyCode == 187) {
         volume = min(10, volume + 1);
+        sessionStorage.setItem('volume', volume);
+    }
 
     if (keyCode == 32) pl0.shoot();
 
