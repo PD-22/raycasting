@@ -19,17 +19,6 @@ class Sprite {
 
     static all = []
 
-    static castAll(wallDst, i) { // temp?
-        Sprite.all.filter(s => s.visible)
-            .map(s => ({ s, its: s.castRaySprt(pl0, rayBuf[i].ang) }))
-            .filter(e => e.its != undefined && e.its.dst < wallDst && e.s.me != true)
-            .sort((a, b) => b.its.dst - a.its.dst)
-            .forEach(e => {
-                let hPlr = calcLineHeight(e.its)
-                drawTextureCol(e.its, i, hPlr, e.s.texture)
-            });
-    }
-
     spriteCollision() {
         let { pos } = this;
         let { x, y } = pos;
@@ -102,8 +91,6 @@ class Sprite {
 
         return { ...ray, lineHeight: calcLineHeight(ray) };
     }
-
-
 
     static randPos() {
         let spaces = copyMatrix(worldMap)
