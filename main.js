@@ -36,14 +36,14 @@ function setup() {
 
     redraw = stopRender = stopDraw = false;
     mapVisible = false;
-    logVisible = true;
+    logVisible = false;
     viewVisible = true;
 }
 
 function draw() {
     myLog('cast', () => rayBuf = castRays(pl0.pos, pl0.ang));
 
-    if (viewVisible) drawView(rayBuf);
+    if (viewVisible) myLog('view', () => drawView(rayBuf));
     if (mapVisible) drawMap(rayBuf);
     if (logVisible) logStats();
 

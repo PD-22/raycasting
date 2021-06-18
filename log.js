@@ -3,7 +3,7 @@ function logStats() {
     noStroke();
     fill(0, 200);
     debugLogs['FPS'] = Math.round(1000 / deltaTime);
-    debugLogs['PPF'] = pixelCount;
+    debugLogs['PPF'] = numberWithCommas(pixelCount);
     let logs = Object.entries(debugLogs).reverse();
     let logWidth = 90;
     rect(0, 0, logWidth, logs.length * 20 + 10);
@@ -31,6 +31,11 @@ function logStats() {
         rect(0, i * 20, val % logWidth, 20);
     });
     pop();
+}
+
+function numberWithCommas(number) {
+    return number.toString()
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 function myLog(name, cb_value) {
