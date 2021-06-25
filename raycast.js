@@ -50,7 +50,7 @@ function castWallRay(pos, ang) {
                 };
                 let texture = wallTextures[ray.val];
                 if (ray.val == 2) texture = thin(ray);
-                ray.dst = Math.hypot(pos.x - xsi.x, pos.y - xsi.y);
+                ray.dst = Math.hypot(pos.x - ray.x, pos.y - ray.y);
                 return {
                     ...ray, texture,
                     txtrOff: getTxtrOff(ray),
@@ -88,24 +88,44 @@ function castWallRay(pos, ang) {
     function thin(ray) {
         let { dir } = ray;
         let { side } = ray;
-        let side2 = side == 'x' ? 'y' : 'x';
-        
-        let midX = ray.x + 0.5 / tan(radians(ang)) * -dir.y;
-        let midY = ray.y - 0.5 * -dir.y;
-        if (midX > floor(ray.x)
-            && midX < floor(ray.x) + 1) {
-            ray.x = midX;
-            ray.y = midY;
-            return doorFront_64;
+
+        if (side == 'y') {
+            let midX = ray.x + 0.5 / tan(radians(ang)) * -dir.y;
+            let midY = ray.y - 0.5 * -dir.y;
+            if (midX > floor(ray.x)
+                && midX < floor(ray.x) + 1) {
+                ray.x = midX;
+                ray.y = midY;
+                return doorFront_64;
+            }
+            let sideX = floor(ray.x) + 0.5 + 0.5 * dir.x;
+            let offX = sideX - ray.x;
+            let sideY = ray.y - tan(radians(ray.ang)) * offX;
+            ray.x = sideX;
+            ray.y = sideY;
+            ray.side = 'x';
+            return doorSide_64;
         }
-        
-        let sideX = floor(ray.x) + 0.5 + 0.5 * dir.x;
-        let offX = sideX - ray.x;
-        let sideY = ray.y - tan(radians(ray.ang)) * offX;
-        ray.x = sideX;
-        ray.y = sideY;
-        ray.side = 'x';
-        return doorSide_64;
+
+        if (side == 'x') {
+            let midY = ray.y + 0.5 * tan(radians(ang)) * -dir.x;
+            let midX = ray.x + 0.5 * dir.x;
+            if (midY > floor(ray.y)
+                && midY < floor(ray.y) + 1) {
+                ray.x = midX;
+                ray.y = midY;
+                return doorFront_64;
+            }
+            let sideY = floor(ray.y) + 0.5 + 0.5 * dir.y;
+            let offY = sideY - ray.y;
+            let sideX = ray.x + tan(radians(ray.ang-90)) * offY;
+            ray.y = sideY;
+            ray.x = sideX;
+            ray.side = 'y';
+            return doorSide_64;
+        }
+
+        return wall_64;
     }
 }
 

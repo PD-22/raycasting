@@ -16,7 +16,7 @@ function setup() {
 
     // worldMap = cellularMap(48, 48, 0.45, 8);
 
-    pl0 = new Player(2.501, 4.501, 60.1, 4)
+    pl0 = new Player(2.01, 3.501, 0.1, 4)
     // pl1 = new Player(16.502 - 4, 4.502+3, 0, 8)
     // Player.spawnMany(15, null, null, null, 8);
     // ammo1 = new Item(pl1.pos.x, pl1.pos.y - 2, ammo_64, 'ammo');
@@ -37,10 +37,10 @@ function setup() {
     redraw = stopRender = stopDraw = false;
     logVisible = false;
     mapVisible =
-        // true
+    // true
     false
     viewVisible =
-        true
+    true
     // false
 
     wallTextures[2] = doorSide_64;
