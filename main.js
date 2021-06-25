@@ -16,11 +16,11 @@ function setup() {
 
     // worldMap = cellularMap(48, 48, 0.45, 8);
 
-    pl0 = new Player(18.501, 3.501, 180, 4)
-    pl1 = new Player(16.502, 4.502, 0, 8)
-    Player.spawnMany(15, null, null, null, 8);
-    ammo1 = new Item(pl1.pos.x, pl1.pos.y - 2, ammo_64, 'ammo');
-    Item.spawnMany(4, ammo_64, 'ammo')
+    pl0 = new Player(2.501, 4.501, 60.1, 4)
+    // pl1 = new Player(16.502 - 4, 4.502+3, 0, 8)
+    // Player.spawnMany(15, null, null, null, 8);
+    // ammo1 = new Item(pl1.pos.x, pl1.pos.y - 2, ammo_64, 'ammo');
+    // Item.spawnMany(4, ammo_64, 'ammo')
 
     mapZoomed = false
     fitMap()
@@ -31,13 +31,19 @@ function setup() {
     ceilClr = '#383838';
     floorClr = '#717171';
     placeTxtrNum = 0
-    mapRayNum = 5;
+    mapRayNum = 24;
     volume = getStoredVolume() ?? 5;
 
     redraw = stopRender = stopDraw = false;
-    mapVisible = false;
     logVisible = false;
-    viewVisible = true;
+    mapVisible =
+        // true
+    false
+    viewVisible =
+        true
+    // false
+
+    wallTextures[2] = doorSide_64;
 }
 
 function draw() {
@@ -51,7 +57,7 @@ function draw() {
     Player.animateAll();
 
     // for testing
-    pl1.update([
+    pl1?.update([
         UP_ARROW,
         LEFT_ARROW,
         DOWN_ARROW,

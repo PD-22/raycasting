@@ -91,7 +91,7 @@ function mouseMoved() {
         pl0.rotate(amount);
     }
     // for testing
-    if (mapVisible) {
+    if (mapVisible && pl1 != undefined) {
         pl1.ang = 180 - degrees(atan2(
             pl1.pos.y * cls + drawOff.y - mouseY,
             pl1.pos.x * cls + drawOff.x - mouseX

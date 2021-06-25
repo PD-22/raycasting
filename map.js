@@ -48,13 +48,13 @@ function drawMap(rayBuf) {
     let drawRay = i => {
         let { pos } = Player.me;
         stroke(255, 0, 0, 222)
-        strokeWeight(cls / 16)
+        strokeWeight(cls / 32)
         let ray = rayBuf[Math.floor(i)];
         ray = ray[ray.length - 1];
         line(pos.x * cls, pos.y * cls, ray.x * cls, ray.y * cls)
         noStroke()
         fill(255, 255, 0, 222)
-        circle(ray.x * cls, ray.y * cls, cls / 4)
+        circle(ray.x * cls, ray.y * cls, cls / 12)
     }
     if (mapRayNum <= 1) drawRay(rayBuf.length / 2);
     else {
