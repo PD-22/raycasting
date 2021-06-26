@@ -3,13 +3,20 @@ function calcLineHeight(its) {
     return 90 / fov * displayHeight / p;
 }
 
-function getTxtrOff({ side, dir, x, y }) {
+function getTxtrOff({ side, dir, x, y, tOff, val }) {
+    let result;
     if (side == 'x') {
-        if (dir.x > 0) return y % 1;
-        else return (displayHeight - y) % 1;
-    } else if (side == 'y')
-        if (dir.y < 0) return x % 1;
-        else return (displayWidth - x) % 1;
+        result = y;
+        if (dir.x <= 0 && floor(val) != doorVal)
+            result = (displayHeight - y);
+    } else if (side == 'y') {
+        result = x;
+        if (dir.y >= 0 && floor(val) != doorVal)
+            result = (displayWidth - x);
+    }
+    if (tOff != undefined)
+        result = abs(result - tOff);
+    return result % 1;
 }
 
 function castWallRays(pos, offAng) {
@@ -39,7 +46,7 @@ function castWallRay(pos, ang) {
     while (true) {
         while (abs(pos.x - xsi.x) <= abs(pos.x - ysi.x)) {
             cell.x += dir.x
-            if (worldMap[cell.y] === undefined
+            collide: if (worldMap[cell.y] === undefined
                 || worldMap[cell.y][cell.x] != 0) {
                 let val = worldMap[cell.y] != undefined
                     && worldMap[cell.y][cell.x] != undefined
@@ -49,7 +56,12 @@ function castWallRay(pos, ang) {
                     side: 'x', ang, dir, val
                 };
                 let texture = wallTextures[ray.val];
-                if (ray.val == 2) texture = thin(ray);
+                if (floor(ray.val) == doorVal) {
+                    let thinTxtr = thin(ray)
+                    if (thinTxtr == undefined)
+                        break collide;
+                    texture = thinTxtr;
+                };
                 ray.dst = Math.hypot(pos.x - ray.x, pos.y - ray.y);
                 return {
                     ...ray, texture,
@@ -62,7 +74,7 @@ function castWallRay(pos, ang) {
         }
         while (abs(pos.y - ysi.y) <= abs(pos.y - xsi.y)) {
             cell.y += dir.y
-            if (worldMap[cell.y] === undefined
+            collide: if (worldMap[cell.y] === undefined
                 || worldMap[cell.y][cell.x] != 0) {
                 let val = worldMap[cell.y] != undefined
                     && worldMap[cell.y][cell.x] != undefined
@@ -72,7 +84,12 @@ function castWallRay(pos, ang) {
                     side: 'y', ang, dir, val
                 }
                 let texture = wallTextures[ray.val];
-                if (ray.val == 2) texture = thin(ray);
+                if (floor(ray.val) == doorVal) {
+                    let thinTxtr = thin(ray)
+                    if (thinTxtr == undefined)
+                        break collide;
+                    texture = thinTxtr;
+                };
                 ray.dst = Math.hypot(pos.x - ray.x, pos.y - ray.y);
                 return {
                     ...ray, texture,
@@ -92,8 +109,10 @@ function castWallRay(pos, ang) {
         if (side == 'y') {
             let midX = ray.x + 0.5 / tan(radians(ang)) * -dir.y;
             let midY = ray.y - 0.5 * -dir.y;
-            if (midX > floor(ray.x)
-                && midX < floor(ray.x) + 1) {
+            let midXOff = midX - floor(ray.x);
+            if (midXOff > 0 && midXOff < 1) {
+                if (midXOff < ray.val % 1) return;
+                ray.tOff = ray.val % 1;
                 ray.x = midX;
                 ray.y = midY;
                 return doorFront_64;
@@ -110,22 +129,24 @@ function castWallRay(pos, ang) {
         if (side == 'x') {
             let midY = ray.y + 0.5 * tan(radians(ang)) * -dir.x;
             let midX = ray.x + 0.5 * dir.x;
-            if (midY > floor(ray.y)
-                && midY < floor(ray.y) + 1) {
+            let midYOff = midY - floor(ray.y);
+            if (midYOff > 0 && midYOff < 1) {
+                if (midYOff < ray.val % 1) return;
+                ray.tOff = ray.val % 1;
                 ray.x = midX;
                 ray.y = midY;
                 return doorFront_64;
             }
             let sideY = floor(ray.y) + 0.5 + 0.5 * dir.y;
             let offY = sideY - ray.y;
-            let sideX = ray.x + tan(radians(ray.ang-90)) * offY;
+            let sideX = ray.x + tan(radians(ray.ang - 90)) * offY;
             ray.y = sideY;
             ray.x = sideX;
             ray.side = 'y';
             return doorSide_64;
         }
 
-        return wall_64;
+        return wallTextures[0];
     }
 }
 
@@ -154,8 +175,7 @@ function castRays(pos, offAng) {
         let wallRay = castWallRay(pos, ang);
         let spriteRays = castSpriteRays(sprites, ang);
 
-        // let colRays = [wallRay, ...spriteRays]; // temp
-        let colRays = [wallRay];
+        let colRays = [wallRay, ...spriteRays];
         colRays.sort((a, b) => b.dst - a.dst);
 
         rayBuf.unshift(colRays);

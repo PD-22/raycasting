@@ -16,7 +16,7 @@ function setup() {
 
     // worldMap = cellularMap(48, 48, 0.45, 8);
 
-    pl0 = new Player(2.01, 3.501, 0.1, 4)
+    pl0 = new Player(3.51, 5.01, 90.1, 4)
     // pl1 = new Player(16.502 - 4, 4.502+3, 0, 8)
     // Player.spawnMany(15, null, null, null, 8);
     // ammo1 = new Item(pl1.pos.x, pl1.pos.y - 2, ammo_64, 'ammo');
@@ -37,16 +37,20 @@ function setup() {
     redraw = stopRender = stopDraw = false;
     logVisible = false;
     mapVisible =
-    // true
-    false
+        // true
+        false
     viewVisible =
-    true
+        true
     // false
 
     wallTextures[2] = doorSide_64;
 }
 
 function draw() {
+    // temp
+    // myMap[3][3] = myMap[3][3] + deltaTime * 0.06 / 180
+    // if (myMap[3][3] > 3) myMap[3][3] = doorVal
+    
     myLog('cast', () => rayBuf = castRays(pl0.pos, pl0.ang));
 
     if (viewVisible) myLog('view', () => drawView(rayBuf));
