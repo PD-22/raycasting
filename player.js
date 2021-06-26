@@ -230,6 +230,7 @@ class Player extends Sprite {
         let cellVal = getCellVal(cell);
         let collision = this.wallCollision(cell);
         if (cellVal == 0 || collision == null) return;
+        if (floor(cellVal) == doorVal && cellVal % 1 > 0.9) return
         if (collision.type == 'side') {
             let axis = collision.value;
             let center = cell[axis] + 0.5
