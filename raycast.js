@@ -110,8 +110,8 @@ function castWallRay(pos, ang) {
             let midX = ray.x + 0.5 / tan(radians(ang)) * -dir.y;
             let midY = ray.y - 0.5 * -dir.y;
             let midXOff = midX - floor(ray.x);
-            if (midXOff > 0 && midXOff < 1) {
-                if (midXOff < ray.val % 1) return;
+            front: if (midXOff > 0 && midXOff < 1) {
+                if (midXOff < ray.val % 1) break front;
                 ray.tOff = ray.val % 1;
                 ray.x = midX;
                 ray.y = midY;
@@ -120,6 +120,8 @@ function castWallRay(pos, ang) {
             let sideX = floor(ray.x) + 0.5 + 0.5 * dir.x;
             let offX = sideX - ray.x;
             let sideY = ray.y - tan(radians(ray.ang)) * offX;
+            let sideYOff = abs(sideY - floor(ray.y));
+            if (sideYOff > 1) return;
             ray.x = sideX;
             ray.y = sideY;
             ray.side = 'x';
@@ -130,8 +132,8 @@ function castWallRay(pos, ang) {
             let midY = ray.y + 0.5 * tan(radians(ang)) * -dir.x;
             let midX = ray.x + 0.5 * dir.x;
             let midYOff = midY - floor(ray.y);
-            if (midYOff > 0 && midYOff < 1) {
-                if (midYOff < ray.val % 1) return;
+            front: if (midYOff > 0 && midYOff < 1) {
+                if (midYOff < ray.val % 1) break front;
                 ray.tOff = ray.val % 1;
                 ray.x = midX;
                 ray.y = midY;
@@ -140,6 +142,8 @@ function castWallRay(pos, ang) {
             let sideY = floor(ray.y) + 0.5 + 0.5 * dir.y;
             let offY = sideY - ray.y;
             let sideX = ray.x + tan(radians(ray.ang - 90)) * offY;
+            let sideXOff = abs(sideX - floor(ray.x));
+            if (sideXOff > 1) return;
             ray.y = sideY;
             ray.x = sideX;
             ray.side = 'y';

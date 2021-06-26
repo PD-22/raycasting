@@ -1,4 +1,4 @@
-// fix open door sides and inside
+// fix inside door render
 
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
@@ -18,7 +18,8 @@ function setup() {
 
     // worldMap = cellularMap(48, 48, 0.45, 8);
 
-    pl0 = new Player(3.51, 5.01, 90.1, 4)
+    // pl0 = new Player(4.01, 5.01, 100.1, 4)
+    pl0 = new Player(4.01, 2.01, 180.1+100, 4)
     // pl1 = new Player(3.51, 2.01, 0, 8)
     // Player.spawnMany(15, null, null, null, 8);
     // ammo1 = new Item(pl1.pos.x, pl1.pos.y - 2, ammo_64, 'ammo');
@@ -39,8 +40,8 @@ function setup() {
     redraw = stopRender = stopDraw = false;
     logVisible = false;
     mapVisible =
-        // true
-        false
+        true
+        // false
     viewVisible =
         true
     // false
