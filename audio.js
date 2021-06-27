@@ -1,25 +1,39 @@
+playingAudioList = [];
+
+function updateAudio() {
+    playingAudioList.forEach(audio => {
+        let { gainNode, panerNode, srcPos } = audio;
+        gainNode.gain.value = getVolume(srcPos) * volume / 10;
+        panerNode.pan.value = getPan(srcPos);
+    });
+}
+
 function playAudio(buffArr, srcPos) {
     if (audioContext == undefined)
         audioContext = new AudioContext();
-        
+
     let buffer = bufferFromArray(buffArr);
     let source = audioContext.createBufferSource();
     source.buffer = buffer;
 
-    var gainNode = audioContext.createGain();
-    var panerNode = audioContext.createStereoPanner();
+    let gainNode = audioContext.createGain();
+    let panerNode = audioContext.createStereoPanner();
 
     source
         .connect(gainNode)
         .connect(panerNode)
         .connect(audioContext.destination);
 
-    gainNode.gain.value *= getVolume(srcPos)
-        * volume / 10 / 2;
+    gainNode.gain.value = getVolume(srcPos) * volume / 10;
     panerNode.pan.value = getPan(srcPos);
 
     audioContext.resume();
     source.start();
+
+    playingAudioList.push({ gainNode, panerNode, srcPos });
+    source.addEventListener('ended', () => {
+        playingAudioList.shift();
+    });
 }
 
 function getPan(srcPos) {

@@ -3,7 +3,7 @@ var width, height, mapHeight, mapWidth, cls, mapZoomed,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, dScale,
     pixelCount, redraw, stopRender, stopDraw, animDoorList,
-    mapRayNum, volume, ammo1, entDoorSide;
+    mapRayNum, volume, ammo1, entDoorSide, playingAudioList;
 
 let debugLogs = {};
 
@@ -21,7 +21,7 @@ function setup() {
     // worldMap = cellularMap(48, 48, 0.45, 8);
 
     // pl0 = new Player(4.01, 5.01, 100.1, 4)
-    pl0 = new Player(3.81, 5.01, 90.1, 4)
+    pl0 = new Player(3.51, 5.01, 90.1, 4)
     // pl1 = new Player(3.51, 2.01, 0, 8)
     // Player.spawnMany(15, null, null, null, 8);
     // ammo1 = new Item(pl1.pos.x, pl1.pos.y - 2, ammo_64, 'ammo');
@@ -54,6 +54,8 @@ function setup() {
 function draw() {
     myLog('cast', () => rayBuf = castRays(pl0.pos, pl0.ang));
 
+    myLog('pall', playingAudioList.length);
+
     if (viewVisible) myLog('view', () => drawView(rayBuf));
     if (mapVisible) drawMap(rayBuf);
     if (logVisible) logStats();
@@ -61,6 +63,7 @@ function draw() {
     pl0.update([87, 65, 83, 68, 81, 69])
     Player.animateAll();
     animDoors();
+    updateAudio();
 
     // for testing
     pl1?.update([

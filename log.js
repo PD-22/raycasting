@@ -34,7 +34,7 @@ function logStats() {
 }
 
 function numberWithCommas(number) {
-    return number.toString()
+    return number?.toString()
         .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 

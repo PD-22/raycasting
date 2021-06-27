@@ -33,6 +33,7 @@ function toggleDoor(x, y) {
     let cell = worldMap[y][x];
     if (floor(cell) != doorVal || animDoorList
         .some(d => d.x == x && d.y == y)) return;
+    playAudio(door_aud, { x, y })
     let dir;
     dir = cell % 1 > 0.5 ? -1 : 1;
     animDoorList.push({ x, y, dir });
