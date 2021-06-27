@@ -7,7 +7,8 @@ function fitMap() { // fix...
 }
 
 function getDrawMapOff() {
-    if (cls * mapWidth > width || cls * mapHeight > height) {
+    if (floor(cls * mapWidth) > width ||
+        floor(cls * mapHeight) > height) {
         return {
             x: mapOff.x - (pl0.pos.x - mapWidth / 2) * cls,
             y: mapOff.y - (pl0.pos.y - mapHeight / 2) * cls

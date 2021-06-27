@@ -13,7 +13,7 @@ function makeMap(arr = 0, r, c) {
     let mtrx = []
     if (arr == 0) {
         mtrx = makeMatrix(r, c, 0)
-    } else mtrx = arr
+    } else mtrx = copyMatrix(arr);
     mapHeight = mtrx.length
     mapWidth = mtrx[0].length
     return mtrx
