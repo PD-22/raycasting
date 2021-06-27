@@ -4,6 +4,7 @@ Player.textures = wgs_64;
 
 let wallTextures = randomTextures(10, 2);
 wallTextures[1] = wall_64;
+wallTextures[2] = doorFront_64;
 
 doorVal = 2;
 

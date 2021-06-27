@@ -42,33 +42,27 @@ function setKeyNum(kc) {
 
 function keyPressed() {
     setKeyNum(keyCode);
-    if (keyCode == 189) {
+    if (keyCode == 189) { // -
         volume = max(0, volume - 1);
-
-        // temp
-        worldMap[3][3] = max(doorVal, worldMap[3][3] - 0.1);
-        
         sessionStorage.setItem('volume', volume);
     }
-    if (keyCode == 187) {
+    if (keyCode == 187) { // +
         volume = min(10, volume + 1);
-        // temp
-        worldMap[3][3] = min(doorVal + 0.99, worldMap[3][3] + 0.1);
-
         sessionStorage.setItem('volume', volume);
     }
 
-    if (keyCode == 32) pl0.shoot();
+    if (keyCode == 32) pl0.shoot(); // space
 
-    if (keyCode == 70) {
+    if (keyCode == 71) { // g
         redraw = mapVisible;
         mapVisible = !mapVisible;
     }
-
-    if (keyCode == 71) {
+    if (keyCode == 72) { // h
         redraw = logVisible;
         logVisible = !logVisible;
     }
+
+    if (keyCode == 70) reachDoor(pl0); // f
 }
 
 function mousePressed() {

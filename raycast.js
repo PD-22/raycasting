@@ -30,7 +30,7 @@ function castWallRays(pos, offAng) {
     return rayBuf
 }
 
-function castWallRay(pos, ang) {
+function castWallRay(pos, ang, castDoor = true) {
     let cell = { x: Math.floor(pos.x), y: Math.floor(pos.y) }
     let dir = angToDir(ang)
     let tg = abs(tan(radians(ang)))
@@ -82,8 +82,8 @@ function castWallRay(pos, ang) {
                 x: xsi.x, y: xsi.y,
                 side: 'x', ang, dir, val
             };
-            let texture = wallTextures[ray.val];
-            if (floor(ray.val) == doorVal) {
+            let texture = wallTextures[floor(ray.val)];
+            if (floor(ray.val) == doorVal && castDoor) {
                 let thinTxtr = thin(ray, first)
                 if (thinTxtr == undefined)
                     break collide;
@@ -91,8 +91,8 @@ function castWallRay(pos, ang) {
             };
             ray.dst = Math.hypot(pos.x - ray.x, pos.y - ray.y);
             return {
-                ...ray, texture,
-                txtrOff: getTxtrOff(ray),
+                ...ray, val: floor(ray.val), texture,
+                txtrOff: getTxtrOff(ray), cell,
                 lineHeight: calcLineHeight(ray)
             };
         }
@@ -108,8 +108,8 @@ function castWallRay(pos, ang) {
                 x: ysi.x, y: ysi.y,
                 side: 'y', ang, dir, val
             }
-            let texture = wallTextures[ray.val];
-            if (floor(ray.val) == doorVal) {
+            let texture = wallTextures[floor(ray.val)];
+            if (floor(ray.val) == doorVal && castDoor) {
                 let thinTxtr = thin(ray, first)
                 if (thinTxtr == undefined)
                     break collide;
@@ -117,8 +117,8 @@ function castWallRay(pos, ang) {
             };
             ray.dst = Math.hypot(pos.x - ray.x, pos.y - ray.y);
             return {
-                ...ray, texture,
-                txtrOff: getTxtrOff(ray),
+                ...ray, val: floor(ray.val), texture,
+                txtrOff: getTxtrOff(ray), cell,
                 lineHeight: calcLineHeight(ray)
             };
         }
