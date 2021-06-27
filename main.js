@@ -1,14 +1,15 @@
-// fix inside door render
-
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, dScale,
-    pixelCount, redraw, stopRender, stopDraw, mapRayNum, volume, ammo1;
+    pixelCount, redraw, stopRender, stopDraw,
+    mapRayNum, volume, ammo1, entDoorSide;
 
 let debugLogs = {};
 
 function setup() {
+    entDoorSide = 'x'; // tmp
+
     displayWidth = 160;
     displayHeight = 90;
     makeDisplayBuf();
@@ -19,7 +20,7 @@ function setup() {
     // worldMap = cellularMap(48, 48, 0.45, 8);
 
     // pl0 = new Player(4.01, 5.01, 100.1, 4)
-    pl0 = new Player(3.51, 3.1, -90.1, 4)
+    pl0 = new Player(3.81, 3.4, -170.1, 4)
     // pl1 = new Player(3.51, 2.01, 0, 8)
     // Player.spawnMany(15, null, null, null, 8);
     // ammo1 = new Item(pl1.pos.x, pl1.pos.y - 2, ammo_64, 'ammo');
@@ -42,8 +43,8 @@ function setup() {
         // true
         false
     mapVisible =
-        true
-    // false
+        // true
+        false
     viewVisible =
         true
     // false

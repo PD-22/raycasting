@@ -128,9 +128,8 @@ function castWallRay(pos, ang) {
         let { dir } = ray;
         let { side } = ray;
 
-        if (first && ray.side == 'x') {
+        if (first && ray.side != entDoorSide)
             return doorSide_64
-        }
 
         if (side == 'y') {
             let midX = ray.x + 0.5 / tan(radians(ang)) * -dir.y;
@@ -161,7 +160,9 @@ function castWallRay(pos, ang) {
             let midX = ray.x + 0.5 * dir.x;
             let midYOff = midY - floor(ray.y);
             front: if (midYOff > 0 && midYOff < 1) {
-                if (midYOff < ray.val % 1) break front;
+                let tOff = ray.val % 1;
+                if (tOff > 0.99 || first ||
+                    midYOff < ray.val % 1) break front;
                 ray.tOff = ray.val % 1;
                 ray.x = midX;
                 ray.y = midY;

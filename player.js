@@ -221,8 +221,19 @@ class Player extends Sprite {
     }
 
     respondToCollision() {
-        this.getAdjCells().forEach(
-            cell => this.wallCollide(cell));
+        let doorClsn;
+        this.getAdjCells().forEach(cell => {
+            let collision = this.wallCollide(cell)
+            if (collision != undefined) {
+                doorClsn = collision;
+            }
+        });
+        if (doorClsn != undefined) {
+            if (typeof doorClsn == 'string'
+                && entDoorSide == undefined) {
+                entDoorSide = doorClsn;
+            }
+        } else entDoorSide = undefined;
         this.spriteCollision()
     }
 
@@ -230,7 +241,8 @@ class Player extends Sprite {
         let cellVal = getCellVal(cell);
         let collision = this.wallCollision(cell);
         if (cellVal == 0 || collision == null) return;
-        if (floor(cellVal) == doorVal && cellVal % 1 > 0.9) return
+        if (floor(cellVal) == doorVal && cellVal % 1 > 0.9)
+            return collision.value;
         if (collision.type == 'side') {
             let axis = collision.value;
             let center = cell[axis] + 0.5
