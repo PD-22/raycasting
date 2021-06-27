@@ -2,7 +2,7 @@ var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, dScale,
-    pixelCount, redraw, stopRender, stopDraw,
+    pixelCount, redraw, stopRender, stopDraw, animDoorList,
     mapRayNum, volume, ammo1, entDoorSide;
 
 let debugLogs = {};
@@ -16,11 +16,12 @@ function setup() {
 
     createMyCanvas()
     worldMap = makeMap(myMap);
+    animDoorList = [];
 
     // worldMap = cellularMap(48, 48, 0.45, 8);
 
     // pl0 = new Player(4.01, 5.01, 100.1, 4)
-    pl0 = new Player(3.81, 3.4, -170.1, 4)
+    pl0 = new Player(3.81, 5.01, 90.1, 4)
     // pl1 = new Player(3.51, 2.01, 0, 8)
     // Player.spawnMany(15, null, null, null, 8);
     // ammo1 = new Item(pl1.pos.x, pl1.pos.y - 2, ammo_64, 'ammo');
@@ -49,14 +50,41 @@ function setup() {
         true
     // false
 
-    wallTextures[2] = doorSide_64;
+    toggleDoor(3, 3);
+}
+
+function animDoors() {
+    for (let i = 0; i < animDoorList.length; i++) {
+        let door = animDoorList[i];
+        let { x, y, dir } = door;
+
+        let speed = deltaTime * 0.06 / 60
+        let newVal = worldMap[y][x] + speed * dir;
+
+        if (newVal > doorVal + 1) {
+            newVal = doorVal + 0.99;
+            animDoorList.shift();
+            i--;
+        } else if (newVal < doorVal) {
+            newVal = doorVal;
+            animDoorList.shift();
+            i--;
+        }
+
+        worldMap[y][x] = newVal;
+    }
+}
+
+function toggleDoor(x, y) {
+    let cell = worldMap[y][x];
+    if (floor(cell) != doorVal || animDoorList
+        .some(d => d.x == x && d.y == y)) return;
+    let dir;
+    dir = cell % 1 > 0.5 ? -1 : 1;
+    animDoorList.push({ x, y, dir });
 }
 
 function draw() {
-    // temp
-    // myMap[3][3] = myMap[3][3] + deltaTime * 0.06 / 180
-    // if (myMap[3][3] > 3) myMap[3][3] = doorVal
-
     myLog('cast', () => rayBuf = castRays(pl0.pos, pl0.ang));
 
     if (viewVisible) myLog('view', () => drawView(rayBuf));
@@ -65,6 +93,7 @@ function draw() {
 
     pl0.update([87, 65, 83, 68, 81, 69])
     Player.animateAll();
+    animDoors();
 
     // for testing
     pl1?.update([

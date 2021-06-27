@@ -46,14 +46,14 @@ function keyPressed() {
         volume = max(0, volume - 1);
 
         // temp
-        myMap[3][3] = max(doorVal, myMap[3][3] - 0.1);
+        worldMap[3][3] = max(doorVal, worldMap[3][3] - 0.1);
         
         sessionStorage.setItem('volume', volume);
     }
     if (keyCode == 187) {
         volume = min(10, volume + 1);
         // temp
-        myMap[3][3] = min(doorVal + 0.99, myMap[3][3] + 0.1);
+        worldMap[3][3] = min(doorVal + 0.99, worldMap[3][3] + 0.1);
 
         sessionStorage.setItem('volume', volume);
     }
