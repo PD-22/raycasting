@@ -239,9 +239,10 @@ class Player extends Sprite {
         if (doorClsn != undefined) {
             if (typeof doorClsn == 'string'
                 && entDoorSide == undefined) {
+                    console.log(doorClsn);
                 entDoorSide = doorClsn;
             }
-        } else entDoorSide = undefined;
+        }
         this.spriteCollision()
     }
 

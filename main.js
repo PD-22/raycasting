@@ -8,8 +8,6 @@ var width, height, mapHeight, mapWidth, cls, mapZoomed,
 let debugLogs = {};
 
 function setup() {
-    entDoorSide = 'x'; // tmp
-
     displayWidth = 160;
     displayHeight = 90;
     makeDisplayBuf();
