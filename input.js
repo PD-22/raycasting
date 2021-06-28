@@ -42,6 +42,10 @@ function setKeyNum(kc) {
 
 function keyPressed() {
     setKeyNum(keyCode);
+
+    if (keyCode == 49) pl0.tool = 0; // 1
+    if (keyCode == 50) pl0.tool = 1; // 2
+
     if (keyCode == 189) { // -
         volume = max(0, volume - 1);
         sessionStorage.setItem('volume', volume);
@@ -51,7 +55,7 @@ function keyPressed() {
         sessionStorage.setItem('volume', volume);
     }
 
-    if (keyCode == 32) pl0.shoot(); // space
+    if (keyCode == 32) pl0.useTool(); // space
 
     if (keyCode == 71) { // g
         redraw = mapVisible;
@@ -77,7 +81,7 @@ function mousePressed() {
         }
     } else if (viewVisible) {
         if (pointerLocked()) {
-            if (buttonIsDown(LEFT)) pl0.shoot();
+            if (buttonIsDown(LEFT)) pl0.useTool();
         }
         lockPointer();
     }

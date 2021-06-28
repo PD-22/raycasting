@@ -14,9 +14,9 @@ class Player extends Sprite {
         this.txtrIndex = 0;
         this.txtrIndexOff = 0;
         this.moveAnimIndex = 0;
-        this.gunAnimIndex = 0;
+        this.tool = 1;
+        this.toolAnimIndex = 0;
         this.txtrSide = 0;
-        this.shooting = false;
         this.dir = { x: 0, y: 0 };
         this.vel = { x: 0, y: 0 };
         this.alive = true
@@ -52,9 +52,9 @@ class Player extends Sprite {
         let txtrIndex = Math.floor(this.txtrSide + this.txtrIndexOff);
         if (txtrIndex > length) txtrIndex = length;
         this.txtrIndex = txtrIndex;
-        if (this.shooting && this.txtrSide == 0) {
+        if (this.tool == 1 && this.animatingTool && this.txtrSide == 0) { // shoot anim
             let animArr = [43, 44, 43];
-            let animIndex = Math.floor(this.gunAnimIndex);
+            let animIndex = Math.floor(this.toolAnimIndex);
             let i = floor(animArr.length * animIndex / 5);
             this.txtrIndex = animArr[i];
         };
@@ -65,25 +65,31 @@ class Player extends Sprite {
 
     static all = []
 
-    shoot() {
-        if (this.shooting || this.ammoNum < 1) return;
+    useTool() {
+        if (this.animatingTool) return;
+        if (this.tool == 1 && this.ammoNum < 1) return; // gun
         this.ammoNum--;
-        this.shooting = true;
+        this.animatingTool = true;
     }
 
     fire() {
-        if (!this.alive || this.firing) return;
+        if (!this.alive || this.usingTool) return;
 
-        playAudio(pistol_aud, this.pos);
+        let audio = [knife_aud, pistol_aud][this.tool];
+        playAudio(audio, this.pos);
 
-        this.firing = true;
-        let wallDst = castWallRay(this.pos, this.ang).dst;
-        let shot = Player.all.filter(p => p != this && p.alive)
+        this.usingTool = true;
+
+        let wallDst = castWallRay(this.pos, this.ang).dst
+        let maxDst = wallDst;
+        if (this.tool == 0) maxDst = min(wallDst, 1); // short knife
+
+        let got = Player.all.filter(p => p != this && p.alive)
             .map(p => ({ p, its: p.castRaySprt(this, this.ang, 1 / 6) }))
-            .filter(e => e.its != undefined && e.its.dst < wallDst)
+            .filter(e => e.its != undefined && e.its.dst < maxDst)
             .sort((a, b) => a.its.dst - b.its.dst)
             .map(e => e.p);
-        shot.forEach(p => p.die());
+        got.forEach(p => p.die());
     }
 
     die() { this.alive = this.blocking = false; }
@@ -104,14 +110,14 @@ class Player extends Sprite {
 
     updateAnimation() {
         this.updateTexture();
-        if (this.shooting) {
-            this.gunAnimIndex += deltaTime / 32;
-            let animIndex = Math.floor(this.gunAnimIndex);
-            if (animIndex >= 2 && !this.firing) this.fire();
-            if (this.gunAnimIndex >= 5) {
-                this.gunAnimIndex = 0;
-                this.shooting = false;
-                this.firing = false;
+        if (this.animatingTool) {
+            this.toolAnimIndex += deltaTime / 32;
+            let animIndex = Math.floor(this.toolAnimIndex);
+            if (animIndex >= 2 && !this.usingTool) this.fire();
+            if (this.toolAnimIndex >= 5) {
+                this.toolAnimIndex = 0;
+                this.animatingTool = false;
+                this.usingTool = false;
             }
         }
         if (this.alive) {

@@ -8,12 +8,13 @@ function renderDisplay() {
         let rays = rayBuf[x];
         renderRays(rays, x);
     }
-    renderGun();
+    renderTool();
 }
 
-function renderGun() {
+function renderTool() {
     if (!pl0.alive) return;
-    let gunTex = gun_64[Math.floor(pl0.gunAnimIndex)];
+    let texs = [knife_64, gun_64][pl0.tool];
+    let gunTex = texs[Math.floor(pl0.toolAnimIndex)];
 
     let texRows = gunTex.length;
     let texCols = gunTex[0].length;

@@ -22,7 +22,7 @@ function setup() {
 
     // pl0 = new Player(4.01, 5.01, 100.1, 4)
     pl0 = new Player(8.51, 5.51, 155.01, 8)
-    pl0.tool = 0;
+    pl0.tool = 1;
     pl1 = new Player(7.51, 5.01, -30, 8)
     // Player.spawnMany(15, null, null, null, 8);
     // ammo1 = new Item(pl1.pos.x, pl1.pos.y - 2, ammo_64, 'ammo');
