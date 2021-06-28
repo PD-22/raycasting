@@ -67,8 +67,10 @@ class Player extends Sprite {
 
     useTool() {
         if (this.animatingTool) return;
-        if (this.tool == 1 && this.ammoNum < 1) return; // gun
-        this.ammoNum--;
+        if (this.tool == 1) { // gun
+            if (this.ammoNum < 1) return;
+            this.ammoNum--;
+        }
         this.animatingTool = true;
     }
 
