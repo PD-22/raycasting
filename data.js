@@ -1,5 +1,3 @@
-let gunTexs = guns_64;
-
 Player.textures = wgs_64;
 
 let wallTextures = randomTextures(10, 2);
