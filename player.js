@@ -287,16 +287,4 @@ class Player extends Sprite {
 
         return null;
     }
-
-    getAdjCells() {
-        let cells = [];
-        let x = Math.round(this.pos.x);
-        let y = Math.round(this.pos.y);
-        for (let i = -1; i <= 0; i++) {
-            for (let j = -1; j <= 0; j++) {
-                cells.push(getCell(x + j, y + i, false))
-            }
-        }
-        return cells;
-    }
 }
