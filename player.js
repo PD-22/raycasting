@@ -236,12 +236,13 @@ class Player extends Sprite {
                 doorClsn = collision;
             }
         });
-        if (doorClsn != undefined) {
-            if (typeof doorClsn == 'string'
-                && entDoorSide == undefined) {
-                    console.log(doorClsn);
-                entDoorSide = doorClsn;
-            }
+        if (this == pl0) {
+            if (doorClsn != undefined) {
+                if (typeof doorClsn == 'string'
+                    && entDoorSide == undefined) {
+                    entDoorSide = doorClsn;
+                }
+            } else entDoorSide = undefined;
         }
         this.spriteCollision()
     }
