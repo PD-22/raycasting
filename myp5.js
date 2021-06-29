@@ -18,13 +18,16 @@ var draw, setup, keyPressed,
 var audioContext;
 
 function createMyCanvas() {
-    dScale = Math.floor(window.innerWidth / displayWidth);
-    width = displayWidth * dScale;
-    height = width / 16 * 9;
     if (height > window.innerHeight) {
-        dScale = Math.floor(window.innerHeight / displayHeight);
-        height = displayHeight * dScale;
+        pxSize = Math.floor(window.innerHeight / displayHeight);
+        pxSize = min(pxSize, maxpxSize);
+        height = displayHeight * pxSize;
         width = height * 16 / 9;
+    } else {
+        pxSize = Math.floor(window.innerWidth / displayWidth);
+        pxSize = min(pxSize, maxpxSize);
+        width = displayWidth * pxSize;
+        height = width / 16 * 9;
     }
     createCanvas(width, height)
 }

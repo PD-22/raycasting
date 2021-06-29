@@ -1,15 +1,17 @@
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,
-    displayBuf, prevDisplayBuf, displayWidth, displayHeight, dScale,
-    pixelCount, redraw, stopRender, stopDraw, animDoorList,
+    displayBuf, prevDisplayBuf, displayWidth, displayHeight, pxSize,
+    pixelCount, redraw, stopRender, stopDraw, animDoorList, maxpxSize,
     mapRayNum, volume, ammo1, entDoorSide, playingAudioList;
 
 let debugLogs = {};
 
 function setup() {
-    displayWidth = 160;
-    displayHeight = 90;
+    maxpxSize = 8;
+
+    displayWidth = 160 / 5 * 4;
+    displayHeight = 90 / 5 * 4;
     makeDisplayBuf();
 
     createMyCanvas()
