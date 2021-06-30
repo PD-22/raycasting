@@ -216,7 +216,7 @@ var { abs, tan, cos,
     sin, atan2, sqrt,
     floor, round, ceil,
     random, hypot,
-    min, max } = Math;
+    min, max, sign } = Math;
 var radians = angle => angle * PI / 180;
 var degrees = angle => angle * 180 / PI;
 

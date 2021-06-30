@@ -230,21 +230,21 @@ class Player extends Sprite {
 
     respondToCollision() {
         if (!this.alive) return;
-        let doorClsn;
-        this.getAdjCells().forEach(cell => {
-            let collision = this.wallCollide(cell)
-            if (collision != undefined) {
-                doorClsn = collision;
-            }
-        });
+        this.getAdjCells().forEach(cell => this.wallCollide(cell));
+        this.spriteCollision();
+
         if (this == pl0) {
-            if (doorClsn != undefined) {
-                if (typeof doorClsn == 'string'
-                    && entDoorSide == undefined) {
-                    entDoorSide = doorClsn;
+            let door = isInDoor(pl0);
+            if (door != undefined) {
+                if (entDoorSide == undefined) {
+                    let { pos } = pl0;
+                    let cenDst = {
+                        x: pos.x - (door.x + 0.5),
+                        y: pos.y - (door.y + 0.5)
+                    }
+                    entDoorSide = abs(cenDst.x) > abs(cenDst.y) ? 'x' : 'y';
                 }
             } else entDoorSide = undefined;
         }
-        this.spriteCollision()
     }
 }
