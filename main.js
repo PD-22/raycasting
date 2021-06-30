@@ -1,8 +1,12 @@
+// fix cross center touch
 // add mobile control
+// add mobile fullscreen
+// consider device screen size
 
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
-    rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
-    ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,
+    rayBuf, fov, worldMap, mapOff, drawOff,
+    mapVisible, viewVisible, touchVisible, logVisible,
+    ceilClr, floorClr, placeTxtrNum, pl0, pl1,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, pxSize,
     pixelCount, redraw, stopRender, stopDraw, animDoorList, maxpxSize,
     mapRayNum, volume, ammo1, entDoorSide, playingAudioList;
@@ -22,8 +26,7 @@ function setup() {
 
     // worldMap = cellularMap(48, 48, 0.45, 8);
 
-    // pl0 = new Player(8.51, 5.51, 155.01, 8)
-    pl0 = new Player(4.51, 2.51, 180.1, 4)
+    pl0 = new Player(8.51, 5.51, 155.01, 8)
     pl0.tool = 1;
     pl1 = new Player(7.51, 5.01, -30, 8)
     Player.spawnMany(5, null, null, null, 8);
@@ -43,12 +46,15 @@ function setup() {
 
     redraw = stopRender = stopDraw = false;
     logVisible =
-        true
-    // false
+        // true
+        false
     mapVisible =
+        // true
+        false
+    viewVisible =
         true
     // false
-    viewVisible =
+    touchVisible =
         true
     // false
 }
@@ -62,6 +68,7 @@ function draw() {
     if (viewVisible) myLog('view', () => drawView(rayBuf));
     if (mapVisible) drawMap(rayBuf);
     if (logVisible) logStats();
+    if (touchVisible) drawTouch();
 
     pl0.update([87, 65, 83, 68, 81, 69])
     Player.animateAll();

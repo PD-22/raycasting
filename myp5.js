@@ -8,12 +8,17 @@ var canvas, ctx, deltaTime,
     mouseButton,
     keyCode, keyName;
 
-var draw, setup, keyPressed,
+var draw, setup,
+    keyPressed,
+    keyReleased,
     mousePressed,
     mouseReleased,
     mouseMoved,
     mouseDragged,
-    mouseWheel;
+    mouseWheel,
+    touchStarted,
+    touchMoved,
+    touchEnded;
 
 var audioContext;
 
@@ -69,6 +74,8 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     document.body.addEventListener('keyup', evt => {
         keyCode = evt.keyCode;
+        keyName = evt.key;
+        keyReleased?.(keyCode);
         inputLogger[keyCode] = false;
     });
     document.body.addEventListener('mousewheel', evt => mouseWheel?.(evt));
@@ -108,6 +115,15 @@ window.addEventListener('DOMContentLoaded', () => {
         if (inputLogger.mouseDown)
             mouseDragged?.(evt);
     });
+    document.body.addEventListener('touchstart', evt => {
+        touchStarted?.(evt);
+    });
+    document.body.addEventListener('touchmove', evt => {
+        touchMoved?.(evt);
+    });
+    document.body.addEventListener('touchend', evt => {
+        touchEnded?.(evt);
+    });
     setup?.();
 
     (function animate(time, lastTime) {
@@ -140,6 +156,8 @@ function createCanvas(width, height) {
 
     requestPointerLock = () => canvas.requestPointerLock();
     exitPointerLock = () => document.exitPointerLock;
+
+    canvasOffset = canvas.getBoundingClientRect();
 }
 
 var buttonIsDown = button => inputLogger?.buttons[button] || false;
