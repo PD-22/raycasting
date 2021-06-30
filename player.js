@@ -229,6 +229,7 @@ class Player extends Sprite {
     }
 
     respondToCollision() {
+        if (!this.alive) return;
         let doorClsn;
         this.getAdjCells().forEach(cell => {
             let collision = this.wallCollide(cell)
