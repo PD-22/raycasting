@@ -116,14 +116,17 @@ window.addEventListener('DOMContentLoaded', () => {
             mouseDragged?.(evt);
     });
     document.body.addEventListener('touchstart', evt => {
+        evt.preventDefault();
         touchStarted?.(evt);
-    });
+    }, { passive: false });
     document.body.addEventListener('touchmove', evt => {
+        evt.preventDefault();
         touchMoved?.(evt);
-    });
+    }, { passive: false });
     document.body.addEventListener('touchend', evt => {
+        evt.preventDefault();
         touchEnded?.(evt);
-    });
+    }, { passive: false });
     setup?.();
 
     (function animate(time, lastTime) {
