@@ -1,3 +1,7 @@
+// fix between doors
+// add mobile control
+// respond collision only on pl0
+
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapVisible, viewVisible, mapOff, drawOff,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, logVisible,

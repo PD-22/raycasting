@@ -141,4 +141,55 @@ class Sprite {
         }
         return cells;
     }
+
+    wallCollide(cell) {
+        let cellVal = getCellVal(cell);
+        let collision = this.wallCollision(cell);
+        if (cellVal == 0 || collision == null) return;
+        if (floor(cellVal) == doorVal && cellVal % 1 > 0.9)
+            return collision.value;
+        if (collision.type == 'side') {
+            let axis = collision.value;
+            let center = cell[axis] + 0.5
+            let sign = Math.sign(this.pos[axis] - center);
+            this.pos[axis] = center + sign * (0.5 + this.rad);
+        } else if (collision.type == 'corner') {
+            let delta = {
+                x: this.pos.x - collision.value.x,
+                y: this.pos.y - collision.value.y
+            }
+            let axis = Math.abs(delta.x) < Math.abs(delta.y) ? 'y' : 'x';
+            let axis2 = axis == 'y' ? 'x' : 'y';
+            this.pos[axis] =
+                collision.value[axis] + Math.sign(delta[axis]) *
+                Math.sqrt(this.rad ** 2 - delta[axis2] ** 2);
+        }
+    }
+
+    wallCollision(cell) {
+        let cellCenter = { x: cell.x + 0.5, y: cell.y + 0.5 };
+        let crclDst = {
+            x: Math.abs(this.pos.x - cellCenter.x),
+            y: Math.abs(this.pos.y - cellCenter.y),
+        };
+
+        if (crclDst.x >= (0.5 + this.rad)) return null;
+        if (crclDst.y >= (0.5 + this.rad)) return null;
+
+        if (crclDst.x <= 0.5) return { type: 'side', value: 'y' };
+        if (crclDst.y <= 0.5) return { type: 'side', value: 'x' };
+
+        for (let i = 0; i <= 1; i++) {
+            for (let j = 0; j <= 1; j++) {
+                let corner = { x: cell.x + j, y: cell.y + i };
+                let dst = Math.hypot(
+                    Math.abs(this.pos.x - corner.x),
+                    Math.abs(this.pos.y - corner.y),
+                );
+                if (dst <= this.rad) return { type: 'corner', value: corner };
+            }
+        }
+
+        return null;
+    }
 }
