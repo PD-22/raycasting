@@ -211,15 +211,6 @@ class Player extends Sprite {
         Player.all.forEach(p => p.updateAnimation());
     }
 
-    update(keys = undefined) {
-        let moveKeys = keys.slice(0, 4);
-        let rotateKeys = keys.slice(4);
-        this.updateVelocity(moveKeys);
-        this.updatePosition();
-        this.updateRotate(rotateKeys);
-        this.respondToCollision();
-    }
-
     updateRotate([left, right]) {
         let dir = 0;
         if (keyIsDown(left)) dir--;

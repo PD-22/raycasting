@@ -1,9 +1,11 @@
 let sPosLeft;
+let lPosLeft;
 let pPosLeft;
 let dPosLeft;
 let leftIndex;
 
 let sPosRight;
+let lPosRight;
 let pPosRight;
 let dPosRight;
 let rightIndex;
@@ -17,7 +19,12 @@ function fixPos(pos) {
     }
 }
 
+let lastTouch;
 function touchStarted(e) {
+    if (lastTouch != undefined && Date.now() - lastTouch < 200)
+        document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+    lastTouch = Date.now();
+
     getTouchPos(e).forEach((pos, i) => {
         pos = fixPos(pos);
 
@@ -48,6 +55,7 @@ function touchMoved(e) {
                 x: pos.x - pPosLeft.x,
                 y: pos.y - pPosLeft.y
             };
+            lPosLeft = pos;
             pPosLeft = pos;
         } else {
             let { identifier } = Array.from(e.touches)[i];
@@ -58,6 +66,7 @@ function touchMoved(e) {
                 x: pos.x - pPosRight?.x,
                 y: pos.y - pPosRight?.y
             };
+            lPosRight = pos;
             pPosRight = pos;
         }
     })
@@ -83,8 +92,8 @@ function drawTouch() {
 
 
     if (dPosLeft != undefined) {
-        let x = (dPosLeft.x).toFixed(0);
-        let y = (dPosLeft.y).toFixed(0);
+        let x = (dPosLeft.x).toFixed(1);
+        let y = (dPosLeft.y).toFixed(1);
 
         ctx.fillStyle = 'white';
         ctx.fillText(`x:${x} y:${y} i:${leftIndex}`, 0, 0);
@@ -97,8 +106,8 @@ function drawTouch() {
     }
 
     if (dPosRight != undefined) {
-        let x = (dPosRight.x).toFixed(0);
-        let y = (dPosRight.y).toFixed(0);
+        let x = (dPosRight.x).toFixed(1);
+        let y = (dPosRight.y).toFixed(1);
 
         ctx.fillStyle = 'white';
         ctx.fillText(`x:${x} y:${y} i:${rightIndex}`, width / 2, 0);

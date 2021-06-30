@@ -24,14 +24,16 @@ var audioContext;
 
 function createMyCanvas() {
     if (height > window.innerHeight) {
-        pxSize = Math.floor(window.innerHeight / displayHeight);
-        pxSize = min(pxSize, maxpxSize);
-        height = displayHeight * pxSize;
+        pxlSize = Math.floor(window.innerHeight / displayHeight);
+        if (maxPxlSize != undefined)
+            pxlSize = min(pxlSize, maxPxlSize);
+        height = displayHeight * pxlSize;
         width = height * 16 / 9;
     } else {
-        pxSize = Math.floor(window.innerWidth / displayWidth);
-        pxSize = min(pxSize, maxpxSize);
-        width = displayWidth * pxSize;
+        pxlSize = Math.floor(window.innerWidth / displayWidth);
+        if (maxPxlSize != undefined)
+            pxlSize = min(pxlSize, maxPxlSize);
+        width = displayWidth * pxlSize;
         height = width / 16 * 9;
     }
     createCanvas(width, height)
@@ -115,18 +117,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (inputLogger.mouseDown)
             mouseDragged?.(evt);
     });
-    document.body.addEventListener('touchstart', evt => {
-        evt.preventDefault();
-        touchStarted?.(evt);
-    }, { passive: false });
-    document.body.addEventListener('touchmove', evt => {
-        evt.preventDefault();
-        touchMoved?.(evt);
-    }, { passive: false });
-    document.body.addEventListener('touchend', evt => {
-        evt.preventDefault();
-        touchEnded?.(evt);
-    }, { passive: false });
+    
     setup?.();
 
     (function animate(time, lastTime) {
@@ -162,6 +153,19 @@ function createCanvas(width, height) {
     exitPointerLock = () => document.exitPointerLock;
 
     canvasOffset = canvas.getBoundingClientRect();
+
+    canvas.addEventListener('touchstart', evt => {
+        evt.preventDefault();
+        touchStarted?.(evt);
+    }, { passive: false });
+    canvas.addEventListener('touchmove', evt => {
+        evt.preventDefault();
+        touchMoved?.(evt);
+    }, { passive: false });
+    canvas.addEventListener('touchend', evt => {
+        evt.preventDefault();
+        touchEnded?.(evt);
+    }, { passive: false });
 }
 
 var buttonIsDown = button => inputLogger?.buttons[button] || false;

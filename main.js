@@ -1,24 +1,27 @@
-// add mobile control
-// add mobile fullscreen
-// consider device screen size
-
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapOff, drawOff,
     mapVisible, viewVisible, touchVisible, logVisible,
-    ceilClr, floorClr, placeTxtrNum, pl0, pl1,
-    displayBuf, prevDisplayBuf, displayWidth, displayHeight, pxSize,
-    pixelCount, redraw, stopRender, stopDraw, animDoorList, maxpxSize,
+    ceilClr, floorClr, placeTxtrNum, pl0, pl1, pageWidth, pageHeight,
+    displayBuf, prevDisplayBuf, displayWidth, displayHeight, pxlSize,
+    pixelCount, redraw, stopRender, stopDraw, animDoorList, maxPxlSize,
     mapRayNum, volume, ammo1, entDoorSide, playingAudioList;
 
 let debugLogs = {};
 
 function setup() {
-    maxpxSize = 8;
+    // maxPxlSize = 8;
 
-    displayWidth = 160 / 5 * 4;
-    displayHeight = 90 / 5 * 4;
+    pageWidth = window.innerWidth;
+    pageHeight = window.innerHeight;
+    if (window.devicePixelRatio > 1) {
+        displayWidth = 160 / 10 * 3;
+        displayHeight = 90 / 10 * 3;
+    } else {
+        displayWidth = 160 / 5 * 4;
+        displayHeight = 90 / 5 * 4;
+    }
+
     makeDisplayBuf();
-
     createMyCanvas()
     worldMap = makeMap(myMap);
     animDoorList = [];
@@ -44,18 +47,11 @@ function setup() {
     volume = getStoredVolume() ?? 5;
 
     redraw = stopRender = stopDraw = false;
-    logVisible =
-        // true
-        false
-    mapVisible =
-        // true
-        false
-    viewVisible =
-        true
-    // false
-    touchVisible =
-        true
-    // false
+
+    logVisible = true
+    // touchVisible = true
+    // mapVisible = true
+    viewVisible = true
 }
 
 function draw() {
@@ -69,16 +65,49 @@ function draw() {
     if (logVisible) logStats();
     if (touchVisible) drawTouch();
 
-    pl0.update([87, 65, 83, 68, 81, 69])
+    pl0.updateVelocity([87, 65, 83, 68]);
+    pl0.updateRotate([81, 69]);
+
+    let drx = (dPosRight?.x ?? 0) * pageWidth / displayWidth * 0.5;
+    pl0.rotate(drx * deltaTime * 0.06);
+
+    let dlx, dly
+    if (lPosLeft != undefined && sPosLeft != undefined) {
+        dlx = lPosLeft.x - sPosLeft.x;
+        dly = lPosLeft.y - sPosLeft.y;
+        let ang = Math.atan2(dly, dlx) - radians(pl0.ang + 90);
+        ang = radians(normalAng(degrees(ang)));
+        let mag = sqrt(dlx ** 2 + dly ** 2) / 100;
+        mag = min(pl0.speed, mag);
+        const scale = pageWidth / displayWidth / 256
+        let velX = cos(ang) * mag * scale;
+        let velY = sin(ang) * mag * scale;
+
+        pl0.vel = { x: -velX, y: -velY };
+
+        myLog('velX', velX * 1000);
+        myLog('velY', velY * 1000);
+        myLog('ang', degrees(ang));
+        myLog('mag', mag * 1000);
+    }
+
+    pl0.updatePosition();
+    pl0.respondToCollision();
+
+
     Player.animateAll();
     animDoors();
     updateAudio();
 
     // for testing
-    pl1?.update([
+    pl1.updateVelocity([
         UP_ARROW,
-        LEFT_ARROW,
+        undefined,
         DOWN_ARROW,
+        undefined
+    ])
+    pl1.updateRotate([
+        LEFT_ARROW,
         RIGHT_ARROW
     ])
 

@@ -8,7 +8,7 @@ function renderDisplay() {
         let rays = rayBuf[x];
         renderRays(rays, x);
     }
-    renderTool();
+    // renderTool();
 }
 
 function renderTool() {
@@ -80,8 +80,8 @@ function floatFix(float) {
 function drawDisplay() {
     pixelCount = 0;
     let imageData = ctx.createImageData(
-        displayWidth * pxSize,
-        displayHeight * pxSize
+        displayWidth * pxlSize,
+        displayHeight * pxlSize
     );
     for (let y = 0; y < displayHeight; y++) {
         for (let x = 0; x < displayWidth; x++) {
@@ -91,9 +91,9 @@ function drawDisplay() {
             color[3] ??= 255;
             // if (!redraw && prevDisplayBuf?.[y][x] == color) color[3] = 0;
             prevDisplayBuf[y][x] = color;
-            for (let j = 0; j < pxSize; j++) {
-                for (let k = 0; k < pxSize; k++) {
-                    let i = 4 * ((y * pxSize + j) * displayWidth * pxSize + x * pxSize + k);
+            for (let j = 0; j < pxlSize; j++) {
+                for (let k = 0; k < pxlSize; k++) {
+                    let i = 4 * ((y * pxlSize + j) * displayWidth * pxlSize + x * pxlSize + k);
                     imageData.data[i] = color[0];
                     imageData.data[i + 1] = color[1];
                     imageData.data[i + 2] = color[2];
