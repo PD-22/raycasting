@@ -1,4 +1,3 @@
-// fix cross center touch
 // add mobile control
 // add mobile fullscreen
 // consider device screen size

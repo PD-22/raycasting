@@ -1,10 +1,12 @@
 let sPosLeft;
 let pPosLeft;
 let dPosLeft;
+let leftIndex;
 
 let sPosRight;
 let pPosRight;
 let dPosRight;
+let rightIndex;
 
 let canvasOffset;
 
@@ -16,13 +18,17 @@ function fixPos(pos) {
 }
 
 function touchStarted(e) {
-    getTouchPos(e).forEach(pos => {
+    getTouchPos(e).forEach((pos, i) => {
         pos = fixPos(pos);
 
         if (pos.x < width / 2) {
+            leftIndex = Array.from(e.touches)[i].identifier;
+            rightIndex = leftIndex == 0 ? 1 : 0;
             if (sPosLeft == undefined)
                 sPosLeft = pPosLeft = pos;
         } else {
+            rightIndex = Array.from(e.touches)[i].identifier;
+            leftIndex = rightIndex == 0 ? 1 : 0;
             if (sPosRight == undefined)
                 sPosRight = pPosRight = pos;
         }
@@ -30,10 +36,12 @@ function touchStarted(e) {
 }
 
 function touchMoved(e) {
-    getTouchPos(e).forEach(pos => {
+    getTouchPos(e).forEach((pos, i) => {
         pos = fixPos(pos);
 
         if (pos.x < width / 2) {
+            let { identifier } = Array.from(e.touches)[i];
+            if (identifier != leftIndex) return;
             if (sPosLeft == undefined)
                 sPosLeft = pPosLeft = pos;
             dPosLeft = {
@@ -42,6 +50,8 @@ function touchMoved(e) {
             };
             pPosLeft = pos;
         } else {
+            let { identifier } = Array.from(e.touches)[i];
+            if (identifier != rightIndex) return;
             if (sPosRight == undefined)
                 sPosRight = pPosRight = pos;
             dPosRight = {
@@ -54,14 +64,14 @@ function touchMoved(e) {
 }
 
 function touchEnded(e) {
-    getChangedTouchPos(e).forEach(pos => {
+    getChangedTouchPos(e).forEach((pos, i) => {
         pos = fixPos(pos);
 
-        if (pos.x < width / 2) {
+        let { identifier } = Array.from(e.changedTouches)[i];
+        if (identifier == leftIndex)
             sPosLeft = pPosLeft = dPosLeft = undefined;
-        } else {
+        if (identifier == rightIndex)
             sPosRight = pPosRight = dPosRight = undefined;
-        }
     })
 }
 
@@ -77,7 +87,7 @@ function drawTouch() {
         let y = (dPosLeft.y).toFixed(0);
 
         ctx.fillStyle = 'white';
-        ctx.fillText(`${x} ${y}`, 0, 0);
+        ctx.fillText(`x:${x} y:${y} i:${leftIndex}`, 0, 0);
 
         ctx.fillStyle = 'darkRed';
         circle(sPosLeft.x, sPosLeft.y, 10);
@@ -91,7 +101,7 @@ function drawTouch() {
         let y = (dPosRight.y).toFixed(0);
 
         ctx.fillStyle = 'white';
-        ctx.fillText(`${x} ${y}`, width / 2, 0);
+        ctx.fillText(`x:${x} y:${y} i:${rightIndex}`, width / 2, 0);
 
         if (sPosRight != undefined) {
             ctx.fillStyle = 'darkGreen';
