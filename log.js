@@ -6,12 +6,13 @@ function logStats() {
     debugLogs['PPF'] = numberWithCommas(pixelCount);
     let logs = Object.entries(debugLogs).reverse();
     let logWidth = 90;
+    ctx.textBaseline = 'middle';
     rect(0, 0, logWidth, logs.length * 20 + 10);
     logs.forEach(([key, val], i) => {
         if (typeof val == 'number')
             val = Math.round(val.toFixed(2));
         fill('white');
-        text(`${key}: ${val}`, 10, (i + 1) * 20);
+        text(`${key}: ${val}`, 10, i * 20 + 10);
 
         if (key == 'PPF') return;
         if (key == 'FPS') {

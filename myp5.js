@@ -156,6 +156,7 @@ function createCanvas(width, height) {
 
     ctx = canvas.getContext('2d');
     ctx.noStroke = true;
+    ctx.textBaseline = 'top';
 
     requestPointerLock = () => canvas.requestPointerLock();
     exitPointerLock = () => document.exitPointerLock;
