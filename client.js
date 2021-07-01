@@ -29,7 +29,6 @@ socket?.on('update player', data => {
 })
 
 socket?.on('delete player', id => {
-    console.log('left:', id);
     let player = Player.all[id];
     player?.delete();
 });

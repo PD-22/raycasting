@@ -54,7 +54,7 @@ function setup() {
 
     redraw = stopRender = stopDraw = false;
 
-    forceMobFull = true;
+    // forceMobFull = true;
 
     // logVisible = true
     // touchVisible = true
@@ -90,13 +90,13 @@ function draw() {
         ang = radians(normalAng(degrees(ang)));
         let mag = sqrt(dlx ** 2 + dly ** 2) / 200;
         let max = pl0.speed / 2;
-        // mag = min(max, mag);
-        mag = max;
+        mag = min(max, mag);
         const scale = pxlSize / devicePixelRatio / 32;
         let velX = cos(ang) * mag * scale;
         let velY = sin(ang) * mag * scale;
 
         pl0.vel = { x: -velX, y: -velY };
+        pl0.dir = { x: dlx, y: dly };
 
         myLog('velX', velX * 1000);
         myLog('velY', velY * 1000);
@@ -110,10 +110,10 @@ function draw() {
     }
     pl0.updatePosition();
     pl0.respondToCollision();
-    emitMyPlayer();
-
 
     Player.animateAll();
+    emitMyPlayer();
+
     animDoors();
     updateAudio();
 
