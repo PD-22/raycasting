@@ -155,16 +155,16 @@ function createCanvas(width, height) {
 
     canvasOffset = canvas.getBoundingClientRect();
 
-    canvas.addEventListener('touchstart', evt => {
+    window.addEventListener('touchstart', evt => {
         evt.preventDefault();
         touchStarted?.(evt);
         touchTime = Date.now();
     }, { passive: false });
-    canvas.addEventListener('touchmove', evt => {
+    window.addEventListener('touchmove', evt => {
         evt.preventDefault();
         touchMoved?.(evt);
     }, { passive: false });
-    canvas.addEventListener('touchend', evt => {
+    window.addEventListener('touchend', evt => {
         evt.preventDefault();
         touchEnded?.(evt);
         let dTouchTime = Date.now() - touchTime;

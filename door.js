@@ -2,9 +2,10 @@ function reachDoor(plr) {
     let { pos, ang } = plr
     let ray = castWallRay(pos, ang, false);
     let { dst, val } = ray;
-    if (dst > 1 || val != doorVal) return;
+    if (dst > 1 || val != doorVal) return false;
     let { x, y } = ray.cell;
     toggleDoor(x, y);
+    return true;
 }
 
 function animDoors() {

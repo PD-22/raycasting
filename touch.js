@@ -1,3 +1,5 @@
+let forceMobFull;
+let touchFullscreen = false;
 let touch_mouse;
 
 let startPosLeft;
@@ -21,8 +23,6 @@ function fixPos(pos) {
 
 let lastTouch;
 function touchStarted(e) {
-    if (lastTouch != undefined && Date.now() - lastTouch < 150)
-        document.documentElement.requestFullscreen({ navigationUI: 'hide' });
     lastTouch = Date.now();
 
     getTouchPos(e).forEach((pos, i) => {
@@ -72,24 +72,33 @@ function touchMoved(e) {
 }
 
 function touchEnded(e) {
-    getChangedTouchPos(e).forEach((pos, i) => {
-        pos = fixPos(pos);
+    let pos = fixPos(getChangedTouchPos(e)[0]);
 
-        let { identifier } = Array.from(e.changedTouches)[i];
-        if (identifier == leftIndex)
-            startPosLeft = prevPosLeft = deltPosLeft = undefined;
-        if (identifier == rightIndex)
-            startPosRight = prevPosRight = deltPosRight = undefined;
-    })
+    let { identifier } = e.changedTouches[0];
+    if (identifier == leftIndex)
+        startPosLeft = prevPosLeft = deltPosLeft = undefined;
+    if (identifier == rightIndex)
+        startPosRight = prevPosRight = deltPosRight = undefined;
+
+    if (!forceMobFull) return;
+    if (pos.x > width / 2) {
+        document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+        setTimeout(() => touchFullscreen = true);
+    }
 }
 
 function touchPressed(e) {
+    if (forceMobFull && !touchFullscreen) return;
     let pos = getChangedTouchPos(e)[0];
     let { x, y } = fixPos(pos);
     mouseX = x;
     mouseY = y;
     touch_mouse = 'touch';
-    mousePressed();
+    if (pos.x < width / 2) reachDoor(pl0);
+    else {
+        pl0.useTool();
+        pl0.tool = pl0.ammoNum <= 0 ? 0 : 1;
+    }
 }
 
 function drawTouch() {
@@ -100,8 +109,7 @@ function drawTouch() {
 
 
     if (deltPosLeft != undefined) {
-        let x = (deltPosLeft.x).toFixed(1);
-        let y = (deltPosLeft.y).toFixed(1);
+        let { x, y } = deltPosLeft;
 
         ctx.fillStyle = 'white';
         ctx.fillText(`x:${x} y:${y} i:${leftIndex}`, 0, 0);
@@ -114,8 +122,7 @@ function drawTouch() {
     }
 
     if (deltPosRight != undefined) {
-        let x = (deltPosRight.x).toFixed(1);
-        let y = (deltPosRight.y).toFixed(1);
+        let { x, y } = deltPosRight;
 
         ctx.fillStyle = 'white';
         ctx.fillText(`x:${x} y:${y} i:${rightIndex}`, width / 2, 0);

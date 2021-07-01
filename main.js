@@ -1,3 +1,5 @@
+// fix rotate lag in mob
+
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapOff, drawOff, devicePixelRatio,
     mapVisible, viewVisible, touchVisible, logVisible,
@@ -50,6 +52,8 @@ function setup() {
 
     redraw = stopRender = stopDraw = false;
 
+    // forceMobFull = true;
+
     // logVisible = true
     // touchVisible = true
     // mapVisible = true
@@ -71,7 +75,7 @@ function draw() {
     pl0.updateRotate([81, 69]);
 
     let drx = deltPosRight?.x ?? 0;
-    drx *= devicePixelRatio / pxlSize * 24;
+    drx *= pxlSize / devicePixelRatio / 8;
     pl0.rotate(drx * deltaTime * 0.06);
     if (deltPosRight?.x != undefined)
         deltPosRight.x = 0;
@@ -83,8 +87,10 @@ function draw() {
         let ang = Math.atan2(dly, dlx) - radians(pl0.ang + 90);
         ang = radians(normalAng(degrees(ang)));
         let mag = sqrt(dlx ** 2 + dly ** 2) / 200;
-        mag = min(pl0.speed / 4, mag);
-        const scale = devicePixelRatio / pxlSize;
+        let max = pl0.speed / 2;
+        // mag = min(max, mag);
+        mag = max;
+        const scale = pxlSize / devicePixelRatio / 32;
         let velX = cos(ang) * mag * scale;
         let velY = sin(ang) * mag * scale;
 
