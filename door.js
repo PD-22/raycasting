@@ -38,7 +38,9 @@ function toggleDoor(x, y) {
     playAudio(door_aud, { x, y })
     let dir;
     dir = cell % 1 > 0.5 ? -1 : 1;
-    animDoorList.push({ x, y, dir });
+    let door = { x, y, dir };
+    animDoorList.push(door);
+    emitToggleDoor(x, y);
 }
 
 function touchesDoor(sprite, door) {

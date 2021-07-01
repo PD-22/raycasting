@@ -57,6 +57,10 @@ io.sockets.on('connection', (socket) => {
         socket.broadcast.emit('update player', { id, player });
     })
 
+    socket.on('toggle door', door => {
+        socket.broadcast.emit('toggle door', door);
+    })
+
     socket.on('disconnect', () => {
         console.log('left:', id);
 

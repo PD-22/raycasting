@@ -1,6 +1,5 @@
-// sync worldMap
-// add health points
 // add mobile pick ammo switch to gun
+// add health points
 // fix rotate lag in mob
 
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
@@ -59,7 +58,7 @@ function setup() {
 
     // logVisible = true
     // touchVisible = true
-    mapVisible = true
+    // mapVisible = true
     viewVisible = true
 }
 
