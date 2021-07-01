@@ -14,6 +14,7 @@ socket?.on('start', data => {
     if (setupDone) return;
 
     myId = data.myId;
+    myMap = data.worldMap;
     console.log('myId:', myId);
 
     setup();

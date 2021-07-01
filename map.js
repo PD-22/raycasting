@@ -51,7 +51,7 @@ function drawMap(rayBuf) {
         stroke(255, 0, 0, 222)
         strokeWeight(cls / 32)
         let ray = rayBuf[Math.floor(i)];
-        ray = ray[ray.length - 1];
+        ray = ray[0];
         line(pos.x * cls, pos.y * cls, ray.x * cls, ray.y * cls)
         noStroke()
         fill(255, 255, 0, 222)
@@ -67,6 +67,7 @@ function drawMap(rayBuf) {
 }
 
 function drawMatrix(mtrx, t = 1) {
+    ctx.save();
     let xMin = 0
     let xMax = mtrx[0].length
     if (drawOff.x < 0) xMin -= floor(drawOff.x / cls) + 1
@@ -80,15 +81,26 @@ function drawMatrix(mtrx, t = 1) {
     let bottomOff = drawOff.y + cls * mapHeight - height
     yMax -= floor(bottomOff / cls)
     if (yMax > mtrx.length) yMax = mtrx.length
-
     for (let i = yMin; i < yMax; i++) {
         for (let j = xMin; j < xMax; j++) {
+            let color = [255];
+            let cellVal = floor(mtrx[i][j]);
+            if (cellVal != 0) {
+                let t = wallTextures[cellVal];
+                let y = floor(t.length / 2);
+                let x = floor(t[0].length / 2);
+                color = wallTextures[cellVal][y][x];
+                if (typeof color == 'string')
+                    color = hexToRgb(color);
+                color = color.slice(0, 3);
+            }
+            fill(...color, 255 * t);
             drawCell(mtrx, i, j, t)
         }
     }
+    ctx.restore();
 }
 
 function drawCell(mtrx, i, j, t = 1) {
-    mtrx[i][j] == 0 ? fill(255, 255 * t) : fill(0, 255 * t)
     rect(j * cls, i * cls, cls, cls)
 }
