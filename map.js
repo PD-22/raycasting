@@ -1,5 +1,5 @@
 function fitMap() { // fix...
-    if (height < width) {
+    if (mapHeight > mapWidth) {
         cls = height / mapHeight;
     } else {
         cls = width / mapWidth;
