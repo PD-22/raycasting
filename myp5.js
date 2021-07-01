@@ -119,15 +119,7 @@ window.addEventListener('DOMContentLoaded', () => {
             mouseDragged?.(evt);
     });
 
-    setup?.();
-
-    (function animate(time, lastTime) {
-        if (lastTime != undefined) {
-            deltaTime = time - lastTime;
-            draw?.();
-        }
-        requestAnimationFrame(newTime => animate(newTime, time));
-    })()
+    // setup?.();
 
     function getMousePos(canvas, evt) {
         var rect = canvas.getBoundingClientRect();
@@ -137,6 +129,16 @@ window.addEventListener('DOMContentLoaded', () => {
         };
     }
 });
+
+function startDraw() {
+    (function animate(time, lastTime) {
+        if (lastTime != undefined) {
+            deltaTime = time - lastTime;
+            draw?.();
+        }
+        requestAnimationFrame(newTime => animate(newTime, time));
+    })()
+}
 
 let touchTime;
 function createCanvas(width, height) {

@@ -1,5 +1,5 @@
 class Player extends Sprite {
-    constructor(x, y, ang, ammoNum = 0) {
+    constructor(id, x, y, ang, ammoNum = 0) {
         ang ??= Math.floor(Math.random() * 360);
         if (x == undefined || y == undefined) {
             let spawned = Player.randPos()
@@ -21,16 +21,17 @@ class Player extends Sprite {
         this.vel = { x: 0, y: 0 };
         this.alive = true
         this.rad = Player.rad
-        Player.all.push(this)
+        this.id = id;
+        Player.all[id] = this;
     }
 
     static get me() {
-        return Player.all.find(p => p == pl0);
+        return Player.all[myId];
     }
 
     delete() {
         super.delete();
-        super.delete.call(this, this.constructor);
+        delete Player.all[this.id];
     }
 
     castRaySprt(pl0 = Player.me, rayAng = Player.me.ang, maxOff = 0.5) {
@@ -62,7 +63,7 @@ class Player extends Sprite {
         return txtr
     }
 
-    static all = []
+    static all = {};
 
     useTool() {
         if (this.animatingTool) return;
@@ -85,7 +86,7 @@ class Player extends Sprite {
         let maxDst = wallDst;
         if (this.tool == 0) maxDst = min(wallDst, 1); // short knife
 
-        let got = Player.all.filter(p => p != this && p.alive)
+        let got = Object.values(Player.all).filter(p => p != this && p.alive)
             .map(p => ({ p, its: p.castRaySprt(this, this.ang, 1 / 6) }))
             .filter(e => e.its != undefined && e.its.dst < maxDst)
             .sort((a, b) => a.its.dst - b.its.dst)
@@ -201,7 +202,7 @@ class Player extends Sprite {
     }
 
     static animateAll() {
-        Player.all.forEach(p => p.updateAnimation());
+        Object.values(Player.all).forEach(p => p.updateAnimation());
     }
 
     updateRotate([left, right]) {

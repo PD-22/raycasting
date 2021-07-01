@@ -31,7 +31,7 @@ function drawMap(rayBuf) {
     drawMatrix(worldMap, 0.8)
 
     // draw Players
-    Player.all.forEach(p => {
+    Object.values(Player.all).forEach(p => {
         let { pos, ang } = p;
         noStroke()
         fill(127, 127)
