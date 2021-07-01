@@ -24,13 +24,12 @@ var draw, setup,
 var audioContext;
 
 function createMyCanvas() {
-    if (height > window.innerHeight) {
-        pxlSize = Math.floor(window.innerHeight / displayHeight);
-        if (maxPxlSize != undefined)
-            pxlSize = min(pxlSize, maxPxlSize);
-        height = displayHeight * pxlSize;
-        width = height * 16 / 9;
-    } else {
+    pxlSize = Math.floor(window.innerHeight / displayHeight);
+    if (maxPxlSize != undefined)
+        pxlSize = min(pxlSize, maxPxlSize);
+    height = displayHeight * pxlSize;
+    width = height * 16 / 9;
+    if (width > window.innerWidth) {
         pxlSize = Math.floor(window.innerWidth / displayWidth);
         if (maxPxlSize != undefined)
             pxlSize = min(pxlSize, maxPxlSize);

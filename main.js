@@ -1,6 +1,7 @@
-// fix rotate lag in mob
+// sync worldMap
 // add health points
 // add mobile pick ammo switch to gun
+// fix rotate lag in mob
 
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapOff, drawOff, devicePixelRatio,
