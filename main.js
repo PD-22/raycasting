@@ -59,7 +59,7 @@ function setup() {
 
     // logVisible = true
     // touchVisible = true
-    // mapVisible = true
+    mapVisible = true
     viewVisible = true
 }
 
