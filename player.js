@@ -21,12 +21,11 @@ class Player extends Sprite {
         this.vel = { x: 0, y: 0 };
         this.alive = true
         this.rad = Player.rad
-        this.me = Player.all.length == 0
         Player.all.push(this)
     }
 
     static get me() {
-        return Player.all.find(p => p.me);
+        return Player.all.find(p => p == pl0);
     }
 
     delete() {
