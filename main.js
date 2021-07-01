@@ -1,4 +1,3 @@
-// add mobile pick ammo switch to gun
 // add health points
 // fix rotate lag in mob
 

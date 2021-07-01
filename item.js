@@ -29,6 +29,8 @@ class Item extends Sprite {
             let newAmmoNum = picker.ammoNum + 4;
             picker.ammoNum = min(newAmmoNum, maxAmmo);
             playAudio(ammo_aud, pl0.pos);
+            if (touch_mouse == 'touch' && pl0.ammoNum > 0)
+                pl0.tool = 1;
         }
         this.delete();
     }
