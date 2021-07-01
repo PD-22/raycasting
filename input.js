@@ -77,14 +77,22 @@ function mousePressed() {
             placeCell(worldMap, cell, placeTxtrNum)
         } else {
             mapVisible = false
-            lockPointer();
+            if (touch_mouse == 'mouse')
+                lockPointer();
         }
     } else if (viewVisible) {
-        if (pointerLocked()) {
-            if (buttonIsDown(LEFT)) pl0.useTool();
+        if (touch_mouse == 'touch' || pointerLocked()) {
+            if (buttonIsDown(LEFT))
+                pl0.useTool();
+            if (touch_mouse == 'touch') {
+                // if no door
+                pl0.useTool();
+            }
         }
-        lockPointer();
+        if (touch_mouse == 'mouse')
+            lockPointer();
     }
+    touch_mouse = 'mouse';
 }
 
 document.oncontextmenu = () => false;

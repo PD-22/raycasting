@@ -8,7 +8,7 @@ function renderDisplay() {
         let rays = rayBuf[x];
         renderRays(rays, x);
     }
-    // renderTool();
+    renderTool();
 }
 
 function renderTool() {

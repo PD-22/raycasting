@@ -18,7 +18,8 @@ var draw, setup,
     mouseWheel,
     touchStarted,
     touchMoved,
-    touchEnded;
+    touchEnded,
+    touchPressed;
 
 var audioContext;
 
@@ -117,7 +118,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (inputLogger.mouseDown)
             mouseDragged?.(evt);
     });
-    
+
     setup?.();
 
     (function animate(time, lastTime) {
@@ -137,7 +138,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
+let touchTime;
 function createCanvas(width, height) {
     canvas = document.createElement('canvas');
     canvas.className = 'wolf3d';
@@ -157,6 +158,7 @@ function createCanvas(width, height) {
     canvas.addEventListener('touchstart', evt => {
         evt.preventDefault();
         touchStarted?.(evt);
+        touchTime = Date.now();
     }, { passive: false });
     canvas.addEventListener('touchmove', evt => {
         evt.preventDefault();
@@ -165,10 +167,12 @@ function createCanvas(width, height) {
     canvas.addEventListener('touchend', evt => {
         evt.preventDefault();
         touchEnded?.(evt);
+        let dTouchTime = Date.now() - touchTime;
+        if (dTouchTime <= 100) touchPressed?.(evt);
     }, { passive: false });
 }
 
-var buttonIsDown = button => inputLogger?.buttons[button] || false;
+var buttonIsDown = button => inputLogger?.buttons?.[button] || false;
 var keyIsDown = keyCode => inputLogger?.[keyCode] || false;
 
 var push = () => ctx.save();

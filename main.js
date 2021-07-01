@@ -1,5 +1,5 @@
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
-    rayBuf, fov, worldMap, mapOff, drawOff,
+    rayBuf, fov, worldMap, mapOff, drawOff, devicePixelRatio,
     mapVisible, viewVisible, touchVisible, logVisible,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, pageWidth, pageHeight,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, pxlSize,
@@ -9,13 +9,15 @@ var width, height, mapHeight, mapWidth, cls, mapZoomed,
 let debugLogs = {};
 
 function setup() {
-    // maxPxlSize = 8;
+    maxPxlSize = 8;
 
     pageWidth = window.innerWidth;
     pageHeight = window.innerHeight;
-    if (window.devicePixelRatio > 1) {
-        displayWidth = 160 / 10 * 3;
-        displayHeight = 90 / 10 * 3;
+
+    let { devicePixelRatio } = window;
+    if (devicePixelRatio > 1) {
+        displayWidth = 160 / 10 * 5;
+        displayHeight = 90 / 10 * 5;
     } else {
         displayWidth = 160 / 5 * 4;
         displayHeight = 90 / 5 * 4;
@@ -48,7 +50,7 @@ function setup() {
 
     redraw = stopRender = stopDraw = false;
 
-    logVisible = true
+    // logVisible = true
     // touchVisible = true
     // mapVisible = true
     viewVisible = true
@@ -68,18 +70,21 @@ function draw() {
     pl0.updateVelocity([87, 65, 83, 68]);
     pl0.updateRotate([81, 69]);
 
-    let drx = (dPosRight?.x ?? 0) * pageWidth / displayWidth * 0.5;
+    let drx = deltPosRight?.x ?? 0;
+    drx *= devicePixelRatio / pxlSize * 24;
     pl0.rotate(drx * deltaTime * 0.06);
+    if (deltPosRight?.x != undefined)
+        deltPosRight.x = 0;
 
     let dlx, dly
-    if (lPosLeft != undefined && sPosLeft != undefined) {
-        dlx = lPosLeft.x - sPosLeft.x;
-        dly = lPosLeft.y - sPosLeft.y;
+    if (prevPosLeft != undefined && startPosLeft != undefined) {
+        dlx = prevPosLeft.x - startPosLeft.x;
+        dly = prevPosLeft.y - startPosLeft.y;
         let ang = Math.atan2(dly, dlx) - radians(pl0.ang + 90);
         ang = radians(normalAng(degrees(ang)));
-        let mag = sqrt(dlx ** 2 + dly ** 2) / 100;
-        mag = min(pl0.speed, mag);
-        const scale = pageWidth / displayWidth / 256
+        let mag = sqrt(dlx ** 2 + dly ** 2) / 200;
+        mag = min(pl0.speed / 4, mag);
+        const scale = devicePixelRatio / pxlSize;
         let velX = cos(ang) * mag * scale;
         let velY = sin(ang) * mag * scale;
 
@@ -110,6 +115,8 @@ function draw() {
         LEFT_ARROW,
         RIGHT_ARROW
     ])
+    pl1.updatePosition();
+    pl1.respondToCollision();
 
     // log
     myLogMany({
