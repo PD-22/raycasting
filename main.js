@@ -102,6 +102,10 @@ function draw() {
         myLog('mag', mag * 1000);
     }
 
+    if (keyIsDown(SHIFT)) {
+        pl0.vel.x *= 1.75
+        pl0.vel.y *= 1.75
+    }
     pl0.updatePosition();
     pl0.respondToCollision();
 
