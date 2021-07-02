@@ -53,7 +53,7 @@ function setup() {
 
     redraw = stopRender = stopDraw = false;
 
-    // forceMobFull = true;
+    forceMobFull = true;
 
     // logVisible = true
     // touchVisible = true
