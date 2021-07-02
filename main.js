@@ -1,5 +1,4 @@
 // sync items
-// add sprites/medpack
 
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapOff, drawOff, devicePixelRatio,

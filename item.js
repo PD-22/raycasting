@@ -31,10 +31,18 @@ class Item extends Sprite {
             if (picker.ammoNum >= maxAmmo) return;
             let newAmmoNum = picker.ammoNum + 4;
             picker.ammoNum = min(newAmmoNum, maxAmmo);
-            playAudio(ammo_aud, pl0.pos);
+            playAudio(ammo_aud, picker.pos);
             if (touch_mouse == 'touch' && pl0.ammoNum > 0)
                 pl0.tool = 1;
+            this.delete();
         }
-        this.delete();
+        if (this.type == 'med') {
+            setTimeout(() => {
+                if (!picker.alive || picker.hp >= 1) return;
+                picker.hp = 1;
+                playAudio(med_aud, picker.pos);
+            }, 500);
+            this.delete();
+        }
     }
 }
