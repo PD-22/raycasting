@@ -81,10 +81,8 @@ function touchEnded(e) {
         startPosRight = prevPosRight = deltPosRight = undefined;
 
     if (!forceMobFull) return;
-    if (pos.x > width / 2) {
-        document.documentElement.requestFullscreen({ navigationUI: 'hide' });
-        setTimeout(() => touchFullscreen = true);
-    }
+    document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+    setTimeout(() => touchFullscreen = true);
 }
 
 function touchPressed(e) {
