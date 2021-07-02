@@ -1,5 +1,8 @@
 class Item extends Sprite {
-    constructor(x, y, texture, type) {
+    constructor(x, y, type) {
+        let texture;
+        if (type == 'ammo') texture = ammo_64;
+        if (type == 'med') texture = med_64;
         super(x, y, texture, false);
         this.type = type;
         this.rad = Item.rad;
@@ -10,10 +13,10 @@ class Item extends Sprite {
 
     static rad = 1 / 4;
 
-    static spawnMany(n, texture, type) {
+    static spawnMany(n, type) {
         for (let i = 0; i < n; i++) {
             let { x, y } = Item.randPos();
-            new Item(x, y, texture, type);
+            new Item(x, y, type);
         }
     }
 

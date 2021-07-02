@@ -41,12 +41,13 @@ let worldMap = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ];
 let players = {};
+let items = {};
 io.sockets.on('connection', (socket) => {
     let { id } = socket;
 
     console.log('joined:', id);
 
-    socket.emit('start', { myId: id, worldMap });
+    socket.emit('start', { myId: id, worldMap, items });
 
     players[id] = {};
     logPlayers();

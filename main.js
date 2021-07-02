@@ -1,5 +1,5 @@
-// add health points
-// fix rotate lag in mob
+// sync items
+// add sprites/medpack
 
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapOff, drawOff, devicePixelRatio,
@@ -37,8 +37,8 @@ function setup() {
     emitMyPlayer();
     // pl1 = new Player(7.51, 5.01, -30, 8)
     // Player.spawnMany(5, null, null, null, 8);
-    // ammo1 = new Item(pl1.pos.x, pl1.pos.y - 2, ammo_64, 'ammo');
-    // Item.spawnMany(2, ammo_64, 'ammo')
+    // ammo1 = new Item(pl1.pos.x, pl1.pos.y - 2, 'ammo');
+    // Item.spawnMany(2, 'ammo')
 
     mapZoomed = false
     fitMap()

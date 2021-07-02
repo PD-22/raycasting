@@ -7,6 +7,7 @@ class Player extends Sprite {
             y = spawned.y
         }
         super(x, y, Player.textures[0])
+        this.hp = 1;
         this.ammoNum = ammoNum;
         this.textures = Player.textures
         this.ang = ang
@@ -86,12 +87,20 @@ class Player extends Sprite {
         let maxDst = wallDst;
         if (this.tool == 0) maxDst = min(wallDst, 1); // short knife
 
+        let damage = 0.5;
+
         let got = Object.values(Player.all).filter(p => p != this && p.alive)
             .map(p => ({ p, its: p.castRaySprt(this, this.ang, 1 / 6) }))
             .filter(e => e.its != undefined && e.its.dst < maxDst)
             .sort((a, b) => a.its.dst - b.its.dst)
             .map(e => e.p);
-        got.forEach(p => p.die());
+        got.forEach(p => p.hurt(0.5));
+    }
+
+    hurt(damage) {
+        this.hp -= damage;
+        if (this.hp <= 0) this.die();
+        else playAudio(oof_aud, this.pos);
     }
 
     die() { this.alive = this.blocking = false; }
