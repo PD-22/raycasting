@@ -81,7 +81,7 @@ function touchEnded(e) {
         startPosRight = prevPosRight = deltPosRight = undefined;
 
     if (!forceMobFull) return;
-    document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+    canvas.requestFullscreen({ navigationUI: 'hide' });
     setTimeout(() => touchFullscreen = true);
 }
 
