@@ -37,7 +37,8 @@ function setup() {
     // pl1 = new Player(7.51, 5.01, -30, 8)
     // Player.spawnMany(5, null, null, null, 8);
     // ammo1 = new Item(pl1.pos.x, pl1.pos.y - 2, 'ammo');
-    // Item.spawnMany(2, 'ammo')
+    Item.spawnMany(8, 'ammo')
+    Item.spawnMany(8, 'med')
 
     mapZoomed = false
     fitMap()
