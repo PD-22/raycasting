@@ -77,16 +77,20 @@ function floatFix(float) {
     return float
 }
 
+let darkness = 1;
 function drawDisplay() {
     pixelCount = 0;
     let imageData = ctx.createImageData(
         displayWidth * pxlSize,
         displayHeight * pxlSize
     );
+    if (!pl0.alive) {
+        setTimeout(() => darkness -= deltaTime * 0.06 / 10, 500);
+    }
     for (let y = 0; y < displayHeight; y++) {
         for (let x = 0; x < displayWidth; x++) {
             let color = displayBuf[y][x];
-            if (!pl0.alive) color = multColor(color, 1 / 4);
+            if (!pl0.alive) color = multColor(color, darkness);
             if (color[0] == '#') color = hexToRgb(color);
             color[3] ??= 255;
             // if (!redraw && prevDisplayBuf?.[y][x] == color) color[3] = 0;

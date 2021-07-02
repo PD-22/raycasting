@@ -94,7 +94,7 @@ class Player extends Sprite {
             .filter(e => e.its != undefined && e.its.dst < maxDst)
             .sort((a, b) => a.its.dst - b.its.dst)
             .map(e => e.p);
-        got.forEach(p => p.hurt(0.5));
+        got.forEach(p => p.hurt(damage));
     }
 
     hurt(damage) {
