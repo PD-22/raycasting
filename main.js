@@ -2,7 +2,7 @@
 
 var width, height, mapHeight, mapWidth, cls, mapZoomed,
     rayBuf, fov, worldMap, mapOff, drawOff, devicePixelRatio,
-    mapVisible, viewVisible, touchVisible, logVisible,
+    mapVisible, viewVisible, touchVisible, logVisible, devMode,
     ceilClr, floorClr, placeTxtrNum, pl0, pl1, pageWidth, pageHeight,
     displayBuf, prevDisplayBuf, displayWidth, displayHeight, pxlSize,
     pixelCount, redraw, stopRender, stopDraw, animDoorList, maxPxlSize,
@@ -25,6 +25,7 @@ function setup() {
         displayHeight = 90 / 5 * 4;
     }
 
+    devMode=false;
     makeDisplayBuf();
     createMyCanvas()
     worldMap = makeMap(myMap);
