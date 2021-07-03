@@ -86,6 +86,7 @@ function touchEnded(e) {
 }
 
 function touchPressed(e) {
+    if (!pl0.alive) location.reload();
     if (forceMobFull && !touchFullscreen) return;
     let pos = getChangedTouchPos(e)[0];
     let { x, y } = fixPos(pos);

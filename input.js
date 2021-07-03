@@ -41,6 +41,7 @@ function setKeyNum(kc) {
 }
 
 function keyPressed() {
+    if (!pl0.alive) location.reload();
     setKeyNum(keyCode);
 
     if (keyCode == 49) pl0.tool = 0; // 1
@@ -70,6 +71,7 @@ function keyPressed() {
 }
 
 function mousePressed() {
+    if (!pl0.alive) location.reload();
     if (mapVisible) {
         if (mouseOnMap()) {
             let { x, y } = getMapMouse();

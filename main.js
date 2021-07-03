@@ -68,16 +68,16 @@ function draw() {
     myLog('entDoor', entDoorSide);
 
     if (viewVisible) myLog('view', () => drawView(rayBuf));
-    if (mapVisible) drawMap(rayBuf);
-    if (logVisible) logStats();
-    if (touchVisible) drawTouch();
+    // if (mapVisible) drawMap(rayBuf);
+    // if (logVisible) logStats();
+    // if (touchVisible) drawTouch();
 
     pl0.updateVelocity([87, 65, 83, 68]);
     pl0.updateRotate([81, 69]);
 
     let drx = deltPosRight?.x ?? 0;
-    drx *= pxlSize / devicePixelRatio / 8;
-    pl0.rotate(drx * deltaTime * 0.06);
+    drx *= deltaTime * 0.06;
+    pl0.rotate(drx);
     if (deltPosRight?.x != undefined)
         deltPosRight.x = 0;
 
@@ -87,12 +87,11 @@ function draw() {
         dly = prevPosLeft.y - startPosLeft.y;
         let ang = Math.atan2(dly, dlx) - radians(pl0.ang + 90);
         ang = radians(normalAng(degrees(ang)));
-        let mag = sqrt(dlx ** 2 + dly ** 2) / 200;
-        let max = pl0.speed / 2;
+        let mag = sqrt(dlx ** 2 + dly ** 2) / 500;
+        let max = pl0.speed / 420 * deltaTime;
         mag = min(max, mag);
-        const scale = pxlSize / devicePixelRatio / 32;
-        let velX = cos(ang) * mag * scale;
-        let velY = sin(ang) * mag * scale;
+        let velX = cos(ang) * mag;
+        let velY = sin(ang) * mag;
 
         pl0.vel = { x: -velX, y: -velY };
         pl0.dir = { x: dlx, y: dly };
@@ -103,10 +102,11 @@ function draw() {
         myLog('mag', mag * 1000);
     }
 
-    if (keyIsDown(SHIFT)) {
-        pl0.vel.x *= 1.75
-        pl0.vel.y *= 1.75
-    }
+    // if (keyIsDown(SHIFT)) {
+    //     pl0.vel.x *= 1.75
+    //     pl0.vel.y *= 1.75
+    // }
+
     pl0.updatePosition();
     pl0.respondToCollision();
 
