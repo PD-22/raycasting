@@ -68,9 +68,9 @@ function draw() {
     myLog('entDoor', entDoorSide);
 
     if (viewVisible) myLog('view', () => drawView(rayBuf));
-    // if (mapVisible) drawMap(rayBuf);
-    // if (logVisible) logStats();
-    // if (touchVisible) drawTouch();
+    if (mapVisible) drawMap(rayBuf);
+    if (logVisible) logStats();
+    if (touchVisible) drawTouch();
 
     pl0.updateVelocity([87, 65, 83, 68]);
     pl0.updateRotate([81, 69]);

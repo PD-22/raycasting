@@ -58,14 +58,14 @@ function keyPressed() {
 
     if (keyCode == 32) pl0.useTool(); // space
 
-    if (keyCode == 71) { // g
-        redraw = mapVisible;
-        mapVisible = !mapVisible;
-    }
-    if (keyCode == 72) { // h
-        redraw = logVisible;
-        logVisible = !logVisible;
-    }
+    // if (keyCode == 71) { // g
+    //     redraw = mapVisible;
+    //     mapVisible = !mapVisible;
+    // }
+    // if (keyCode == 72) { // h
+    //     redraw = logVisible;
+    //     logVisible = !logVisible;
+    // }
 
     if (keyCode == 70) reachDoor(pl0); // f
 }
