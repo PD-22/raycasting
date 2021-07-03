@@ -60,6 +60,13 @@ io.sockets.on('connection', (socket) => {
 
     socket.on('toggle door', door => {
         socket.broadcast.emit('toggle door', door);
+
+        let { x, y } = door;
+        let doorVal = worldMap[y][x];
+        let newVal;
+        if (doorVal % 1 > 0.5) newVal = Math.floor(doorVal);
+        else newVal = Math.floor(doorVal) + 0.99;
+        worldMap[y][x] = newVal;
     })
 
     socket.on('disconnect', () => {
