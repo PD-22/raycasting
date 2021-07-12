@@ -23,9 +23,9 @@ function castWallRays(pos, offAng) {
     rayBuf = []
     let startAng = offAng - fov / 2;
     let ratio = fov / displayWidth;
-    for (let ang = startAng; ang < startAng + fov; ang += ratio) {
+    for (let ang = startAng + fov; ang >= startAng; ang -= ratio) {
         let its = castWallRay(pos, ang)
-        rayBuf.unshift(its)
+        rayBuf.push(its)
     }
     return rayBuf
 }
@@ -204,14 +204,14 @@ function castRays(pos, offAng) {
 
     let sprites = Sprite.all.filter(p => !p.me && p.visible);
 
-    for (let ang = startAng; ang < startAng + fov; ang += ratio) {
+    for (let ang = startAng + fov; ang >= startAng; ang -= ratio) {
         let wallRay = castWallRay(pos, ang);
         let spriteRays = castSpriteRays(sprites, ang);
 
         let colRays = [wallRay, ...spriteRays];
         colRays.sort((a, b) => b.dst - a.dst);
 
-        rayBuf.unshift(colRays);
+        rayBuf.push(colRays);
     }
 
     return rayBuf;
