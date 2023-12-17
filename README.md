@@ -1,5 +1,5 @@
 Play online:
-[wolf3d.herokuapp.com](https://wolf3d.herokuapp.com/)
+[wolf3d.onrender.com](https://wolf3d.onrender.com/)
 
-Github pages:
+Play offline:
 [pd-22.github.io/wolf3d](https://pd-22.github.io/wolf3d/)
