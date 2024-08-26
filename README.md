@@ -1,3 +1,5 @@
+![alt text](demo.gif)
+
 Play online:
 [wolf3d.onrender.com](https://wolf3d.onrender.com/)
 
