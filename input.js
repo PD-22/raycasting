@@ -44,6 +44,8 @@ function keyPressed() {
     if (!pl0.alive) location.reload();
     setKeyNum(keyCode);
 
+    if (keyCode == 192) devMode = !devMode; // `
+
     if (keyCode == 49) pl0.tool = 0; // 1
     if (keyCode == 50) pl0.tool = 1; // 2
 
